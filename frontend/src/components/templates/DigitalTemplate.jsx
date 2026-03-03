@@ -75,10 +75,17 @@ export default function DigitalTemplate({ product, isPurchased, buying, handleBu
   const TypeIcon = isAudio ? Download : PlayCircle;
 
   return (
-    <div className="w-full relative bg-nude">
+    <div className="w-full relative bg-nude overflow-hidden">
+      {/* VEIN SVG LINES */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25 -z-10" viewBox="0 0 1440 800" preserveAspectRatio="none">
+        <path d="M-100,500 C300,280 700,580 1100,320 C1350,180 1500,380 1700,280" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
+        <path d="M-100,560 C300,340 700,640 1100,380 C1350,240 1500,440 1700,340" fill="none" stroke="#E6B8B8" strokeWidth="2.5" strokeDasharray="14 28" className="animate-flow-vein-rose" />
+      </svg>
       {/* DECORATIVE BG */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose/10 rounded-full blur-[120px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-40 left-0 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[120px] pointer-events-none -z-10 -translate-x-1/2" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose/10 rounded-full blur-[120px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3 animate-breathe" />
+      <div className="absolute bottom-40 left-0 w-[400px] h-[400px] bg-gold/10 rounded-full blur-[120px] pointer-events-none -z-10 -translate-x-1/2 animate-pulse-slow" />
+      <div className="absolute top-1/3 left-[10%] w-24 h-24 border border-gold/15 rounded-full animate-pulse-slow pointer-events-none -z-10 hidden md:block" />
+      <div className="absolute top-[60%] right-[8%] w-16 h-16 border border-rose/20 rounded-full animate-heartbeat pointer-events-none -z-10 hidden md:block" />
 
       {/* HERO */}
       <section className="pt-10 pb-16 px-6 md:px-12 max-w-[1240px] mx-auto">

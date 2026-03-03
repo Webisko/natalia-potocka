@@ -39,6 +39,9 @@ export default {
         flow: 'flow 3s linear infinite',
         'flow-slow': 'flow 6s linear infinite',
         'flow-slower': 'flow 12s linear infinite',
+        'flow-vein-gold': 'flowVeinGold 8s ease-in-out infinite',
+        'flow-vein-rose': 'flowVeinRose 12s ease-in-out infinite',
+        'vein-pulse': 'veinPulse 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -72,7 +75,22 @@ export default {
           '0%':   { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' },
           '50%':  { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' },
           '100%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }
-        }
+        },
+        flowVeinGold: {
+          '0%':   { strokeDashoffset: '600', opacity: '0.3' },
+          '30%':  { opacity: '0.8' },
+          '60%':  { opacity: '0.5' },
+          '100%': { strokeDashoffset: '0', opacity: '0.3' },
+        },
+        flowVeinRose: {
+          '0%':   { strokeDashoffset: '0', opacity: '0.25' },
+          '40%':  { opacity: '0.6' },
+          '100%': { strokeDashoffset: '-800', opacity: '0.25' },
+        },
+        veinPulse: {
+          '0%, 100%': { opacity: '0.4', strokeWidth: '1.5' },
+          '50%':      { opacity: '0.9', strokeWidth: '2.5' },
+        },
       }
     },
   },

@@ -134,8 +134,18 @@ export default function ServiceTemplate({ product }) {
     <div className="w-full bg-nude">
       {/* ── HERO ── */}
       <section className="relative overflow-hidden pt-10 pb-24">
+        {/* Vein SVG lines */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30" viewBox="0 0 1440 700" preserveAspectRatio="none">
+          <path d="M-100,500 C300,300 700,600 1100,350 C1350,200 1500,400 1700,300" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
+          <path d="M-100,560 C300,360 700,660 1100,410 C1350,260 1500,460 1700,360" fill="none" stroke="#E6B8B8" strokeWidth="2.5" strokeDasharray="14 28" className="animate-flow-vein-rose" />
+        </svg>
+        {/* Blobs */}
         <div className="absolute inset-0 bg-gradient-to-br from-rose/10 via-nude to-nude pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blush/30 rounded-full blur-[100px] opacity-60 -translate-y-1/3 translate-x-1/3" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blush/30 rounded-full blur-[100px] opacity-60 -translate-y-1/3 translate-x-1/3 animate-breathe pointer-events-none" />
+        <div className="absolute bottom-0 left-[-5%] w-80 h-80 bg-gold/5 rounded-full blur-[80px] animate-pulse-slow pointer-events-none" />
+        {/* Decorative ring */}
+        <div className="absolute top-24 left-[15%] w-24 h-24 border border-gold/20 rounded-full animate-pulse-slow pointer-events-none hidden md:block" />
+        <div className="absolute bottom-20 right-[12%] w-16 h-16 border border-rose/30 rounded-full animate-heartbeat pointer-events-none hidden md:block" />
 
         <div className="max-w-[1240px] mx-auto px-6 md:px-12 relative z-10 grid lg:grid-cols-2 gap-16 items-center">
           <div>

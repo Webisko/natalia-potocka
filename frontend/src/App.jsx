@@ -6,6 +6,7 @@ import AdminProductEdit from './pages/AdminProductEdit';
 import ClientDashboard from './pages/ClientDashboard';
 import ProductPage from './pages/ProductPage';
 import Login from './pages/Login';
+import AboutPage from './pages/AboutPage';
 import { LogOut } from 'lucide-react';
 
 function RequireAuth({ children, requireAdmin = false }) {
@@ -44,6 +45,7 @@ function App() {
               <Route path="/produkty/:slug" element={<div className="pt-24"><ProductPage /></div>} />
 
               <Route path="/login" element={<div className="pt-24"><Login /></div>} />
+              <Route path="/o-mnie" element={<div className="pt-24"><AboutPage /></div>} />
               
               <Route path="/admin" element={
                 <RequireAuth requireAdmin={true}>
