@@ -39,7 +39,7 @@ jobs:
         run: npx vite build --base=/natalia-potocka/
 
       - name: Fix Routing for GitHub Pages (React Router)
-        working-directory: ./frontend/dist
+        working-directory: ./public
         # Kopiujemy plik, aby GH Pages nie wyrzucało 404 przy wejściu np. na /o-mnie bezpośrednio z paska
         run: cp index.html 404.html
 
@@ -49,7 +49,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./frontend/dist"
+          path: "./public"
 
       - name: Deploy to GitHub Pages
         id: deployment
