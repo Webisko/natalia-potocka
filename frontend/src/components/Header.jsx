@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, X } from 'lucide-react';
 
@@ -12,7 +12,20 @@ export default function Header() {
   const [loginError, setLoginError] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Scroll-to-hash after navigation
+  useEffect(() => {
+    if (location.hash) {
+      const timeout = setTimeout(() => {
+        const el = document.querySelector(location.hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [location]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,7 +58,7 @@ export default function Header() {
       <header id="main-header" className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'
       }`}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-8 md:px-16 flex items-center justify-between">
           
           {/* LOGO */}
           <div className="relative z-50">
@@ -59,14 +72,14 @@ export default function Header() {
             </Link>
           </div>
           
-          {/* DESKTOP NAV */}
+          {/* DESKTOP NAV – reordered: Oferta → O mnie → Opinie */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link to="/o-mnie" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
-              O mnie 
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
-            </Link>
             <Link to="/#offer" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
               Oferta 
+              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            <Link to="/o-mnie" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
+              O mnie 
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <Link to="/#reviews" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
@@ -75,7 +88,7 @@ export default function Header() {
             </Link>
 
             <div className="ml-4 flex items-center gap-4">
-              <Link to="/#contact">
+              <Link to="/kontakt">
                 <button className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">
                   <span className="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
                     <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">

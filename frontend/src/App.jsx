@@ -6,6 +6,7 @@ import AdminProductEdit from './pages/AdminProductEdit';
 import ClientDashboard from './pages/ClientDashboard';
 import ProductPage from './pages/ProductPage';
 import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -44,6 +45,7 @@ function App() {
               <Route path="/produkty/:slug" element={<div className="pt-24"><ProductPage /></div>} />
 
               <Route path="/o-mnie" element={<div className="pt-24"><AboutPage /></div>} />
+              <Route path="/kontakt" element={<div className="pt-24"><ContactPage /></div>} />
 
               <Route path="/admin" element={
                 <RequireAuth requireAdmin={true}>

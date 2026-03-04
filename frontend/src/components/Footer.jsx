@@ -32,8 +32,9 @@ export default function Footer() {
         borderTopLeftRadius: `${borderRadius}px`, 
         borderTopRightRadius: `${borderRadius}px`,
         marginTop: '-120px',
+        maxHeight: 'calc(100vh - 64px)',
       }}
-      className="bg-mauve text-blush relative z-20 overflow-hidden min-h-[70vh] flex flex-col justify-between shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] transition-[border-radius] duration-300 ease-out"
+      className="bg-mauve text-blush relative z-20 overflow-hidden flex flex-col justify-between shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] transition-[border-radius] duration-300 ease-out"
     >
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-rose/10 blur-[120px] pointer-events-none"></div>
@@ -44,7 +45,7 @@ export default function Footer() {
         <path d="M-100,450 C300,250 700,550 1100,350 C1300,250 1400,400 1600,350" fill="none" stroke="#E6B8B8" strokeWidth="2" strokeDasharray="14 28" className="animate-flow-vein-rose" />
       </svg>
 
-      <div className="flex-grow flex items-center justify-center py-20 md:py-28 relative z-10 px-6 md:px-12">
+      <div className="flex-grow flex items-center justify-center py-20 md:py-28 relative z-10 px-8 md:px-16">
         <div className="max-w-[1440px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
           {/* LEFT: BIG CTA */}
@@ -87,26 +88,29 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* RIGHT: Site Map */}
+          {/* RIGHT: Site Map – two columns side by side */}
           <div className="lg:pt-4">
-            <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-6">Mapa strony</p>
             <div className="flex gap-16">
               {/* Col 1: Pages */}
               <nav className="flex flex-col gap-4">
-                <Link to="/o-mnie" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
-                  O mnie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
-                </Link>
+                <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-2">Mapa strony</p>
                 <Link to="/#offer" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
                   Oferta<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
+                <Link to="/o-mnie" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
+                  O mnie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
+                </Link>
                 <Link to="/#reviews" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
                   Opinie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
+                </Link>
+                <Link to="/kontakt" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
+                  Kontakt<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </nav>
 
               {/* Col 2: Offer */}
               <nav className="flex flex-col gap-3">
-                <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-1">Oferta</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-2">Oferta</p>
                 <Link to="/oferta/uzdrowienie-traumy-porodowej" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Uzdrowienie Traumy</Link>
                 <Link to="/oferta/konsultacja-indywidualna" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Konsultacja Indywidualna</Link>
                 <Link to="/oferta/otulic-polog" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Otulić Połóg</Link>
@@ -120,7 +124,7 @@ export default function Footer() {
       </div>
 
       {/* COPYRIGHT BAR */}
-      <div className="relative z-10 px-6 md:px-12 pb-8">
+      <div className="relative z-10 px-8 md:px-16 pb-8">
         <div className="max-w-[1440px] mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/30 uppercase tracking-widest">
           <p>© {new Date().getFullYear()} Natalia Potocka.</p>
           <p>Designed by <a href="https://webisko.pl" className="hover:text-gold transition-colors" target="_blank" rel="noopener noreferrer">Webisko.pl</a> with ♥ for Mothers.</p>

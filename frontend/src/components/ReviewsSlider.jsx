@@ -83,7 +83,7 @@ export default function ReviewsSlider() {
           
           {/* Arrow LEFT */} 
           {reviews.length > 1 && (
-            <button onClick={prevSlide} className="absolute left-0 md:-left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-mauve/10 hover:bg-gold hover:border-gold hover:text-white transition-all duration-700 ease-in-out group bg-white/50 backdrop-blur-sm hover:-translate-x-1 shadow-sm hover:!rounded-full" style={{ borderRadius: '38% 62% 63% 37% / 41% 44% 56% 59%' }} aria-label="Poprzednia opinia"> 
+            <button onClick={prevSlide} className="absolute left-0 md:-left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-mauve/10 hover:bg-gold hover:border-gold hover:text-white transition-all duration-700 ease-in-out group bg-white/50 backdrop-blur-sm hover:-translate-x-2 shadow-sm" style={{ borderRadius: '38% 62% 63% 37% / 41% 44% 56% 59%' }} aria-label="Poprzednia opinia"> 
               <svg className="w-5 h-5 md:w-6 md:h-6 text-mauve/50 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"> 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"></path> 
               </svg> 
@@ -92,7 +92,7 @@ export default function ReviewsSlider() {
           
           {/* Arrow RIGHT */} 
           {reviews.length > 1 && (
-            <button onClick={nextSlide} className="absolute right-0 md:-right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-mauve/10 hover:bg-gold hover:border-gold hover:text-white transition-all duration-700 ease-in-out group bg-white/50 backdrop-blur-sm hover:translate-x-1 shadow-sm hover:!rounded-full" style={{ borderRadius: '62% 38% 37% 63% / 59% 56% 44% 41%' }} aria-label="Następna opinia"> 
+            <button onClick={nextSlide} className="absolute right-0 md:-right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-mauve/10 hover:bg-gold hover:border-gold hover:text-white transition-all duration-700 ease-in-out group bg-white/50 backdrop-blur-sm hover:translate-x-2 shadow-sm" style={{ borderRadius: '62% 38% 37% 63% / 59% 56% 44% 41%' }} aria-label="Następna opinia"> 
               <svg className="w-5 h-5 md:w-6 md:h-6 text-mauve/50 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"> 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"></path> 
               </svg> 
