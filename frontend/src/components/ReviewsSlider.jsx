@@ -2,15 +2,47 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Quote, Star } from 'lucide-react';
 
+const FALLBACK_REVIEWS = [
+  {
+    id: 1,
+    content: '"Natalia to osoba, która potrafi stworzyć bezpieczną przestrzeń i towarzyszyć w najtrudniejszych momentach. Dzięki niej mój poród był świadomy i spokojny."',
+    author: 'Anna K.',
+    subtitle: 'Mama Zosi',
+    thumbnail_url: null,
+  },
+  {
+    id: 2,
+    content: '"Webinar Otulić Połóg zmienił moje podejście do czwartego trymestru. Konkretna wiedza podana z ogromną empatią. Polecam każdej przyszłej mamie!"',
+    author: 'Marta W.',
+    subtitle: 'Mama Leona',
+    thumbnail_url: null,
+  },
+  {
+    id: 3,
+    content: '"Sesja Rewind była przełomowa. Po traumatycznym pierwszym porodzie, dzięki Natalii, odzyskałam wiarę w siebie i spokojnie przygotowałam się do kolejnego."',
+    author: 'Karolina M.',
+    subtitle: 'Mama dwójki dzieci',
+    thumbnail_url: null,
+  },
+];
+
 export default function ReviewsSlider() {
   const [reviews, setReviews] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
-    // Fetch active reviews
+    // Fetch active reviews from API, fallback to static data
     axios.get('/api/reviews')
-      .then(res => setReviews(res.data))
-      .catch(err => console.error('Failed to load reviews', err));
+      .then(res => {
+        if (res.data && res.data.length > 0) {
+          setReviews(res.data);
+        } else {
+          setReviews(FALLBACK_REVIEWS);
+        }
+      })
+      .catch(() => {
+        setReviews(FALLBACK_REVIEWS);
+      });
   }, []);
 
   if (reviews.length === 0) return null;
@@ -24,7 +56,7 @@ export default function ReviewsSlider() {
   };
 
   return (
-    <section id="reviews" className="bg-nude overflow-hidden sticky top-0 z-0 h-screen flex flex-col justify-center py-20 pb-32"> 
+    <section id="reviews" className="bg-nude overflow-hidden relative z-0 min-h-screen flex flex-col justify-center py-20 pb-32"> 
       {/* BACKGROUND DECORATION: PULSING UMBILICAL CORD */} 
       <div className="absolute inset-0 pointer-events-none z-0"> 
         <svg className="w-full h-full" viewBox="0 0 1440 600" preserveAspectRatio="none"> 

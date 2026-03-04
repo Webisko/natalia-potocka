@@ -34,7 +34,7 @@ function App() {
       <Router basename={import.meta.env.BASE_URL}>
         <div className="min-h-screen bg-background flex flex-col">
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow relative z-10">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/oferta/:slug" element={<div className="pt-24"><ProductPage /></div>} />
@@ -75,8 +75,8 @@ function App() {
                 </RequireAuth>
               } />
             </Routes>
-            <Footer />
           </main>
+          <Footer />
         </div>
       </Router>
     </AuthProvider>
