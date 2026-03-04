@@ -1,4 +1,4 @@
-name: Wdróż Frontend na GitHub Pages
+name: Deploy Frontend to GitHub Pages
 
 on:
   push:
@@ -35,13 +35,10 @@ jobs:
 
       - name: Build project
         working-directory: ./frontend
-        # Ustawiamy base na nazwę Twojego repozytorium (/natalia-potocka/)
-        run: npx vite build --base=/natalia-potocka/
+        run: npx vite build --base=/natalia-potocka/ --outDir=dist --emptyOutDir
 
-      - name: Fix Routing for GitHub Pages (React Router)
-        working-directory: ./public
-        # Kopiujemy plik, aby GH Pages nie wyrzucało 404 przy wejściu np. na /o-mnie bezpośrednio z paska
-        run: cp index.html 404.html
+      - name: Fix SPA routing for GitHub Pages
+        run: cp frontend/dist/index.html frontend/dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -49,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./public"
+          path: ./frontend/dist
 
       - name: Deploy to GitHub Pages
         id: deployment
