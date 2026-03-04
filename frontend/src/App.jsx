@@ -31,7 +31,7 @@ function RequireAuth({ children, requireAdmin = false }) {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename={import.meta.env.BASE_URL}>
         <div className="min-h-screen bg-background flex flex-col">
           <Header />
           <main className="flex-grow">
