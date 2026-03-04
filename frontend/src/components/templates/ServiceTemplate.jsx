@@ -303,7 +303,7 @@ export default function ServiceTemplate({ product }) {
       )}
 
       {/* ── BOTTOM CTA ── */}
-      <section className="py-20 px-6 md:px-12 bg-gradient-to-br from-rose/10 via-nude to-blush/20">
+      <section className="pt-20 pb-64 px-6 md:px-12 bg-gradient-to-br from-rose/10 via-nude to-blush/20">
         <div className="max-w-[700px] mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-serif text-mauve mb-4">Gotowa, by zacząć?</h2>
           <p className="text-mauve/60 font-light mb-10 text-lg">Gwarancja bezpieczeństwa i pełna poufność. Pracujemy w Twoim tempie.</p>

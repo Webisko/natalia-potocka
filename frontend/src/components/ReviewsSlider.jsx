@@ -56,7 +56,7 @@ export default function ReviewsSlider() {
   };
 
   return (
-    <section id="reviews" className="bg-nude overflow-hidden relative z-0 min-h-screen flex flex-col justify-center py-20 pb-56"> 
+    <section id="reviews" className="bg-nude overflow-hidden relative z-0 min-h-screen flex flex-col justify-center py-20 pb-80"> 
       {/* BACKGROUND DECORATION: PULSING UMBILICAL CORD */} 
       <div className="absolute inset-0 pointer-events-none z-0"> 
         <svg className="w-full h-full" viewBox="0 0 1440 600" preserveAspectRatio="none"> 

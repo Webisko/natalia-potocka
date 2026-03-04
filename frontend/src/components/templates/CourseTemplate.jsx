@@ -45,10 +45,10 @@ function ModuleAccordion({ module, unlocked }) {
   );
 }
 
-export default function CourseTemplate({ product, isPurchased, buying, handleBuy, user }) {
+export default function CourseTemplate({ product, isPurchased, buying, handleBuy }) {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
-  const [openModules, setOpenModules] = useState([]);
+
 
   useEffect(() => {
     axios.get(`/api/courses/by-product/${product.id}`)
@@ -56,9 +56,6 @@ export default function CourseTemplate({ product, isPurchased, buying, handleBuy
       .catch(() => {});
   }, [product.id]);
 
-  const toggleModule = (id) => {
-    setOpenModules(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
 
   const totalLessons = course?.modules?.reduce((sum, m) => sum + (m.lessons?.length || 0), 0) || 0;
 
@@ -96,7 +93,7 @@ export default function CourseTemplate({ product, isPurchased, buying, handleBuy
       </section>
 
       {/* CONTENT + SIDEBAR */}
-      <section className="relative py-8 px-6 md:px-12 max-w-[1240px] mx-auto">
+      <section className="relative pt-8 pb-64 px-6 md:px-12 max-w-[1240px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-12">
 
           {/* MAIN */}

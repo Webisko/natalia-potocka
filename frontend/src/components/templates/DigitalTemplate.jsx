@@ -205,7 +205,7 @@ export default function DigitalTemplate({ product, isPurchased, buying, handleBu
       )}
 
       {/* AUTHOR BIO */}
-      <section className="py-16 px-6 md:px-12 max-w-[1240px] mx-auto">
+      <section className="pt-16 pb-64 px-6 md:px-12 max-w-[1240px] mx-auto">
         <div className="bg-white/50 rounded-[30px] p-8 md:p-12 border border-white/80">
           <h2 className="text-2xl font-serif text-mauve mb-2">O prowadzącej</h2>
           <h3 className="text-gold font-bold tracking-wider uppercase text-sm mb-6">Natalia Potocka</h3>

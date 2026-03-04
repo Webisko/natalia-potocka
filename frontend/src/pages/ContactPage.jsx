@@ -22,7 +22,7 @@ export default function ContactPage() {
   return (
     <div className="w-full bg-nude min-h-screen">
       {/* ── HERO ── */}
-      <section className="relative flex flex-col items-center overflow-hidden py-24">
+      <section className="relative flex flex-col items-center overflow-hidden pt-24 pb-64">
         <div className="absolute inset-0 bg-gradient-to-br from-blush/30 via-nude to-white pointer-events-none" />
 
         {/* Vein decoration */}

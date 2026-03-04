@@ -126,7 +126,7 @@ export default function AboutPage() {
       </section>
 
       {/* ── WARTOŚCI (Jak pracuję) – exact same styles as homepage blob cards ── */}
-      <section className="py-28 px-8 md:px-16 bg-nude relative overflow-hidden">
+      <section className="pt-28 pb-64 px-8 md:px-16 bg-nude relative overflow-hidden">
         <div className="absolute top-[10%] right-[-5%] w-96 h-96 bg-rose/15 rounded-full blur-[80px] animate-breathe pointer-events-none" />
         <div className="absolute bottom-[10%] left-[-5%] w-80 h-80 bg-gold/5 rounded-full blur-[60px] animate-pulse-slow pointer-events-none" />
         <svg className="absolute left-[50%] top-0 h-full opacity-15 pointer-events-none" viewBox="0 0 200 800">
