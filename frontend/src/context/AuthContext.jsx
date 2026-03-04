@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await axios.get('/api/auth/me');
       setUser(res.data);
-    } catch (err) {
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
@@ -28,13 +28,18 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
+  const register = async (email, password, password_confirm) => {
+    const res = await axios.post('/api/auth/register', { email, password, password_confirm });
+    return res.data;
+  };
+
   const logout = async () => {
     await axios.post('/api/auth/logout');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refetch: fetchSession }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refetch: fetchSession }}>
       {children}
     </AuthContext.Provider>
   );

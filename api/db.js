@@ -44,6 +44,8 @@ db.exec(`
         password_hash TEXT,
         purchased_items TEXT,
         is_admin INTEGER DEFAULT 0,
+        email_confirmed INTEGER DEFAULT 0,
+        confirm_token TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -110,5 +112,9 @@ db.exec(`
 `);
 
 console.log('Database initialized successfully.');
+
+// Migration: add columns for existing databases
+try { db.exec('ALTER TABLE users ADD COLUMN email_confirmed INTEGER DEFAULT 0'); } catch(e) { /* column exists */ }
+try { db.exec('ALTER TABLE users ADD COLUMN confirm_token TEXT'); } catch(e) { /* column exists */ }
 
 export default db;
