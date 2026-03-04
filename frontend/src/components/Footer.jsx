@@ -84,29 +84,30 @@ export default function Footer() {
 
           {/* RIGHT: Site Map */}
           <div className="lg:pt-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-gold/80 font-bold mb-6">Mapa strony</p>
-            <div className="grid grid-cols-2 gap-x-10 gap-y-1">
+            <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-6">Mapa strony</p>
+            <div className="flex gap-16">
               {/* Col 1: Pages */}
-              <nav className="flex flex-col gap-3">
-                <Link to="/o-mnie" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group">
+              <nav className="flex flex-col gap-4">
+                <Link to="/o-mnie" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
                   O mnie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
-                <Link to="/#offer" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group">
+                <Link to="/#offer" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
                   Oferta<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
-                <Link to="/#opinie" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group">
+                <Link to="/#reviews" className="text-white/70 hover:text-gold transition-colors text-base font-light relative group">
                   Opinie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </nav>
 
-              {/* Col 2: Products & Services */}
+              {/* Col 2: Offer */}
               <nav className="flex flex-col gap-3">
-                <Link to="/oferta/otulic-polog" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Otulić Połóg</Link>
-                <Link to="/oferta/porod-domowy" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Poród Domowy</Link>
-                <Link to="/oferta/glowa-w-porodzie" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Głowa w Porodzie</Link>
-                <Link to="/oferta/hipnotyczny-obrot" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Hipnotyczny Obrót</Link>
-                <Link to="/oferta/uzdrowienie-traumy-porodowej" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Uzdrowienie Traumy</Link>
-                <Link to="/oferta/konsultacja-indywidualna" className="text-white/50 hover:text-gold transition-colors text-xs font-light">Konsultacja Indywidualna</Link>
+                <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-1">Oferta</p>
+                <Link to="/oferta/uzdrowienie-traumy-porodowej" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Uzdrowienie Traumy</Link>
+                <Link to="/oferta/konsultacja-indywidualna" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Konsultacja Indywidualna</Link>
+                <Link to="/oferta/otulic-polog" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Otulić Połóg</Link>
+                <Link to="/oferta/porod-domowy" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Poród Domowy</Link>
+                <Link to="/oferta/glowa-w-porodzie" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Głowa w Porodzie</Link>
+                <Link to="/oferta/hipnotyczny-obrot" className="text-white/60 hover:text-gold transition-colors text-sm font-light">Hipnotyczny Obrót</Link>
               </nav>
             </div>
           </div>
@@ -117,7 +118,7 @@ export default function Footer() {
       <div className="relative z-10 px-6 md:px-12 pb-8">
         <div className="max-w-[1440px] mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/30 uppercase tracking-widest">
           <p>© {new Date().getFullYear()} Natalia Potocka.</p>
-          <p>Design by <a href="https://webisko.pl" className="hover:text-gold transition-colors" target="_blank" rel="noopener noreferrer">webisko.pl</a> ♥ for mothers.</p>
+          <p>Designed by <a href="https://webisko.pl" className="hover:text-gold transition-colors" target="_blank" rel="noopener noreferrer">Webisko.pl</a> with ♥ for Mothers.</p>
         </div>
       </div>
     </footer>
