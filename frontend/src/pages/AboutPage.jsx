@@ -59,7 +59,7 @@ export default function AboutPage() {
               <div className="absolute inset-0 bg-rose/20 animate-morph blur-md scale-110" />
               <div className="absolute inset-0 border border-gold/30 animate-morph scale-110" style={{ animationDelay: '2s' }} />
               <div className="relative w-full h-full overflow-hidden shadow-2xl" style={{ borderRadius: '56% 44% 30% 70% / 60% 30% 70% 40%' }}>
-                <img src="/images/924-600x600.jpg" alt="Natalia Potocka" className="w-full h-full object-cover" />
+                <img src={`${import.meta.env.BASE_URL}images/about_doula.png`} alt="Natalia Potocka" className="w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gold/10 rounded-full blur-xl animate-heartbeat" />
             </div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
               <div className="relative w-[280px] h-[380px] md:w-[360px] md:h-[460px]">
                 <div className="absolute inset-0 bg-gold/10 animate-morph scale-105" style={{ animationDelay: '1s' }} />
                 <div className="relative w-full h-full overflow-hidden shadow-xl" style={{ borderRadius: '40% 60% 60% 40% / 55% 45% 55% 45%' }}>
-                  <img src="/images/836-600x800.jpg" alt="Natalia Potocka doula" className="w-full h-full object-cover" />
+                  <img src={`${import.meta.env.BASE_URL}images/hero_doula.png`} alt="Natalia Potocka doula" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-mauve/20 to-transparent" />
                 </div>
                 <div className="absolute -bottom-4 -left-4 w-20 h-20 border border-gold/40 rounded-full animate-pulse-slow" />
