@@ -13,3 +13,8 @@
 /* Hide scrollbar for scroll-snap slider */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Anchor offset for header */
+.webinary-anchor {
+  scroll-margin-top: 80px;
+}

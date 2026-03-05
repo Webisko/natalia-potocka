@@ -186,7 +186,7 @@ export default function AboutPage() {
         </div>
       </section>
       {/* ── CTA Oferta ── */}
-      <section className="pt-24 pb-64 px-8 md:px-16 bg-nude relative overflow-hidden">
+      <section className="pt-24 pb-80 px-8 md:px-16 bg-nude relative overflow-hidden">
         {/* Vein decorations */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 1440 500" preserveAspectRatio="none">
           <path d="M-100,250 C300,100 700,400 1100,200 C1350,80 1500,280 1700,180" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
@@ -218,10 +218,10 @@ export default function AboutPage() {
           </p>
 
           {/* Two CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {/* Primary – blob arrow button */}
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
+            {/* Button 1: gold – Terapia i konsultacje */}
             <Link to="/#oferta" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-14 min-w-[16rem] w-auto">
-              <span className="circle absolute left-0 top-0 block w-14 h-14 bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0 animate-heartbeat group-hover:animate-none" aria-hidden="true">
+              <span className="circle absolute left-0 top-0 block w-14 h-14 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
                 <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.7rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
                   <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
                 </span>
@@ -231,13 +231,16 @@ export default function AboutPage() {
               </span>
             </Link>
 
-            {/* Secondary – ghost button */}
-            <Link
-              to="/#webinary"
-              className="group inline-flex items-center gap-3 px-8 py-4 rounded-full border border-mauve/20 text-mauve/70 text-sm font-medium hover:border-gold/50 hover:text-gold transition-all duration-400 bg-white/60 backdrop-blur-sm"
-            >
-              <BookOpen size={15} className="group-hover:animate-heartbeat" />
-              Webinary i medytacje
+            {/* Button 2: mauve – Webinary i medytacje */}
+            <Link to="/#webinary" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-14 min-w-[16rem] w-auto">
+              <span className="circle absolute left-0 top-0 block w-14 h-14 bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
+                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.7rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
+                  <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
+                </span>
+              </span>
+              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
+                Webinary i medytacje
+              </span>
             </Link>
           </div>
         </div>
