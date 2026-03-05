@@ -37,7 +37,7 @@ export default function AboutPage() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#B88A44] italic">intuicji.</span>
             </h1>
             <p className="text-lg md:text-xl text-mauve/70 font-light leading-relaxed max-w-2xl mb-10">
-              Jestem edukatorką okołoporodową, doulą i terapeutką traumy. 
+              Jestem edukatorką okołoporodową i terapeutką traumy. 
               Łączę analityczny umysł z głęboką empatią – by być przy Tobie 
               w sposób, który naprawdę ma znaczenie.
             </p>
@@ -84,7 +84,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-rose/20 animate-morph blur-md scale-110" style={{ borderRadius: '40% 60% 60% 40% / 55% 45% 55% 45%' }} />
                 <div className="absolute inset-0 border border-gold/30 animate-morph scale-110" style={{ animationDelay: '2s', borderRadius: '40% 60% 60% 40% / 55% 45% 55% 45%' }} />
                 <div className="relative w-full h-full overflow-hidden shadow-xl" style={{ borderRadius: '40% 60% 60% 40% / 55% 45% 55% 45%' }}>
-                  <img src={`${import.meta.env.BASE_URL}images/hero_doula.png`} alt="Natalia Potocka doula" className="w-full h-full object-cover" />
+                  <img src={`${import.meta.env.BASE_URL}images/hero_doula.png`} alt="Natalia Potocka" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-mauve/20 to-transparent" />
                 </div>
                 <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-gold/10 rounded-full blur-xl animate-heartbeat" />
@@ -106,7 +106,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Łączę analityczny umysł (z wykształcenia jestem matematyczką!) z głęboką empatią 
-                  douli i kompetencjami terapeutki traumy. Jestem tu, by wesprzeć Cię we wszystkim, 
+                  i kompetencjami terapeutki traumy. Jestem tu, by wesprzeć Cię we wszystkim, 
                   co aktualnie przeżywasz – <span className="text-mauve font-medium">bez oceniania</span>.
                 </p>
                 <p>
@@ -115,8 +115,8 @@ export default function AboutPage() {
                   ktoś, komu możesz zaufać.
                 </p>
                 <p>
-                  Pracuję w nurcie hipnoterapii (technika Rewind), edukacji okołoporodowej opartej 
-                  na dowodach naukowych i doulingu. Każda kobieta jest inna – dlatego moje podejście 
+                  Pracuję w nurcie hipnoterapii (technika Rewind) oraz edukacji okołoporodowej opartej 
+                  na dowodach naukowych. Każda kobieta jest inna – dlatego moje podejście 
                   jest zawsze dopasowane do Ciebie.
                 </p>
               </div>

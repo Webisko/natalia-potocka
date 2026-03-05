@@ -58,9 +58,9 @@ const SERVICE_CONTENT = {
   },
 
   'konsultacja-indywidualna': {
-    badge: 'Konsultacja Doulowa Online',
+    badge: 'Konsultacja Edukacyjna Online',
     hero: 'Potrzebujesz rozmowy, która ukoi lęk i da konkretne rozwiązania?',
-    subhero: 'Macierzyństwo nie musi być samotną podróżą przez gąszcz informacji. Skorzystaj z indywidualnego wsparcia douli, dopasowanego w 100% do Twojej obecnej sytuacji – bez oceniania i presji.',
+    subhero: 'Macierzyństwo nie musi być samotną podróżą przez gąszcz informacji. Skorzystaj z indywidualnego wsparcia okołoporodowego, dopasowanego w 100% do Twojej obecnej sytuacji – bez oceniania i presji.',
     price: 160,
     priceNote: '60 minut online',
     diagnosis: {
@@ -91,7 +91,7 @@ const SERVICE_CONTENT = {
     process: null,
     benefits: [
       { icon: '✦', title: 'Zero oceniania', desc: 'Każda Twoja decyzja jest dobra, jeśli jest TWOJA. Nie narzucam jednej słusznej drogi.' },
-      { icon: '✦', title: 'Kompetencje', desc: 'Certyfikowana doula i instruktorka hipnoporodu z wieloletnim doświadczeniem i wiedzą naukową.' },
+      { icon: '✦', title: 'Kompetencje', desc: 'Certyfikowana edukatorka okołoporodowa i instruktorka hipnoporodu z wieloletnim doświadczeniem i wiedzą naukową.' },
       { icon: '✦', title: 'Pełna elastyczność', desc: 'Spotykamy się online. Twój maluszek płacze? Musisz nakarmić? To dla mnie naturalne.' },
     ],
     faq: [

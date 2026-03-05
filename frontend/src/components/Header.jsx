@@ -67,14 +67,14 @@ export default function Header() {
                 Natalia Potocka
               </span>
               <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gold font-medium group-hover:text-mauve/70 transition-colors">
-                Doula &amp; Terapia
+                Terapia &amp; Wsparcie
               </span>
             </Link>
           </div>
           
           {/* DESKTOP NAV – reordered: Oferta → O mnie → Opinie */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link to="/#offer" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
+            <Link to="/#oferta" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
               Oferta 
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
             </Link>
@@ -82,7 +82,7 @@ export default function Header() {
               O mnie 
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            <Link to="/#reviews" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
+            <Link to="/#opinie" className="text-mauve/80 hover:text-terracotta text-sm font-medium uppercase tracking-wider transition-colors relative group">
               Opinie 
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-terracotta transition-all duration-300 group-hover:w-full"></span>
             </Link>

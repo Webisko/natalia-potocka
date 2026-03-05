@@ -93,13 +93,13 @@ export default function Footer() {
               {/* Col 1: Pages */}
               <nav className="flex flex-col gap-4">
                 <p className="text-sm uppercase tracking-[0.2em] text-gold/80 font-bold mb-2">Mapa strony</p>
-                <Link to="/#offer" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">
+                <Link to="/#oferta" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">
                   Oferta<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <Link to="/o-mnie" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">
                   O mnie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
-                <Link to="/#reviews" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">
+                <Link to="/#opinie" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">
                   Opinie<span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-gold transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <Link to="/kontakt" className="text-white/60 hover:text-gold transition-colors text-sm font-light relative group w-fit">

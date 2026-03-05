@@ -210,8 +210,8 @@ export default function DigitalTemplate({ product, isPurchased, buying, handleBu
           <h2 className="text-2xl font-serif text-mauve mb-2">O prowadzącej</h2>
           <h3 className="text-gold font-bold tracking-wider uppercase text-sm mb-6">Natalia Potocka</h3>
           <p className="text-mauve/70 font-light leading-relaxed">
-            Edukatorka porodowa, doula i terapeutka traumy okołoporodowej. Certyfikowana instruktorka hipnoporodu. 
-            Absolwentka Akademii Wsparcia Okołoporodowego Stowarzyszenia Doula w Polsce. Pasjonatka tematów ciąży, 
+            Edukatorka porodowa, terapeutka traumy i wsparcie okołoporodowe. Certyfikowana instruktorka hipnoporodu. 
+            Absolwentka Akademii Wsparcia Okołoporodowego. Pasjonatka tematów ciąży, 
             porodu, połogu i rodzicielstwa. Z wykształcenia matematyczka i programistka – łączy ścisłe podejście 
             do wiedzy z ciepłym, nieoceniającym wsparciem.
           </p>

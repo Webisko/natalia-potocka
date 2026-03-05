@@ -188,7 +188,7 @@ export default function ContactPage() {
               </div>
               <div className="relative z-10">
                 <h3 className="text-lg font-serif text-mauve mb-1">Facebook</h3>
-                <p className="text-mauve/60 font-light text-sm">Natalia Potocka Doula</p>
+                <p className="text-mauve/60 font-light text-sm">Natalia Potocka</p>
               </div>
             </a>
           </div>
