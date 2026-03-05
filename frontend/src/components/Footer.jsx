@@ -103,7 +103,7 @@ export default function Footer() {
           </div>
 
           {/* RIGHT: Site Map + Copyright */}
-          <div className="lg:pt-2 w-full md:w-auto flex flex-col gap-8">
+          <div className="lg:pt-2 w-full md:w-auto flex flex-col">
             {/* Two-column sitemap */}
             <div className="grid grid-cols-2 gap-10 md:gap-16">
               {/* Col 1: Pages */}
@@ -147,10 +147,10 @@ export default function Footer() {
               </nav>
             </div>
 
-            {/* Copyright – same vertical level as social icons on the left */}
-            <div className="pt-5 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-white/30 uppercase tracking-widest">
+            {/* Copyright – aligned to bottom of right column */}
+            <div className="mt-auto pt-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-white/30 uppercase tracking-widest">
               <p>© {new Date().getFullYear()} Natalia Potocka.</p>
-              <p>Designed by <a href="https://webisko.pl" className="hover:text-gold transition-colors" target="_blank" rel="noopener noreferrer">Webisko.pl</a> with ♥</p>
+              <p>Designed by <a href="https://webisko.pl" className="hover:text-gold transition-colors" target="_blank" rel="noopener noreferrer">Webisko.pl</a> with ♥ for Mothers.</p>
             </div>
           </div>
 
