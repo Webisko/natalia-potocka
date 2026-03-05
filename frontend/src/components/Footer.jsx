@@ -60,10 +60,10 @@ export default function Footer() {
       </svg>
 
       <div className="flex-grow flex items-center justify-center py-12 md:py-16 relative z-10 px-8 md:px-16">
-        <div className="max-w-[1440px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+        <div className="max-w-[1440px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-stretch">
 
           {/* LEFT: BIG CTA */}
-          <div className="space-y-6">
+          <div className="flex flex-col justify-between space-y-6">
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-serif text-white leading-[0.9]">
               Zacznijmy <br /> <span className="text-gold italic">rozmowę.</span>
             </h2>
@@ -103,7 +103,7 @@ export default function Footer() {
           </div>
 
           {/* RIGHT: Site Map + Copyright */}
-          <div className="lg:pt-2 w-full md:w-auto flex flex-col">
+          <div className="lg:pt-2 w-full md:w-auto flex flex-col justify-between">
             {/* Two-column sitemap */}
             <div className="grid grid-cols-2 gap-10 md:gap-16">
               {/* Col 1: Pages */}
