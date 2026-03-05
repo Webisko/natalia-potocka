@@ -32,8 +32,9 @@ export default function Footer() {
         borderTopLeftRadius: `${borderRadius}px`, 
         borderTopRightRadius: `${borderRadius}px`,
         marginTop: '-160px',
+        maxHeight: 'calc(100vh - 64px)',
       }}
-      className="bg-mauve text-blush relative z-30 overflow-hidden flex flex-col justify-between shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] transition-[border-radius] duration-300 ease-out"
+      className="bg-mauve text-blush relative z-30 overflow-y-auto flex flex-col justify-between shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] transition-[border-radius] duration-300 ease-out"
     >
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-rose/10 blur-[120px] pointer-events-none"></div>

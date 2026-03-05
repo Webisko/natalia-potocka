@@ -186,85 +186,92 @@ export default function AboutPage() {
         </div>
       </section>
       {/* ── CTA Oferta ── */}
-      <section className="pt-24 pb-64 px-8 md:px-16 bg-gradient-to-br from-mauve via-mauve/95 to-[#3a2040] relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/3 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-terracotta/10 rounded-full blur-[100px] pointer-events-none translate-y-1/3 -translate-x-1/4" />
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-10" viewBox="0 0 1440 600" preserveAspectRatio="none">
-          <path d="M-100,300 C300,100 700,500 1100,250 C1350,100 1500,300 1700,200" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
+      <section className="pt-24 pb-64 px-8 md:px-16 bg-nude relative overflow-hidden">
+        {/* Vein decorations */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-25" viewBox="0 0 1440 500" preserveAspectRatio="none">
+          <path d="M-100,250 C300,100 700,400 1100,200 C1350,80 1500,280 1700,180" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
+          <path d="M-100,310 C300,160 700,460 1100,260 C1350,140 1500,340 1700,240" fill="none" stroke="#E6B8B8" strokeWidth="2.5" strokeDasharray="14 28" className="animate-flow-vein-rose" />
         </svg>
+        {/* Glowing orbs */}
+        <div className="absolute top-[10%] right-[5%] w-[380px] h-[380px] bg-rose/15 rounded-full blur-[90px] animate-breathe pointer-events-none" />
+        <div className="absolute bottom-[5%] left-[3%] w-[280px] h-[280px] bg-gold/8 rounded-full blur-[70px] animate-pulse-slow pointer-events-none" />
 
         <div className="max-w-[1440px] mx-auto relative z-10">
           {/* Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 mb-6">
-              <Sparkles size={16} className="text-gold animate-heartbeat" />
+              <Sparkles size={14} className="text-gold animate-heartbeat" />
               <span className="text-xs font-bold text-gold uppercase tracking-[0.2em]">Sprawdź ofertę</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-serif text-white mb-6 leading-tight">
+            <h2 className="text-3xl md:text-5xl font-serif text-mauve mb-6 leading-tight">
               Gotowa, by zrobić{' '}
               <span className="text-gold italic">pierwszy krok?</span>
             </h2>
-            <p className="text-white/60 font-light text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-mauve/60 font-light text-lg max-w-2xl mx-auto leading-relaxed">
               Niezależnie od tego, czego teraz potrzebujesz – znajdziesz tu odpowiedź.
               Wybierz formę wsparcia, która najbardziej do Ciebie przemawia.
             </p>
           </div>
 
-          {/* Cards grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-            {/* Card 1: Terapia */}
-            <Link to="/oferta/uzdrowienie-traumy-porodowej" className="group block bg-white/8 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/15 hover:border-gold/30 hover:shadow-xl hover:shadow-gold/10 transition-all duration-500 hover:-translate-y-1">
-              <div className="w-14 h-14 rounded-2xl bg-terracotta/20 flex items-center justify-center mb-6 group-hover:bg-terracotta/30 transition-colors">
-                <Heart size={26} className="text-terracotta" />
+          {/* 2-col blob cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto mb-16">
+
+            {/* Card 1: Usługi (terapia + konsultacje) */}
+            <Link to="/oferta/uzdrowienie-traumy-porodowej" className="blob-card relative group isolate flex flex-col items-center text-center p-10 rounded-[30px] transition-all duration-300">
+              {/* Blob background */}
+              <div
+                className="blob-bg absolute top-8 left-1/2 -ml-20 w-40 h-40 bg-terracotta shadow-xl shadow-terracotta/20 -z-10 transition-all duration-500 ease-out origin-center animate-heartbeat group-hover:!inset-0 group-hover:!w-full group-hover:!h-full group-hover:!ml-0 group-hover:!top-0 group-hover:!rounded-[30px] group-hover:!shadow-2xl group-hover:!animate-none"
+                style={{ borderRadius: '54% 46% 42% 58% / 44% 48% 52% 56%' }}
+              />
+              <div className="w-40 h-40 flex items-center justify-center flex-shrink-0 mb-6 relative z-10">
+                <Heart size={52} className="text-white transition-transform duration-500 animate-heartbeat group-hover:scale-110 group-hover:animate-none" />
               </div>
-              <h3 className="text-xl font-serif text-white mb-3">Uzdrowienie Traumy Porodowej</h3>
-              <p className="text-white/50 font-light text-sm leading-relaxed mb-6">
-                Metoda Rewind – delikatna technika terapeutyczna, która pozwala przepracować trudne doświadczenie bez ponownego przeżywania.
-              </p>
-              <span className="inline-flex items-center gap-2 text-gold text-sm font-medium group-hover:gap-3 transition-all">
-                Dowiedz się więcej <ArrowRight size={14} />
-              </span>
+              <div className="relative z-10">
+                <h3 className="text-2xl font-serif text-mauve mb-4 transition-colors duration-300 group-hover:text-white">
+                  Terapia i Konsultacje
+                </h3>
+                <p className="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light transition-colors duration-300 group-hover:text-white/90 mb-6">
+                  Uzdrowienie traumy porodowej oraz indywidualne wsparcie – spotkania online dopasowane do Twoich potrzeb.
+                </p>
+                <span className="inline-flex items-center gap-2 text-terracotta text-sm font-bold uppercase tracking-wider group-hover:text-white transition-colors">
+                  Poznaj usługi <ArrowRight size={14} />
+                </span>
+              </div>
             </Link>
 
-            {/* Card 2: Konsultacje */}
-            <Link to="/oferta/konsultacja-indywidualna" className="group block bg-white/8 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/15 hover:border-gold/30 hover:shadow-xl hover:shadow-gold/10 transition-all duration-500 hover:-translate-y-1">
-              <div className="w-14 h-14 rounded-2xl bg-gold/20 flex items-center justify-center mb-6 group-hover:bg-gold/30 transition-colors">
-                <Users size={26} className="text-gold" />
+            {/* Card 2: Webinary i Medytacje */}
+            <Link to="/#webinary" className="blob-card relative group isolate flex flex-col items-center text-center p-10 rounded-[30px] transition-all duration-300">
+              {/* Blob background */}
+              <div
+                className="blob-bg absolute top-8 left-1/2 -ml-20 w-40 h-40 bg-white shadow-sm -z-10 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!w-full group-hover:!h-full group-hover:!ml-0 group-hover:!top-0 group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10"
+                style={{ borderRadius: '35% 65% 63% 37% / 42% 43% 57% 58%' }}
+              />
+              <div className="w-40 h-40 flex items-center justify-center flex-shrink-0 mb-6 relative z-10">
+                <BookOpen size={52} className="text-terracotta transition-transform duration-500 group-hover:scale-110" />
               </div>
-              <h3 className="text-xl font-serif text-white mb-3">Konsultacja Indywidualna</h3>
-              <p className="text-white/50 font-light text-sm leading-relaxed mb-6">
-                Spotkanie jeden na jeden, podczas którego omówimy Twoje potrzeby i stworzymy plan działania dopasowany do Twojej sytuacji.
-              </p>
-              <span className="inline-flex items-center gap-2 text-gold text-sm font-medium group-hover:gap-3 transition-all">
-                Dowiedz się więcej <ArrowRight size={14} />
-              </span>
-            </Link>
-
-            {/* Card 3: Webinary i Medytacje */}
-            <Link to="/#oferta" className="group block bg-white/8 backdrop-blur-sm border border-white/10 rounded-3xl p-8 hover:bg-white/15 hover:border-gold/30 hover:shadow-xl hover:shadow-gold/10 transition-all duration-500 hover:-translate-y-1">
-              <div className="w-14 h-14 rounded-2xl bg-rose/20 flex items-center justify-center mb-6 group-hover:bg-rose/30 transition-colors">
-                <BookOpen size={26} className="text-rose" />
+              <div className="relative z-10">
+                <h3 className="text-2xl font-serif text-mauve mb-4 transition-colors duration-300">
+                  Webinary i Medytacje
+                </h3>
+                <p className="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light mb-6">
+                  Wiedza i ukojenie dostępne na wyciągnięcie ręki – nagrania i medytacje, które możesz odtwarzać kiedy chcesz.
+                </p>
+                <span className="inline-flex items-center gap-2 text-gold text-sm font-bold uppercase tracking-wider transition-colors">
+                  Przeglądaj produkty <ArrowRight size={14} />
+                </span>
               </div>
-              <h3 className="text-xl font-serif text-white mb-3">Webinary i Medytacje</h3>
-              <p className="text-white/50 font-light text-sm leading-relaxed mb-6">
-                Dostęp do wiedzy i wyciszenia na wyciągnięcie ręki. Nagrania i medytacje, które możesz odtwarzać w dowolnym momencie.
-              </p>
-              <span className="inline-flex items-center gap-2 text-gold text-sm font-medium group-hover:gap-3 transition-all">
-                Przeglądaj produkty <ArrowRight size={14} />
-              </span>
             </Link>
           </div>
 
-          {/* Main CTA Button */}
+          {/* Central CTA arrow button */}
           <div className="text-center">
-            <Link to="/#oferta" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-14 min-w-[16rem] w-auto">
-              <span className="circle absolute left-0 top-0 block w-14 h-14 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
-                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.7rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
+            <Link to="/#oferta" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[14rem] w-auto">
+              <span className="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
+                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
                   <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
                 </span>
               </span>
-              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-sm text-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
+              <span className="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
                 Zobacz całą ofertę
               </span>
             </Link>
