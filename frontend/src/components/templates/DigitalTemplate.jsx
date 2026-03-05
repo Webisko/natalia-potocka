@@ -18,6 +18,7 @@ const PRODUCT_CONTENT = {
     ],
     topics: ['Czym jest połóg?', 'Jak czujesz się emocjonalnie w czasie połogu?', 'Co się dzieje z Twoim ciałem?', 'Higiena w czasie połogu', 'Dbanie o siebie', 'Plan połogu', 'Rola wioski wsparcia', 'Odżywianie'],
     closing: 'Webinar zawiera nagranie spotkania live na Zoomie.',
+    image: 'images/otulic_polog.png',
   },
   'porod-domowy': {
     hero: 'Poród domowy – czy to dla mnie?',
@@ -33,6 +34,7 @@ const PRODUCT_CONTENT = {
     ],
     topics: ['Jak wygląda poród domowy?', 'Kwestia bezpieczeństwa', 'Kwalifikacje do porodu domowego', 'Postępowanie w razie komplikacji', 'Koszty', 'Doświadczenia kobiet'],
     closing: 'Webinar zawiera nagranie spotkania live na Zoomie.',
+    image: 'images/porod_domowy.png',
   },
   'glowa-w-porodzie': {
     hero: 'Poród zaczyna się w głowie – zmień swoje myśli, zmień swój poród',
@@ -48,6 +50,7 @@ const PRODUCT_CONTENT = {
     ],
     topics: ['Skąd takie myśli u Ciebie?', 'Wpływ dzieciństwa na postrzeganie porodu', 'Jak myśli wpływają na decyzje', 'Cielesność i seksualność a poród', 'Jak zmienić negatywne emocje na pozytywne', 'Praktyka medytacyjna'],
     closing: 'Otrzymasz dostęp do nagrania webinaru i medytacji wzmacniającej pozytywną wizję porodu.',
+    image: 'images/glowa_w_porodzie.png',
   },
   'hipnotyczny-obrot': {
     hero: 'Hipnotyczny Obrót – medytacja wspierająca obrót dziecka z ułożenia miednicowego',
@@ -63,6 +66,7 @@ const PRODUCT_CONTENT = {
     ],
     topics: ['Dlaczego dziecko układa się główką do góry?', 'Jak działa hipnoterapia przy obrocie?', 'Jak słuchać medytacji?', 'Kiedy można stosować?'],
     closing: 'Medytację można stosować od 37. tygodnia ciąży. Wystarczy trzykrotne wysłuchanie.',
+    image: 'images/hipnotyczny_obrot.png',
   },
 };
 
@@ -92,9 +96,9 @@ export default function DigitalTemplate({ product, isPurchased, buying, handleBu
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
           {/* IMAGE */}
           <div className="w-full lg:w-1/2 relative group flex-shrink-0">
-            <div className="aspect-[4/5] max-h-[520px] overflow-hidden rounded-[40px] shadow-2xl relative z-10">
-              {product.thumbnail_url ? (
-                <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
+            <div className="aspect-[4/5] max-h-[520px] overflow-hidden rounded-[40px] shadow-2xl relative z-10 bg-white">
+              {(content.image || product.thumbnail_url) ? (
+                <img src={content.image ? `${import.meta.env.BASE_URL}${content.image}` : product.thumbnail_url} alt={product.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blush/40 to-rose/20 flex items-center justify-center">
                   <TypeIcon size={80} className="text-mauve/20" />

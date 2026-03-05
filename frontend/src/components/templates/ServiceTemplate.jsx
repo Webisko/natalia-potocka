@@ -9,6 +9,7 @@ const SERVICE_CONTENT = {
     subhero: 'Trauma porodowa to ciężar, który możesz – a nawet powinnaś – zrzucić. Nie musisz żyć z powracającymi obrazami, lękiem i poczuciem winy. Pomogę Ci uwolnić się od trudnych emocji metodą Rewind.',
     price: 480,
     priceNote: 'pakiet 3 spotkań online',
+    image: 'images/hero_doula.png',
     diagnosis: {
       heading: 'Czy czujesz, że „coś było nie tak"?',
       intro: 'Przede wszystkim: liczą się Twoje odczucia. Nawet jeśli personel medyczny lub bliscy mówią „przecież masz zdrowe dziecko", a Ty czujesz ból i lęk – masz do tego prawo.',
@@ -63,6 +64,7 @@ const SERVICE_CONTENT = {
     subhero: 'Macierzyństwo nie musi być samotną podróżą przez gąszcz informacji. Skorzystaj z indywidualnego wsparcia okołoporodowego, dopasowanego w 100% do Twojej obecnej sytuacji – bez oceniania i presji.',
     price: 160,
     priceNote: '60 minut online',
+    image: 'images/about_doula.png',
     diagnosis: {
       heading: 'To spotkanie jest dla Ciebie, jeśli:',
       intro: null,
@@ -169,8 +171,15 @@ export default function ServiceTemplate({ product }) {
 
           {/* SIDEBAR CARD */}
           <div className="relative">
-            <div className="bg-white rounded-[30px] p-8 shadow-2xl border border-mauve/5 max-w-sm mx-auto lg:ml-auto">
-              <div className="text-center border-b border-mauve/10 pb-6 mb-6">
+            <div className="bg-white rounded-[30px] overflow-hidden shadow-2xl border border-mauve/5 max-w-sm mx-auto lg:ml-auto">
+              {content.image && (
+                 <div className="w-full h-56 overflow-hidden relative group">
+                   <div className="absolute inset-0 bg-mauve/5 z-10 group-hover:bg-transparent transition-colors duration-500"></div>
+                   <img src={`${import.meta.env.BASE_URL}${content.image}`} alt={product.title} className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" />
+                 </div>
+              )}
+              <div className="p-8">
+                <div className="text-center border-b border-mauve/10 pb-6 mb-6">
                 <span className="text-xs text-mauve/40 uppercase tracking-widest font-bold block mb-2">Inwestycja w siebie</span>
                 <div className="font-serif text-5xl text-terracotta">
                   {displayPrice} <span className="text-xl font-sans text-mauve/40 font-light">PLN</span>
@@ -186,6 +195,7 @@ export default function ServiceTemplate({ product }) {
                 <div className="flex items-center gap-3 text-sm text-mauve/60 font-light"><Calendar size={15} className="text-gold flex-shrink-0" /> Terminy dobierane indywidualnie</div>
                 <div className="flex items-center gap-3 text-sm text-mauve/60 font-light"><MapPin size={15} className="text-gold flex-shrink-0" /> Online / Gabinet</div>
               </div>
+            </div>
             </div>
           </div>
         </div>
