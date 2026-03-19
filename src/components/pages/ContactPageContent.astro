@@ -1,0 +1,205 @@
+<div class="min-h-screen w-full bg-nude">
+  <Fragment set:html={''} />
+  <section class="relative flex flex-col items-center overflow-hidden pb-64 pt-32 md:pt-36">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-blush/30 via-nude to-white"></div>
+    <svg class="pointer-events-none absolute inset-0 h-full w-full opacity-30" viewBox="0 0 1440 600" preserveAspectRatio="none">
+      <path d="M-100,300 C300,100 700,500 1100,250 C1350,100 1500,300 1700,200" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="8 18" class="animate-flow-vein-gold"></path>
+      <path d="M-100,360 C300,160 700,560 1100,310 C1350,160 1500,360 1700,260" fill="none" stroke="#E6B8B8" stroke-width="2.5" stroke-dasharray="14 28" class="animate-flow-vein-rose"></path>
+    </svg>
+    <div class="pointer-events-none absolute right-[10%] top-20 h-72 w-72 rounded-full bg-rose/20 blur-[90px] animate-breathe"></div>
+    <div class="pointer-events-none absolute bottom-10 left-[5%] h-80 w-80 rounded-full bg-goldLight/20 blur-[100px] animate-pulse-slow"></div>
+
+    <div class="relative z-10 mx-auto w-full max-w-[1200px] px-8 md:px-16">
+      <div class="mx-auto mb-16 max-w-[760px] text-center">
+        <div class="mb-6 inline-flex items-center gap-2">
+          <svg class="h-4 w-4 animate-heartbeat text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+          <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-terracotta">Kontakt</span>
+        </div>
+        <h1 class="mb-6 font-serif text-4xl leading-[1.05] text-mauve md:text-6xl">Zacznijmy <span class="bg-gradient-to-r from-gold to-[#B88A44] bg-clip-text italic text-transparent">rozmowę.</span></h1>
+        <p class="mx-auto max-w-lg text-lg font-light leading-relaxed text-mauve/70">Napisz do mnie – opowiedz, czego potrzebujesz. Postaram się odpowiedzieć tak szybko, jak to możliwe.</p>
+      </div>
+
+      <div class="relative mx-auto mb-16 max-w-[980px] rounded-[40px] border border-white/85 bg-[#FCF9F7] p-8 shadow-[0_28px_80px_rgba(93,64,88,0.14)] ring-1 ring-white/70 backdrop-blur-xl md:p-12" id="astro-contact-page-form">
+        <div class="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-rose/10 blur-[60px]"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-gold/5 blur-[40px]"></div>
+
+        <div id="contact-success" class="hidden flex-col items-center gap-6 py-8 text-center">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gold/10">
+            <svg class="h-10 w-10 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m6 2.25a9 9 0 11-18 0 9 9 0 0118 0Z"></path>
+            </svg>
+          </div>
+          <h2 class="font-serif text-3xl text-mauve">Dziękuję!</h2>
+          <p class="max-w-sm text-lg font-light leading-relaxed text-mauve/60">Twoja wiadomość dotarła do mnie. Odezwę się najszybciej, jak to możliwe. 🌿</p>
+          <button id="contact-reset" class="text-fs-label mt-2 font-bold uppercase tracking-wider text-gold transition-colors hover:text-terracotta" type="button">Wyślij kolejną wiadomość</button>
+        </div>
+
+        <form id="contact-form" class="relative z-10 flex flex-col gap-6">
+          <div class="grid gap-6 md:grid-cols-2">
+            <div>
+              <label class="text-fs-label mb-2 block font-bold uppercase tracking-[0.2em] text-mauve/60">Imię</label>
+              <input id="contact-name" type="text" name="name" required placeholder="Jak masz na imię?" class="w-full rounded-2xl border border-mauve/14 bg-white px-6 py-4 text-base font-light text-mauve shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] placeholder:text-mauve/35 transition-all focus:border-gold/30 focus:outline-none focus:ring-2 focus:ring-gold/30" />
+            </div>
+            <div>
+              <label class="text-fs-label mb-2 block font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
+              <input id="contact-email" type="email" name="email" required placeholder="twoj@email.pl" class="w-full rounded-2xl border border-mauve/14 bg-white px-6 py-4 text-base font-light text-mauve shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] placeholder:text-mauve/35 transition-all focus:border-gold/30 focus:outline-none focus:ring-2 focus:ring-gold/30" />
+            </div>
+          </div>
+          <div class="hidden" aria-hidden="true">
+            <label for="contact-website">Strona internetowa</label>
+            <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+          <div>
+            <label class="text-fs-label mb-2 block font-bold uppercase tracking-[0.2em] text-mauve/60">W czym mogę Ci pomóc?</label>
+            <textarea id="contact-message" name="message" required rows="5" placeholder="Opisz krótko swoją sytuację i czego potrzebujesz. Im więcej wiem, tym lepiej mogę się przygotować. ✨" class="w-full resize-none rounded-2xl border border-mauve/14 bg-white px-6 py-4 text-base font-light text-mauve shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] placeholder:text-mauve/35 transition-all focus:border-gold/30 focus:outline-none focus:ring-2 focus:ring-gold/30"></textarea>
+          </div>
+          <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-mauve/10 bg-white/90 px-4 py-4 text-left">
+            <input id="contact-consent" name="privacyConsent" type="checkbox" required class="peer sr-only" />
+            <span class="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border border-mauve/30 bg-white transition [&_svg]:opacity-0 [&_svg]:transition-opacity peer-checked:border-rose peer-checked:bg-rose peer-checked:shadow-sm peer-checked:shadow-rose/20 peer-checked:[&_svg]:opacity-100" aria-hidden="true">
+              <svg viewBox="0 0 16 16" class="h-3.5 w-3.5" fill="none" aria-hidden="true">
+                <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="#ffffff" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+            <span class="min-w-0">
+              <span class="block text-[0.92rem] leading-6 text-mauve/78">
+                Wyrażam zgodę na przetwarzanie moich danych osobowych podanych w formularzu w celu obsługi mojego zapytania, zgodnie z
+                <a href="/polityka-prywatnosci" class="ml-1 font-medium text-gold transition-colors hover:text-terracotta">Polityką prywatności</a>.
+              </span>
+            </span>
+          </label>
+          <div class="flex justify-center pt-2">
+            <button id="contact-submit" type="submit" class="group relative inline-flex h-14 min-w-[14rem] w-auto cursor-pointer items-center justify-start border-0 outline-none disabled:opacity-60">
+              <span class="circle absolute left-0 top-0 z-0 block h-14 w-14 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+                <span class="icon absolute bottom-0 left-[0.95rem] top-0 m-auto flex h-6 w-6 items-center justify-center">
+                  <svg class="h-[18px] w-[18px] text-white transition-transform duration-500 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M22 2 11 13"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M22 2 15 22l-4-9-9-4 20-7Z"></path>
+                  </svg>
+                </span>
+              </span>
+              <span class="text-fs-label relative z-10 w-full whitespace-nowrap pl-16 pr-8 text-center font-bold uppercase tracking-wider text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Wyślij wiadomość</span>
+            </button>
+          </div>
+          <p id="contact-error" class="text-fs-ui hidden text-center leading-7 text-terracotta"></p>
+        </form>
+      </div>
+
+      <div class="mx-auto grid max-w-[1200px] grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <a href="mailto:kontakt@nataliapotocka.pl" class="blob-card group isolate relative flex h-full min-h-[15.75rem] w-full flex-col items-center overflow-hidden rounded-[32px] px-8 pb-8 pt-6 text-center transition-all duration-300 md:px-10">
+          <div class="blob-bg absolute left-1/2 top-4 -z-10 -ml-[5.65rem] h-[11.3rem] w-[11.3rem] bg-white shadow-sm transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 54% 46% 42% 58% / 44% 48% 52% 56%;"></div>
+          <div class="relative z-10 mb-1.5 flex h-[4.5rem] w-[4.5rem] items-center justify-center">
+            <svg class="h-9 w-9 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </div>
+          <div class="relative z-10 w-full max-w-[21rem]">
+            <h3 class="mb-1 font-serif text-[clamp(1.45rem,1.34rem+0.18vw,1.58rem)] text-mauve">Email</h3>
+            <p class="text-[0.98rem] font-light leading-[1.55] text-mauve/68 sm:whitespace-nowrap">kontakt@nataliapotocka.pl</p>
+          </div>
+        </a>
+
+        <a href="https://www.instagram.com/nataliapotocka.doula/" target="_blank" rel="noopener noreferrer" class="blob-card group isolate relative flex h-full min-h-[15.75rem] w-full flex-col items-center overflow-hidden rounded-[32px] px-8 pb-8 pt-6 text-center transition-all duration-300 md:px-10">
+          <div class="blob-bg absolute left-1/2 top-4 -z-10 -ml-[5.65rem] h-[11.3rem] w-[11.3rem] bg-white shadow-sm transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 35% 65% 63% 37% / 42% 43% 57% 58%;"></div>
+          <div class="relative z-10 mb-1.5 flex h-[4.5rem] w-[4.5rem] items-center justify-center">
+            <svg class="h-9 w-9 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </div>
+          <div class="relative z-10 w-full max-w-[21rem]">
+            <h3 class="mb-1 font-serif text-[clamp(1.45rem,1.34rem+0.18vw,1.58rem)] text-mauve">Instagram</h3>
+            <p class="text-[0.98rem] font-light leading-[1.55] text-mauve/68 sm:whitespace-nowrap">@nataliapotocka.doula</p>
+          </div>
+        </a>
+
+        <div class="blob-card group isolate relative flex h-full min-h-[15.75rem] w-full flex-col items-center overflow-hidden rounded-[32px] px-8 pb-8 pt-6 text-center opacity-80 transition-all duration-300 md:px-10">
+          <div class="blob-bg absolute left-1/2 top-4 -z-10 -ml-[5.65rem] h-[11.3rem] w-[11.3rem] bg-white shadow-sm transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 64% 36% 47% 53% / 61% 53% 47% 39%;"></div>
+          <div class="relative z-10 mb-1.5 flex h-[4.5rem] w-[4.5rem] items-center justify-center">
+            <svg class="h-9 w-9 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+            </svg>
+          </div>
+          <div class="relative z-10 w-full max-w-[21rem]">
+            <h3 class="mb-1 font-serif text-[clamp(1.45rem,1.34rem+0.18vw,1.58rem)] text-mauve">Facebook</h3>
+            <p class="text-[0.98rem] font-light leading-[1.55] text-mauve/68 sm:whitespace-nowrap">Natalia Potocka</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script is:inline>
+  (() => {
+    const form = document.getElementById('contact-form');
+    const success = document.getElementById('contact-success');
+    const resetButton = document.getElementById('contact-reset');
+    const submitButton = document.getElementById('contact-submit');
+    const errorBox = document.getElementById('contact-error');
+
+    const setSubmitting = (isSubmitting) => {
+      if (!(submitButton instanceof HTMLButtonElement)) return;
+      submitButton.disabled = isSubmitting;
+      const label = submitButton.querySelector('span:last-child');
+      if (label) {
+        label.textContent = isSubmitting ? 'Wysyłam...' : 'Wyślij wiadomość';
+      }
+    };
+
+    const showError = (message) => {
+      if (!errorBox) return;
+      errorBox.textContent = message;
+      errorBox.classList.remove('hidden');
+    };
+
+    const hideError = () => {
+      if (!errorBox) return;
+      errorBox.textContent = '';
+      errorBox.classList.add('hidden');
+    };
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!(form instanceof HTMLFormElement)) return;
+      hideError();
+      setSubmitting(true);
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+      payload.privacyConsent = formData.get('privacyConsent') === 'on';
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Nie udało się wysłać wiadomości.');
+        }
+
+        form.classList.add('hidden');
+        success?.classList.remove('hidden');
+        success?.classList.add('flex');
+        form.reset();
+      } catch (error) {
+        showError(error instanceof Error ? error.message : 'Nie udało się wysłać wiadomości.');
+      } finally {
+        setSubmitting(false);
+      }
+    });
+
+    resetButton?.addEventListener('click', () => {
+      success?.classList.add('hidden');
+      success?.classList.remove('flex');
+      form?.classList.remove('hidden');
+      hideError();
+    });
+  })();
+</script>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Heart, BookOpen, Users, Star, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, BookOpen, Users, Star, Sparkles } from 'lucide-react';
+import BlobArrowIcon from '../components/BlobArrowIcon';
 
 // Decorative vein SVG shared component
 function VeinDecoration({ className = '' }) {
@@ -30,24 +31,22 @@ export default function AboutPage() {
           <div className="flex-1 text-center md:text-left">
             <div className="inline-flex items-center gap-2 mb-8">
               <Heart size={14} className="text-terracotta animate-heartbeat" />
-              <span className="text-xs font-bold text-terracotta uppercase tracking-[0.2em]">O mnie</span>
+              <span className="text-fs-label font-bold text-terracotta uppercase tracking-[0.2em]">O mnie</span>
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.05] text-mauve mb-8">
+            <h1 className="text-fs-display font-serif leading-[1.05] text-mauve mb-8">
               Matematyczka,<br />która zaufała{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#B88A44] italic">intuicji.</span>
             </h1>
-            <p className="text-lg md:text-xl text-mauve/70 font-light leading-relaxed max-w-2xl mb-10">
+            <p className="text-fs-body-lg text-mauve/70 font-light leading-relaxed max-w-2xl mb-10">
               Jestem edukatorką okołoporodową i terapeutką traumy. 
               Łączę analityczny umysł z głęboką empatią – by być przy Tobie 
               w sposób, który naprawdę ma znaczenie.
             </p>
             <Link to="/oferta/konsultacja-indywidualna" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">
               <span className="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
-                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
-                  <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
-                </span>
+                <BlobArrowIcon />
               </span>
-              <span className="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
+              <span className="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-fs-label text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
                 Umów konsultację
               </span>
             </Link>
@@ -94,12 +93,12 @@ export default function AboutPage() {
             <div className="lg:w-1/2">
               <div className="inline-flex items-center gap-2 mb-6">
                 <BookOpen size={14} className="text-gold" />
-                <span className="text-xs font-bold text-gold uppercase tracking-[0.2em]">Moja historia</span>
+                <span className="text-fs-label font-bold text-gold uppercase tracking-[0.2em]">Moja historia</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-serif text-mauve mb-8 leading-tight">
+              <h2 className="text-fs-title-lg font-serif text-mauve mb-8 leading-tight">
                 Więcej niż wiedza –<br /><span className="text-gold italic">zaopiekowane emocje.</span>
               </h2>
-              <div className="space-y-5 text-mauve/70 font-light leading-relaxed text-lg">
+              <div className="space-y-5 text-mauve/70 font-light leading-relaxed text-fs-body-lg">
                 <p>
                   Jestem edukatorką okołoporodową, ale wiedza to nie wszystko. 
                   Wierzę, że w przygotowaniu do macierzyństwa kluczowe są zaopiekowane emocje.
@@ -137,9 +136,9 @@ export default function AboutPage() {
           <div className="text-center mb-20 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 mb-4">
               <Star size={14} className="text-gold animate-heartbeat" />
-              <span className="text-xs font-bold text-gold uppercase tracking-[0.2em]">Moje wartości</span>
+              <span className="text-fs-label font-bold text-gold uppercase tracking-[0.2em]">Moje wartości</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-serif text-mauve">Jak pracuję?</h2>
+            <h2 className="text-fs-title-lg font-serif text-mauve">Jak pracuję?</h2>
           </div>
           {/* Cards – exact same styles as homepage "Odkryj swoją naturę" */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
@@ -150,7 +149,7 @@ export default function AboutPage() {
                 <Heart size={48} className="text-terracotta transition-transform duration-500 group-hover:scale-110" />
               </div>
               <div className="relative z-10">
-                <h3 className="text-2xl font-serif text-mauve mb-4">Empatia i obecność</h3>
+                <h3 className="text-fs-title-sm font-serif text-mauve mb-4">Empatia i obecność</h3>
                 <p className="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light">
                   Twoje emocje są ważne. Tworzę przestrzeń, gdzie możesz mówić o wszystkim – bez wstydu i bez cenzury.
                 </p>
@@ -163,7 +162,7 @@ export default function AboutPage() {
                 <BookOpen size={56} className="text-white transition-transform duration-500 animate-heartbeat group-hover:scale-110 group-hover:animate-none" />
               </div>
               <div className="relative z-10">
-                <h3 className="text-2xl font-serif text-mauve mb-4 transition-colors duration-300 group-hover:text-white">Wiedza oparta na faktach</h3>
+                <h3 className="text-fs-title-sm font-serif text-mauve mb-4 transition-colors duration-300 group-hover:text-white">Wiedza oparta na faktach</h3>
                 <p className="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light transition-colors duration-300 group-hover:text-white/90">
                   Przekazuję tylko sprawdzone, aktualne informacje oparte na badaniach. Żadnych mitów, żadnego straszenia.
                 </p>
@@ -176,7 +175,7 @@ export default function AboutPage() {
                 <Users size={48} className="text-terracotta transition-transform duration-500 group-hover:scale-110" />
               </div>
               <div className="relative z-10">
-                <h3 className="text-2xl font-serif text-mauve mb-4">Szacunek dla wyborów</h3>
+                <h3 className="text-fs-title-sm font-serif text-mauve mb-4">Szacunek dla wyborów</h3>
                 <p className="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light">
                   Zero oceniania. Poród w domu czy w szpitalu, karmienie piersią czy mlekiem modyfikowanym – każda decyzja jest Twoja.
                 </p>
@@ -200,11 +199,11 @@ export default function AboutPage() {
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2 mb-8">
             <Sparkles size={14} className="text-gold animate-heartbeat" />
-            <span className="text-xs font-bold text-gold uppercase tracking-[0.2em]">Sprawdź ofertę</span>
+            <span className="text-fs-label font-bold text-gold uppercase tracking-[0.2em]">Sprawdź ofertę</span>
           </div>
 
           {/* Headline */}
-          <h2 className="text-4xl md:text-6xl font-serif text-mauve mb-8 leading-[1.1]">
+          <h2 className="text-fs-title-xl font-serif text-mauve mb-8 leading-[1.1]">
             Każda kobieta zasługuje na{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-terracotta to-gold italic">
               wsparcie, które czuje.
@@ -212,7 +211,7 @@ export default function AboutPage() {
           </h2>
 
           {/* Description */}
-          <p className="text-mauve/65 font-light text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-12">
+          <p className="text-mauve/65 font-light text-fs-body-lg leading-relaxed max-w-2xl mx-auto mb-12">
             Przejrzyj dostępne formy wsparcia – od terapii traumy i konsultacji indywidualnych,
             po nagrania webinarów i medytacje, które możesz odtwarzać kiedy chcesz.
           </p>
@@ -222,11 +221,9 @@ export default function AboutPage() {
             {/* Button 1: gold – Terapia i konsultacje */}
             <Link to="/#oferta" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-14 min-w-[16rem] w-auto">
               <span className="circle absolute left-0 top-0 block w-14 h-14 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
-                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.7rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
-                  <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
-                </span>
+                <BlobArrowIcon wrapperClassName="left-[0.8rem] h-7 w-7" />
               </span>
-              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
+              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-fs-label text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
                 Terapia i konsultacje
               </span>
             </Link>
@@ -234,11 +231,9 @@ export default function AboutPage() {
             {/* Button 2: mauve – Webinary i medytacje */}
             <Link to="/#webinary" className="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-14 min-w-[16rem] w-auto">
               <span className="circle absolute left-0 top-0 block w-14 h-14 bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true">
-                <span className="icon arrow absolute top-0 bottom-0 m-auto left-[0.7rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
-                  <span className="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span>
-                </span>
+                <BlobArrowIcon wrapperClassName="left-[0.8rem] h-7 w-7" />
               </span>
-              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
+              <span className="relative z-10 pl-16 pr-8 font-bold uppercase tracking-wider text-fs-label text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center">
                 Webinary i medytacje
               </span>
             </Link>

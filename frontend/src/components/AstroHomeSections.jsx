@@ -1,55 +1,346 @@
-import parse from 'html-react-parser';
-export default function AstroHomeSections() { return (<>
-{parse(`<section class="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blush/30 via-nude to-white"> <!-- BACKGROUND MOTIF: The "Gold Cord" --> <div class="absolute top-0 left-0 w-full h-full pointer-events-none z-0"> <svg viewBox="0 0 1440 900" class="w-full h-full opacity-40" preserveAspectRatio="none"> <path d="M-100,600 C200,800 400,200 800,400 C1200,600 1300,100 1600,200" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="8 16" class="animate-flow-vein-gold"></path> <path d="M-100,650 C250,850 450,250 850,450 C1250,650 1350,150 1650,250" fill="none" stroke="#E6B8B8" stroke-width="3" stroke-dasharray="12,24" class="animate-flow-vein-rose"></path> </svg> </div> <!-- Floating Organic Orbs --> <div class="absolute top-20 right-20 w-64 h-64 bg-rose/20 rounded-full blur-[80px] animate-float"></div> <div class="absolute bottom-20 left-20 w-80 h-80 bg-goldLight/30 rounded-full blur-[100px] animate-pulse-slow"></div> <div class="relative z-10 max-w-[1440px] mx-auto px-8 md:px-16 flex flex-col-reverse md:flex-row items-center gap-12 pt-20"> <!-- TEXT CONTENT --> <div class="flex-1 text-center md:text-left space-y-8"> <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif leading-[1.1] text-mauve drop-shadow-sm">
-Wesprę Cię w drodze do <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#B88A44] italic pr-2">świadomego porodu</span> </h1> <p class="text-lg md:text-xl text-mauve/80 max-w-xl font-light leading-relaxed">
-Spokój. Zaufanie. Kompetencja. <br>
-Mam na imię <strong>Natalia</strong>, jestem terapeutką traumy i wsparciem na Twojej drodze
-        przez macierzyństwo.
-</p> <div class="pt-6 flex flex-col md:flex-row gap-4 justify-center md:justify-start"> <a href="${import.meta.env.BASE_URL}#oferta" class="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">  <span class="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true"> <!-- Arrow icon --> <span class="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2"> <span class="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span> </span> </span>  <span class="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center"> Zobacz, jak mogę Ci pomóc </span> </a> <a href="${import.meta.env.BASE_URL}o-mnie" class="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">  <span class="circle absolute left-0 top-0 block w-12 h-12 bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true"> <!-- Arrow icon --> <span class="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2"> <span class="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span> </span> </span>  <span class="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center"> Poznaj mnie </span> </a> </div> </div> <!-- IMAGE WITH ORGANIC MASK --> <div class="flex-1 relative flex justify-center items-center"> <div class="relative w-[300px] h-[400px] md:w-[400px] md:h-[500px]"> <!-- Morphing Blob Background behind image --> <div class="absolute inset-0 bg-gold/10 animate-morph mix-blend-multiply scale-110"></div> <!-- Image with irregular border radius --> <img src="${import.meta.env.BASE_URL}images/hero_doula.png" alt="Natalia Potocka - Terapeutka" class="relative w-full h-full object-cover shadow-2xl animate-float" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;" loading="eager"> <!-- Decorative 'Cord' circle --> <div class="absolute -bottom-10 -right-10 w-32 h-32 border border-gold rounded-full opacity-40 animate-pulse-slow"></div> </div> </div> </div> <!-- GRADIENT FADE TO SEAMLESSLY MERGE WITH NEXT SECTION --> <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-nude via-nude/80 to-transparent z-20 pointer-events-none"></div> </section>
-<section class="relative py-32 overflow-hidden flex items-center justify-center min-h-[500px] bg-nude"> <!-- BACKGROUND DECORATION: ORGANIC CORD & FLOW --> <div class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden"> <svg class="absolute w-full h-full opacity-30" viewBox="0 0 1440 600" preserveAspectRatio="none"> <!-- Soft Flowing Curve --> <path d="M-200,300 C200,100 600,500 1000,300 C1400,100 1800,400 2200,200" fill="none" stroke="#E6B8B8" stroke-width="2" class="animate-float" style="animation-duration: 10s;"></path> <!-- Dashed Pulse Line --> <path d="M-200,320 C200,120 600,520 1000,320 C1400,120 1800,420 2200,220" fill="none" stroke="#D4AF37" stroke-width="1" stroke-dasharray="10 30" class="animate-flow-slow opacity-60"></path> </svg> <!-- Organic Breathing Blob – Left --> <div class="absolute top-1/2 left-[5%] -translate-y-1/2 w-64 h-64 bg-rose/10 rounded-full blur-[60px] animate-breathe mix-blend-multiply"></div> <!-- Organic Breathing Blob – Right --> <div class="absolute top-1/2 right-[5%] -translate-y-1/2 w-72 h-72 bg-gold/5 rounded-full blur-[80px] animate-pulse-slow mix-blend-multiply animation-delay-2000"></div> </div> <div class="mx-auto px-8 md:px-12 max-w-4xl text-center relative z-10"> <!-- Decorative Sparkle --> <div class="inline-block relative mb-10"> <svg class="w-8 h-8 text-gold animate-heartbeat relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"></path> </svg> <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gold/20 rounded-full blur-xl animate-pulse"></div> </div> <blockquote class="text-2xl md:text-4xl lg:text-[2.75rem] font-serif text-mauve leading-relaxed italic drop-shadow-sm">
-"Macierzyństwo to nie tylko rola, którą przyjmujesz, ale głęboka podróż do
-      wnętrza siebie. Jestem tu, by towarzyszyć Ci w każdym kroku tej drogi."
-</blockquote> <div class="mt-14 flex flex-col items-center gap-3"> <!-- Organic separator --> <div class="w-24 h-1.5 relative overflow-hidden rounded-full"><div class="absolute inset-0 bg-gold/20 rounded-full"></div><svg class="absolute inset-0 w-full h-full" viewBox="0 0 96 6" preserveAspectRatio="none"><defs><linearGradient id="quoteFlow" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#D4AF37" stop-opacity="0.0"></stop><stop offset="50%" stop-color="#D4AF37" stop-opacity="0.9"></stop><stop offset="100%" stop-color="#D4AF37" stop-opacity="0.0"></stop></linearGradient></defs><rect x="0" y="0" width="96" height="6" fill="url(#quoteFlow)" rx="3" class="animate-flow-slower"></rect></svg></div> <span class="text-sm tracking-[0.25em] text-mauve/80 uppercase font-bold mt-2">
-Natalia Potocka
-</span> </div> </div> </section>
-<section class="py-24 bg-nude relative overflow-hidden"> <!-- Background decoration --> <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"> <div class="absolute top-[10%] left-[-5%] w-[400px] h-[400px] bg-blush/40 rounded-full blur-[80px] animate-breathe"></div> <div class="absolute bottom-[10%] right-[-5%] w-[300px] h-[300px] bg-gold/5 rounded-full blur-[60px] animate-pulse-slow"></div> </div> <div class="max-w-[1440px] mx-auto px-8 md:px-16 relative z-10"> <div class="text-center mb-20 max-w-3xl mx-auto"> <h2 class="text-3xl md:text-5xl font-serif text-mauve mb-6">
-Odkryj swoją naturę
-</h2> <p class="text-mauve/60 text-lg font-light leading-relaxed">
-Moje podejście opiera się na przekonaniu, że poród to instynktowne
-        wydarzenie. Wspólnie budujemy trzy kluczowe filary:
-</p> </div> <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch"> <!-- Item 1: Peace --> <div class="blob-card relative group isolate flex flex-col items-center text-center p-8 rounded-[30px] transition-all duration-300"> <div class="blob-bg absolute top-8 left-1/2 -ml-20 w-40 h-40 bg-white shadow-sm -z-10 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!w-full group-hover:!h-full group-hover:!ml-0 group-hover:!top-0 group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 54% 46% 42% 58% / 44% 48% 52% 56%;"></div> <div class="w-40 h-40 flex items-center justify-center flex-shrink-0 mb-6 relative z-10"> <!-- Leaf icon --> <!-- Leaf icon --> <svg class="w-12 h-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path> <path stroke-linecap="round" stroke-linejoin="round" d="M2 21l3.1-3.1"></path> </svg> </div> <div class="relative z-10"> <h3 class="text-2xl font-serif text-mauve mb-4">
-Czujesz luz i spokój
-</h3> <p class="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light">
-Zamiast lęku przed porodem, czujesz gotowość i ciekawość
-            nadchodzącego czasu.
-</p> </div> </div> <!-- Item 2: Confidence (Middle, elevated) --> <div class="blob-card relative group isolate flex flex-col items-center text-center p-8 rounded-[30px] transition-all duration-300 md:-mt-8"> <div class="blob-bg absolute top-8 left-1/2 -ml-20 w-40 h-40 bg-terracotta shadow-xl shadow-terracotta/20 -z-10 transition-all duration-500 ease-out origin-center animate-heartbeat group-hover:!inset-0 group-hover:!w-full group-hover:!h-full group-hover:!ml-0 group-hover:!top-0 group-hover:!rounded-[30px] group-hover:!shadow-2xl group-hover:!animate-none" style="border-radius: 35% 65% 63% 37% / 42% 43% 57% 58%;"></div> <div class="w-40 h-40 flex items-center justify-center flex-shrink-0 mb-6 relative z-10"> <!-- Heart icon --> <svg class="w-14 h-14 text-white transition-transform duration-500 animate-heartbeat group-hover:scale-110 group-hover:animate-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path> </svg> </div> <div class="relative z-10"> <h3 class="text-2xl font-serif text-mauve mb-4 transition-colors duration-300 group-hover:text-white">
-Masz pewność siebie
-</h3> <p class="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light transition-colors duration-300 group-hover:text-white/90">
-Jesteś pewna swoich kompetencji jako matka i ufasz swojej intuicji.
-</p> </div> </div> <!-- Item 3: Knowledge --> <div class="blob-card relative group isolate flex flex-col items-center text-center p-8 rounded-[30px] transition-all duration-300"> <div class="blob-bg absolute top-8 left-1/2 -ml-20 w-40 h-40 bg-white shadow-sm -z-10 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!w-full group-hover:!h-full group-hover:!ml-0 group-hover:!top-0 group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 64% 36% 47% 53% / 61% 53% 47% 39%;"></div> <div class="w-40 h-40 flex items-center justify-center flex-shrink-0 mb-6 relative z-10"> <!-- BookOpen icon --> <svg class="w-12 h-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"></path> <path stroke-linecap="round" stroke-linejoin="round" d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"></path> </svg> </div> <div class="relative z-10"> <h3 class="text-2xl font-serif text-mauve mb-4">
-Masz rzetelną wiedzę
-</h3> <p class="text-mauve/70 leading-relaxed max-w-xs mx-auto font-light">
-Otrzymujesz konkretne informacje o fizjologii, połogu i laktacji,
-            które dają Ci poczucie kontroli i bezpieczeństwa.
-</p> </div> </div> </div> </div> </section>
-<section id="oferta" class="py-24 bg-nude relative w-full overflow-visible"> <!-- CONNECTING UMBILICAL CORD BACKGROUND --> <div class="absolute inset-0 pointer-events-none z-0"> <svg viewBox="0 0 1440 1600" class="w-full h-full" preserveAspectRatio="none"> <defs> <lineargradient id="cordGradient" x1="0%" y1="0%" x2="100%" y2="100%"> <stop offset="0%" stop-color="#E6B8B8" stop-opacity="0.0"></stop> <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.4"></stop> <stop offset="100%" stop-color="#E6B8B8" stop-opacity="0.0"></stop> </lineargradient> </defs> <path d="M200,100 C500,300 800,100 1100,300 S1000,800 400,1200" stroke="url(#cordGradient)" stroke-width="3" fill="none" stroke-dasharray="20 40" class="animate-flow-slow opacity-60" stroke-linecap="round"></path> </svg> </div> <div class="max-w-[1440px] mx-auto px-8 md:px-16 relative z-10"> <!-- === HEADER === --> <div class="max-w-3xl mx-auto text-center mb-16"> <h2 class="text-4xl md:text-5xl font-serif text-mauve mb-6">
-Wsparcie skrojone <span class="relative inline-block">na miarę<span class="absolute -bottom-2 left-0 w-full h-1 pl-2 pr-2 bg-gold rounded-full opacity-60"></span></span> </h2> <p class="text-mauve/70 text-lg font-light">
-Niezależnie od tego, na jakim etapie jesteś – znajdziesz tu bezpieczną przystań.
-</p> </div>  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-24 items-stretch"> <div class="relative group isolate offer-card lg:col-span-7">  <div class="offer-blob absolute inset-0 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out -z-10 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:!rounded-[30px]" style="border-radius: 63% 37% 39% 61% / 48% 66% 34% 52%;"> <div class="absolute inset-0 border-2 border-transparent group-hover:border-rose/10 transition-colors duration-500 rounded-[inherit] group-hover:!rounded-[30px]"></div> </div> <div class="p-10 md:p-14 h-full flex flex-col justify-center relative z-10"> <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mauve/5 text-mauve text-xs font-bold uppercase tracking-wider mb-6 w-fit border border-mauve/10 backdrop-blur-sm"> <!-- Icons --> <svg class="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path> </svg>  PRIORYTET </div> <h3 class="text-4xl md:text-5xl font-serif text-mauve mb-6 leading-tight"> <a href="${import.meta.env.BASE_URL}oferta/uzdrowienie-traumy-porodowej" class="hover:text-terracotta transition-colors"> <span>Uzdrowienie <span class="text-gold italic font-serif">Traumy Porodowej</span></span> </a> </h3> <div class="text-mauve/70 text-lg mb-8 leading-relaxed font-light max-w-lg line-clamp-3"> <div><p>Metoda Rewind – delikatna, bezpieczna technika terapeutyczna, która pozwala przepracować trudne doświadczenie porodu bez konieczności ponownego przeżywania traumy.</p><p class="mt-4">Sesja trwa około 90 minut. W jej trakcie nie musisz opowiadać szczegółów traumatycznego wydarzenia – technika działa na poziomie podświadomości, co czyni ją wyjątkowo łagodną.</p></div> </div> <div class="mt-auto"> <a href="${import.meta.env.BASE_URL}oferta/uzdrowienie-traumy-porodowej"> <button class="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">  <span class="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true"> <!-- Arrow icon --> <span class="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2"> <span class="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span> </span> </span>  <span class="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center"> Dowiedz się więcej </span> </button> </a> </div> </div> </div><div class="relative group isolate offer-card lg:col-span-5">  <div class="offer-blob absolute inset-0 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out -z-10 group-hover:shadow-xl group-hover:scale-[1.02] group-hover:!rounded-[30px]" style="border-radius: 36% 64% 56% 44% / 63% 47% 53% 37%;"> <div class="absolute inset-0 border-2 border-transparent group-hover:border-rose/10 transition-colors duration-500 rounded-[inherit] group-hover:!rounded-[30px]"></div> </div> <div class="p-10 md:p-14 h-full flex flex-col justify-center relative z-10"> <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mauve/5 text-mauve text-xs font-bold uppercase tracking-wider mb-6 w-fit border border-mauve/10 backdrop-blur-sm"> <!-- Icons -->  <svg class="w-4 h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path> </svg> MENTORING JEDEN NA JEDEN </div> <h3 class="text-3xl md:text-4xl font-serif text-mauve mb-6 leading-tight"> <a href="${import.meta.env.BASE_URL}oferta/konsultacja-indywidualna" class="hover:text-terracotta transition-colors"> <span>Konsultacja <span class="text-gold italic font-serif">Indywidualna</span></span> </a> </h3> <div class="text-mauve/70 text-lg mb-8 leading-relaxed font-light max-w-lg line-clamp-3"> <div><p>Spotkanie jeden na jeden, podczas którego omówimy Twoje potrzeby, obawy i stworzymy plan działania dopasowany do Twojej sytuacji.</p><p class="mt-4">To bezpieczna przestrzeń, w której możesz porozmawiać o ciąży, porodzie, połogu czy macierzyństwie.</p></div> </div> <div class="mt-auto"> <a href="${import.meta.env.BASE_URL}oferta/konsultacja-indywidualna"> <button class="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">  <span class="circle absolute left-0 top-0 block w-12 h-12 bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true"> <!-- Arrow icon --> <span class="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2"> <span class="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span> </span> </span>  <span class="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center"> Dowiedz się więcej </span> </button> </a> </div> </div> </div>  </div> <!-- === KNOWLEDGE BASE (Webinars + Meditation) === --> <div id="webinary" class="scroll-mt-32"> <div class="mb-16 text-center"> <div> <h3 class="text-4xl md:text-5xl font-serif text-mauve mb-4">
- Webinary i Medytacje
- </h3> <p class="text-mauve/60 text-lg font-light">
- Wiedza i ukojenie dostępne na wyciągnięcie ręki.
-</p> </div> </div> <div class="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-16 pt-8 -mx-4 px-4" style="scrollbar-width: none; -ms-overflow-style: none;"> <div class="relative group cursor-pointer snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc(25%-18px)]"> <!-- IMAGE/BLOB LAYER --> <div class="relative h-64 w-full z-0"> <a href="${import.meta.env.BASE_URL}oferta/otulic-polog" class="absolute inset-0 z-10" aria-label="Otulić Połóg"></a> <div class="absolute inset-0 bg-white overflow-hidden shadow-lg transition-all duration-700 ease-[cubic-bezier(0.65,0,0.076,1)] transform-gpu group-hover:!rounded-2xl group-hover:shadow-xl" style="border-radius: 46% 54% 39% 61% / 55% 38% 62% 45%;"> <img src="${import.meta.env.BASE_URL}images/otulic_polog.png" alt="Otulić Połóg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" loading="lazy"> <div class="absolute inset-0 bg-gradient-to-t from-mauve/40 to-transparent opacity-60"></div> </div> </div> <!-- GLASS CARD LAYER --> <div class="relative -mt-12 mx-4 z-10"> <div class="bg-white/90 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2"> <div class="flex justify-between items-start mb-3"> <div> <span class="inline-block px-2 py-0.5 rounded-full bg-gold/10 text-[10px] font-bold text-gold uppercase tracking-widest border border-gold/20 mb-1"> Webinar </span> <h4 class="text-xl font-serif text-mauve leading-tight group-hover:text-terracotta transition-colors"> <a href="${import.meta.env.BASE_URL}oferta/otulic-polog" class="before:absolute before:inset-0"> Otulić Połóg </a> </h4> </div> <div class="p-2.5 bg-mauve/5 rounded-full text-mauve group-hover:bg-terracotta group-hover:text-white transition-colors"> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <polygon points="23 7 16 12 23 17 23 7"></polygon> <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect> </svg> </div> </div> <p class="text-mauve/70 text-sm leading-relaxed font-light line-clamp-3"> Kompleksowy plan regeneracji na czwarty trymestr. Dowiedz się, jak zadbać o siebie i niemowlę. </p> </div> </div> </div><div class="relative group cursor-pointer snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc(25%-18px)]"> <!-- IMAGE/BLOB LAYER --> <div class="relative h-64 w-full z-0"> <a href="${import.meta.env.BASE_URL}oferta/porod-domowy" class="absolute inset-0 z-10" aria-label="Poród Domowy"></a> <div class="absolute inset-0 bg-white overflow-hidden shadow-lg transition-all duration-700 ease-[cubic-bezier(0.65,0,0.076,1)] transform-gpu group-hover:!rounded-2xl group-hover:shadow-xl" style="border-radius: 35% 65% 60% 40% / 37% 65% 35% 63%;"> <img src="${import.meta.env.BASE_URL}images/porod_domowy.png" alt="Poród Domowy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" loading="lazy"> <div class="absolute inset-0 bg-gradient-to-t from-mauve/40 to-transparent opacity-60"></div> </div> </div> <!-- GLASS CARD LAYER --> <div class="relative -mt-12 mx-4 z-10"> <div class="bg-white/90 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2"> <div class="flex justify-between items-start mb-3"> <div> <span class="inline-block px-2 py-0.5 rounded-full bg-gold/10 text-[10px] font-bold text-gold uppercase tracking-widest border border-gold/20 mb-1"> Webinar </span> <h4 class="text-xl font-serif text-mauve leading-tight group-hover:text-terracotta transition-colors"> <a href="${import.meta.env.BASE_URL}oferta/porod-domowy" class="before:absolute before:inset-0"> Poród Domowy </a> </h4> </div> <div class="p-2.5 bg-mauve/5 rounded-full text-mauve group-hover:bg-terracotta group-hover:text-white transition-colors"> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <polygon points="23 7 16 12 23 17 23 7"></polygon> <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect> </svg> </div> </div> <p class="text-mauve/70 text-sm leading-relaxed font-light line-clamp-3"> Poznaj fakty o bezpieczeństwie i kwalifikacji. Sprawdź, czy to rozwiązanie zgodne z Twoją naturą. </p> </div> </div> </div><div class="relative group cursor-pointer snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc(25%-18px)]"> <!-- IMAGE/BLOB LAYER --> <div class="relative h-64 w-full z-0"> <a href="${import.meta.env.BASE_URL}oferta/glowa-w-porodzie" class="absolute inset-0 z-10" aria-label="Głowa w Porodzie"></a> <div class="absolute inset-0 bg-white overflow-hidden shadow-lg transition-all duration-700 ease-[cubic-bezier(0.65,0,0.076,1)] transform-gpu group-hover:!rounded-2xl group-hover:shadow-xl" style="border-radius: 66% 34% 31% 69% / 56% 41% 59% 44%;"> <img src="${import.meta.env.BASE_URL}images/glowa_w_porodzie.png" alt="Głowa w Porodzie" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" loading="lazy"> <div class="absolute inset-0 bg-gradient-to-t from-mauve/40 to-transparent opacity-60"></div> </div> </div> <!-- GLASS CARD LAYER --> <div class="relative -mt-12 mx-4 z-10"> <div class="bg-white/90 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2"> <div class="flex justify-between items-start mb-3"> <div> <span class="inline-block px-2 py-0.5 rounded-full bg-gold/10 text-[10px] font-bold text-gold uppercase tracking-widest border border-gold/20 mb-1"> Webinar </span> <h4 class="text-xl font-serif text-mauve leading-tight group-hover:text-terracotta transition-colors"> <a href="${import.meta.env.BASE_URL}oferta/glowa-w-porodzie" class="before:absolute before:inset-0"> Głowa w Porodzie </a> </h4> </div> <div class="p-2.5 bg-mauve/5 rounded-full text-mauve group-hover:bg-terracotta group-hover:text-white transition-colors"> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <polygon points="23 7 16 12 23 17 23 7"></polygon> <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect> </svg> </div> </div> <p class="text-mauve/70 text-sm leading-relaxed font-light line-clamp-3"> Zrozum mechanizm lęku i naucz się z nim pracować. Twoje nastawienie zmienia przebieg porodu. </p> </div> </div> </div><div class="relative group cursor-pointer snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc(25%-18px)]"> <!-- IMAGE/BLOB LAYER --> <div class="relative h-64 w-full z-0"> <a href="${import.meta.env.BASE_URL}oferta/hipnotyczny-obrot" class="absolute inset-0 z-10" aria-label="Hipnotyczny Obrót"></a> <div class="absolute inset-0 bg-white overflow-hidden shadow-lg transition-all duration-700 ease-[cubic-bezier(0.65,0,0.076,1)] transform-gpu group-hover:!rounded-2xl group-hover:shadow-xl" style="border-radius: 32% 68% 54% 46% / 64% 32% 68% 36%;"> <img src="${import.meta.env.BASE_URL}images/hipnotyczny_obrot.png" alt="Hipnotyczny Obrót" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" loading="lazy"> <div class="absolute inset-0 bg-gradient-to-t from-mauve/40 to-transparent opacity-60"></div> </div> </div> <!-- GLASS CARD LAYER --> <div class="relative -mt-12 mx-4 z-10"> <div class="bg-white/90 backdrop-blur-xl border border-white/60 p-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2"> <div class="flex justify-between items-start mb-3"> <div> <span class="inline-block px-2 py-0.5 rounded-full bg-gold/10 text-[10px] font-bold text-gold uppercase tracking-widest border border-gold/20 mb-1"> Medytacja </span> <h4 class="text-xl font-serif text-mauve leading-tight group-hover:text-terracotta transition-colors"> <a href="${import.meta.env.BASE_URL}oferta/hipnotyczny-obrot" class="before:absolute before:inset-0"> Hipnotyczny Obrót </a> </h4> </div> <div class="p-2.5 bg-mauve/5 rounded-full text-mauve group-hover:bg-terracotta group-hover:text-white transition-colors"> <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path d="M3 18v-6a9 9 0 0118 0v6"></path> <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"></path> </svg> </div> </div> <p class="text-mauve/70 text-sm leading-relaxed font-light line-clamp-3"> Głęboka relaksacja wspierająca obrót dziecka z ułożenia miednicowego. Bezpieczna praca po 37. tygodniu. </p> </div> </div> </div> </div> </div> </div> </section>
-<section id="about" class="py-32 bg-nude relative overflow-hidden"> <!-- Golden Thread --> <svg class="absolute top-0 right-0 h-full opacity-30 pointer-events-none" viewBox="0 0 400 900"> <path d="M400,0 C200,300 100,600 300,900" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="5,10"></path> </svg> <!-- Breathing Background --> <div class="absolute top-1/3 left-10 w-96 h-96 bg-rose/10 rounded-full blur-[120px] animate-breathe"></div> <div class="max-w-[1440px] mx-auto px-8 md:px-16 relative z-10"> <div class="flex flex-col md:flex-row items-center gap-16"> <!-- TEXT --> <div class="w-full md:w-1/2 order-2 md:order-1"> <h2 class="text-4xl md:text-5xl font-serif text-mauve mb-8">
-Matematyczka, <br>która zaufała <span class="text-gold italic">intuicji</span>.
-</h2> <div class="space-y-6 text-lg text-mauve/80 font-light leading-relaxed"> <p>
-Brzmi jak sprzeczność? Dla mnie to pełnia. Z wykształcenia jestem
-            umysłem ścisłym. Wiem, jak ważne są fakty i rzetelna wiedza.
-</p> <p>
-Ale macierzyństwo nauczyło mnie, że <span class="font-medium text-mauve">najważniejsze dzieje się między słowami</span>. W emocjach. W ciele.
-</p> <p>
-Jako konsultantka i terapeutka traumy łączę te dwa światy. Daję Ci twarde
-            dane, byś czuła się bezpiecznie, i miękką obecność, byś czuła się
-            zaopiekowana.
-</p> </div> <div class="mt-10"> <a href="${import.meta.env.BASE_URL}o-mnie" class="group relative inline-flex items-center justify-start cursor-pointer outline-none border-0 h-12 min-w-[12rem] w-auto">  <span class="circle absolute left-0 top-0 block w-12 h-12 bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] group-hover:w-full group-hover:rounded-[1.625rem] z-0" aria-hidden="true"> <!-- Arrow icon --> <span class="icon arrow absolute top-0 bottom-0 m-auto left-[0.625rem] w-[1.125rem] h-[0.125rem] bg-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2"> <span class="absolute -top-[0.29rem] right-[0.0625rem] w-[0.625rem] h-[0.625rem] border-t-[0.125rem] border-r-[0.125rem] border-white rotate-45"></span> </span> </span>  <span class="relative z-10 pl-14 pr-6 font-bold uppercase tracking-wider text-xs md:text-sm text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white whitespace-nowrap w-full text-center"> Poznaj mnie lepiej </span> </a> </div> </div> <!-- IMAGE --> <div class="w-full md:w-1/2 order-1 md:order-2 flex justify-center"> <div class="relative w-[350px] h-[350px] md:w-[450px] md:h-[450px]"> <!-- Organic Background Blob (Animated) --> <div class="absolute inset-0 bg-rose/20 animate-morph blur-md transform scale-105"></div> <div class="absolute inset-0 border border-gold/40 animate-morph animation-delay-2000 transform rotate-12 scale-105"></div> <!-- Main Image Container --> <div class="relative w-full h-full overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02]" style="border-radius: 56% 44% 30% 70% / 60% 30% 70% 40%;"> <div class="absolute inset-0 bg-gold/5 mix-blend-overlay z-10 pointer-events-none"></div> <img src="${import.meta.env.BASE_URL}images/about_doula.png" alt="Natalia Potocka" class="w-full h-full object-cover" loading="lazy"> </div> <!-- Floating Decorative Elements --> <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-gold/10 rounded-full blur-xl animate-heartbeat"></div> </div> </div> </div> </div> </section>`)}
-</>); }
+import { Link } from 'react-router-dom';
+import {
+        BookOpen,
+        Headphones,
+        Heart,
+        PlayCircle,
+        Sparkles,
+        Sprout,
+        Users,
+} from 'lucide-react';
+import BlobArrowIcon from './BlobArrowIcon';
+
+const offerCards = [
+        {
+                href: '/oferta/uzdrowienie-traumy-porodowej',
+                badge: 'PRIORYTET',
+                badgeIcon: Heart,
+                title: 'Uzdrowienie Traumy Porodowej',
+                highlight: 'Traumy Porodowej',
+                description:
+                        'Metoda Rewind to delikatna technika terapeutyczna, która pomaga przepracować trudne doświadczenie porodu bez konieczności bolesnego wracania do niego.',
+        },
+        {
+                href: '/oferta/konsultacja-indywidualna',
+                badge: 'MENTORING 1:1',
+                badgeIcon: Users,
+                title: 'Konsultacja Indywidualna',
+                highlight: 'Indywidualna',
+                description:
+                        'Spotkanie jeden na jeden, podczas którego porządkujemy Twoje pytania, obawy i potrzeby. To bezpieczna przestrzeń na rozmowę o ciąży, porodzie i połogu.',
+        },
+];
+
+const libraryCards = [
+        {
+                href: '/oferta/otulic-polog',
+                title: 'Otulić Połóg',
+                kind: 'Webinar',
+                type: 'webinar',
+                image: 'images/otulic_polog.png',
+                description:
+                        'Kompleksowy plan regeneracji na czwarty trymestr i spokojne wejście w pierwsze tygodnie z dzieckiem.',
+                icon: PlayCircle,
+        },
+        {
+                href: '/oferta/porod-domowy',
+                title: 'Poród Domowy',
+                kind: 'Webinar',
+                type: 'webinar',
+                image: 'images/porod_domowy.png',
+                description:
+                        'Fakty o bezpieczeństwie, kwalifikacji i warunkach, które pomagają ocenić, czy to rozwiązanie jest dla Ciebie.',
+                icon: PlayCircle,
+        },
+        {
+                href: '/oferta/glowa-w-porodzie',
+                title: 'Głowa w Porodzie',
+                kind: 'Webinar',
+                type: 'webinar',
+                image: 'images/glowa_w_porodzie.png',
+                description:
+                        'Zrozumienie mechanizmu lęku i konkretne narzędzia, które pomagają pracować z napięciem przed porodem.',
+                icon: PlayCircle,
+        },
+        {
+                href: '/oferta/hipnotyczny-obrot',
+                title: 'Hipnotyczny Obrót',
+                kind: 'Medytacja',
+                type: 'meditation',
+                image: 'images/hipnotyczny_obrot.png',
+                description:
+                        'Relaksacja wspierająca obrót dziecka z ułożenia miednicowego w końcówce ciąży.',
+                icon: Headphones,
+        },
+];
+
+const productTypeMeta = {
+        webinar: {
+                badgeClass: 'inline-flex rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[clamp(0.68rem,0.66rem+0.07vw,0.76rem)] font-bold uppercase tracking-[0.16em] text-gold',
+                blobClass: 'rounded-[42%_58%_65%_35%/38%_42%_58%_62%]',
+        },
+        meditation: {
+                badgeClass: 'inline-flex rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[clamp(0.68rem,0.66rem+0.07vw,0.76rem)] font-bold uppercase tracking-[0.16em] text-gold',
+                blobClass: 'rounded-[58%_42%_36%_64%/44%_60%_40%_56%]',
+        },
+        course: {
+                badgeClass: 'inline-flex rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[clamp(0.68rem,0.66rem+0.07vw,0.76rem)] font-bold uppercase tracking-[0.16em] text-gold',
+                blobClass: 'rounded-[34%_66%_58%_42%/53%_37%_63%_47%]',
+                icon: BookOpen,
+        },
+};
+
+const valueCards = [
+        {
+                icon: Sprout,
+                title: 'Czujesz luz i spokój',
+                description:
+                        'Zamiast lęku przed porodem pojawia się gotowość, ciekawość i większe zaufanie do siebie.',
+        },
+        {
+                icon: Heart,
+                title: 'Masz pewność siebie',
+                description:
+                        'Budujesz kontakt z intuicją i wzmacniasz poczucie, że możesz przejść przez ten etap po swojemu.',
+                featured: true,
+        },
+        {
+                icon: BookOpen,
+                title: 'Masz rzetelną wiedzę',
+                description:
+                        'Dostajesz sprawdzone informacje o porodzie, połogu i laktacji bez chaosu i bez straszenia.',
+        },
+];
+
+function imageSrc(path) {
+        return `${import.meta.env.BASE_URL}${path}`;
+}
+
+function VeinDecoration({ className = '', viewBox = '0 0 1440 600' }) {
+        return (
+                <svg className={`pointer-events-none absolute inset-0 h-full w-full ${className}`.trim()} viewBox={viewBox} preserveAspectRatio="none">
+                        <path d="M-100,300 C300,100 700,500 1100,250 C1350,100 1500,300 1700,200" fill="none" stroke="#D4AF37" strokeWidth="1.5" strokeDasharray="8 18" className="animate-flow-vein-gold" />
+                        <path d="M-100,360 C300,160 700,560 1100,310 C1350,160 1500,360 1700,260" fill="none" stroke="#E6B8B8" strokeWidth="2.5" strokeDasharray="14 28" className="animate-flow-vein-rose" />
+                </svg>
+        );
+}
+
+function BlobLink({ href, label, tone = 'gold' }) {
+        const circleTone = tone === 'mauve' ? 'bg-mauve' : 'bg-gold';
+
+        return (
+                <Link to={href} className="group relative inline-flex h-12 min-w-[12rem] w-auto items-center justify-start border-0 outline-none">
+                        <span className={`circle absolute left-0 top-0 z-0 block h-12 w-12 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] ${circleTone} transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]`} aria-hidden="true">
+                                <BlobArrowIcon wrapperClassName="left-[0.72rem] h-7 w-7" />
+                        </span>
+                        <span className="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-label font-bold uppercase tracking-wider text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">
+                                {label}
+                        </span>
+                </Link>
+        );
+}
+
+function OfferCard({ card, tone = 'gold' }) {
+        const BadgeIcon = card.badgeIcon;
+        const [lead, tail] = card.title.split(` ${card.highlight}`);
+
+        return (
+                <article className="group relative isolate rounded-[30px] border border-white/70 bg-white/85 p-8 shadow-xl shadow-rose/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:p-10">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-mauve/10 bg-mauve/5 px-4 py-1.5 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve">
+                                <BadgeIcon size={15} className="text-gold" />
+                                {card.badge}
+                        </div>
+                        <h3 className="font-serif text-fs-title-md leading-tight text-mauve">
+                                <Link to={card.href} className="transition-colors group-hover:text-terracotta">
+                                        {lead} <span className="text-gold italic">{card.highlight}</span>
+                                </Link>
+                        </h3>
+                        <p className="mt-5 max-w-xl text-fs-body-lg font-light leading-relaxed text-mauve/70">{card.description}</p>
+                        <div className="mt-8">
+                                <BlobLink href={card.href} label="Dowiedz się więcej" tone={tone} />
+                        </div>
+                </article>
+        );
+}
+
+function LibraryCard({ card }) {
+        const meta = productTypeMeta[card.type] || productTypeMeta.webinar;
+        const CardIcon = card.icon || meta.icon;
+
+        return (
+                <article className="group relative overflow-hidden rounded-[30px] border border-white/70 bg-white/90 shadow-xl shadow-rose/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+                        <Link to={card.href} className="block aspect-[4/3] overflow-hidden bg-blush/20">
+                                <img src={imageSrc(card.image)} alt={card.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                        </Link>
+                        <div className="p-6">
+                                <div className="mb-3 flex items-start justify-between gap-4">
+                                        <div>
+                                                <span className={meta.badgeClass}>{card.kind}</span>
+                                                <h4 className="font-serif text-fs-title-sm text-mauve">
+                                                        <Link to={card.href} className="transition-colors group-hover:text-terracotta">
+                                                                {card.title}
+                                                        </Link>
+                                                </h4>
+                                        </div>
+                                        <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center bg-mauve/5 text-mauve transition-all duration-300 group-hover:scale-105 group-hover:bg-terracotta group-hover:text-white ${meta.blobClass}`.trim()}>
+                                                <CardIcon size={18} />
+                                        </div>
+                                </div>
+                                <p className="text-fs-ui font-light leading-relaxed text-mauve/70">{card.description}</p>
+                        </div>
+                </article>
+        );
+}
+
+export default function AstroHomeSections() {
+        return (
+                <div className="w-full bg-nude">
+                        <section className="relative flex min-h-screen items-center overflow-hidden bg-gradient-to-br from-blush/30 via-nude to-white">
+                                <VeinDecoration className="opacity-40" viewBox="0 0 1440 900" />
+                                <div className="absolute right-20 top-20 h-64 w-64 rounded-full bg-rose/20 blur-[80px] animate-float" />
+                                <div className="absolute bottom-20 left-20 h-80 w-80 rounded-full bg-goldLight/30 blur-[100px] animate-pulse-slow" />
+
+                                <div className="relative z-10 mx-auto flex max-w-[1440px] flex-col-reverse items-center gap-12 px-8 pb-12 pt-20 md:flex-row md:px-16">
+                                        <div className="flex-1 space-y-8 text-center md:text-left">
+                                                <h1 className="font-serif text-4xl leading-[1.1] text-mauve drop-shadow-sm md:text-6xl lg:text-7xl">
+                                                        Wesprę Cię w drodze do <span className="bg-gradient-to-r from-gold to-[#B88A44] bg-clip-text pr-2 italic text-transparent">świadomego porodu</span>
+                                                </h1>
+                                                <p className="max-w-xl text-lg font-light leading-relaxed text-mauve/80 md:text-xl">Mam na imię <strong>Natalia</strong>, jestem terapeutką traumy i wsparciem na Twojej drodze przez macierzyństwo.</p>
+                                                <div className="flex flex-col gap-4 pt-6 md:flex-row md:justify-start">
+                                                        <BlobLink href="/#oferta" label="Zobacz, jak mogę Ci pomóc" tone="gold" />
+                                                        <BlobLink href="/o-mnie" label="Poznaj mnie" tone="mauve" />
+                                                </div>
+                                        </div>
+
+                                        <div className="relative flex flex-1 items-center justify-center">
+                                                <div className="relative h-[400px] w-[300px] md:h-[500px] md:w-[400px]">
+                                                        <div className="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply" />
+                                                        <img src={imageSrc('images/hero_doula.png')} alt="Natalia Potocka - terapeutka" className="relative h-full w-full animate-float object-cover shadow-2xl" style={{ borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }} loading="eager" />
+                                                </div>
+                                        </div>
+                                </div>
+
+                                <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-nude via-nude/80 to-transparent" />
+                        </section>
+
+                        <section className="relative flex min-h-[500px] items-center justify-center overflow-hidden bg-nude py-32">
+                                <VeinDecoration className="opacity-30" />
+                                <div className="absolute left-[5%] top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-rose/10 blur-[60px] animate-breathe mix-blend-multiply" />
+                                <div className="absolute right-[5%] top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-gold/5 blur-[80px] animate-pulse-slow mix-blend-multiply" />
+
+                                <div className="relative z-10 mx-auto max-w-4xl px-8 text-center md:px-12">
+                                        <div className="relative mb-10 inline-block">
+                                                <div className="absolute inset-0 h-16 w-16 rounded-full bg-gold/20 blur-xl" />
+                                                <Sparkles size={32} className="relative z-10 text-gold animate-heartbeat" />
+                                        </div>
+                                        <blockquote className="font-serif text-2xl italic leading-relaxed text-mauve drop-shadow-sm md:text-4xl lg:text-[2.75rem]">
+                                                "Macierzyństwo to nie tylko rola, którą przyjmujesz, ale głęboka podróż do wnętrza siebie. Jestem tu, by towarzyszyć Ci w każdym kroku tej drogi."
+                                        </blockquote>
+                                        <div className="mt-14 flex flex-col items-center gap-3">
+                                                <div className="relative h-1.5 w-24 overflow-hidden rounded-full bg-gold/20">
+                                                        <div className="absolute inset-0 animate-flow-slower rounded-full bg-gradient-to-r from-transparent via-gold to-transparent" />
+                                                </div>
+                                                <span className="mt-2 text-sm font-bold uppercase tracking-[0.25em] text-mauve/80">Natalia Potocka</span>
+                                        </div>
+                                </div>
+                        </section>
+
+                        <section className="relative overflow-hidden bg-nude py-24">
+                                <div className="absolute left-[-5%] top-[10%] h-[400px] w-[400px] rounded-full bg-blush/40 blur-[80px] animate-breathe" />
+                                <div className="absolute bottom-[10%] right-[-5%] h-[300px] w-[300px] rounded-full bg-gold/5 blur-[60px] animate-pulse-slow" />
+
+                                <div className="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+                                        <div className="mx-auto mb-20 max-w-3xl text-center">
+                                                <h2 className="font-serif text-3xl text-mauve md:text-5xl">Odkryj swoją naturę</h2>
+                                                <p className="mt-6 text-lg font-light leading-relaxed text-mauve/60">
+                                                        Moje podejście opiera się na przekonaniu, że poród to instynktowne wydarzenie. Wspólnie budujemy trzy kluczowe filary.
+                                                </p>
+                                        </div>
+
+                                        <div className="grid items-stretch gap-8 md:grid-cols-3">
+                                                {valueCards.map((card) => {
+                                                        const CardIcon = card.icon;
+
+                                                        return (
+                                                                <div key={card.title} className={`blob-card group relative isolate flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300 ${card.featured ? 'md:-mt-8' : ''}`.trim()}>
+                                                                        <div className={`blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 origin-center transition-all duration-500 ease-out group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] ${card.featured ? 'animate-heartbeat bg-terracotta shadow-xl shadow-terracotta/20 group-hover:!shadow-2xl group-hover:!animate-none' : 'bg-white shadow-sm group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10'}`.trim()} style={{ borderRadius: card.featured ? '35% 65% 63% 37% / 42% 43% 57% 58%' : '54% 46% 42% 58% / 44% 48% 52% 56%' }} />
+                                                                        <div className="relative z-10 mb-6 flex h-40 w-40 items-center justify-center">
+                                                                                <CardIcon size={card.featured ? 56 : 48} className={`${card.featured ? 'animate-heartbeat text-white group-hover:animate-none' : 'text-terracotta'} transition-transform duration-500 group-hover:scale-110`.trim()} />
+                                                                        </div>
+                                                                        <div className="relative z-10">
+                                                                                <h3 className={`mb-4 font-serif text-2xl ${card.featured ? 'text-mauve transition-colors duration-300 group-hover:text-white' : 'text-mauve'}`.trim()}>{card.title}</h3>
+                                                                                <p className={`mx-auto max-w-xs font-light leading-relaxed ${card.featured ? 'text-mauve/70 transition-colors duration-300 group-hover:text-white/90' : 'text-mauve/70'}`.trim()}>{card.description}</p>
+                                                                        </div>
+                                                                </div>
+                                                        );
+                                                })}
+                                        </div>
+                                </div>
+                        </section>
+
+                        <section id="oferta" className="relative overflow-visible bg-nude py-24">
+                                <div className="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+                                        <div className="mx-auto mb-16 max-w-3xl text-center">
+                                                <h2 className="font-serif text-4xl text-mauve md:text-5xl">
+                                                        Wsparcie skrojone <span className="relative inline-block">na miarę<span className="absolute -bottom-2 left-0 h-1 w-full rounded-full bg-gold opacity-60" /></span>
+                                                </h2>
+                                                <p className="mt-6 text-lg font-light text-mauve/70">Niezależnie od tego, na jakim etapie jesteś, znajdziesz tu bezpieczną przystań.</p>
+                                        </div>
+
+                                        <div className="mb-24 grid gap-8 lg:grid-cols-2">
+                                                <OfferCard card={offerCards[0]} tone="gold" />
+                                                <OfferCard card={offerCards[1]} tone="mauve" />
+                                        </div>
+
+                                        <div id="webinary" className="scroll-mt-32">
+                                                <div className="mb-16 text-center">
+                                                        <h3 className="font-serif text-4xl text-mauve md:text-5xl">Webinary i Medytacje</h3>
+                                                        <p className="mt-4 text-lg font-light text-mauve/60">Wiedza i ukojenie dostępne na wyciągnięcie ręki.</p>
+                                                </div>
+
+                                                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                                                        {libraryCards.map((card) => (
+                                                                <LibraryCard key={card.href} card={card} />
+                                                        ))}
+                                                </div>
+                                        </div>
+                                </div>
+                        </section>
+
+                        <section id="about" className="relative overflow-hidden bg-nude py-32">
+                                <div className="absolute left-10 top-1/3 h-96 w-96 rounded-full bg-rose/10 blur-[120px] animate-breathe" />
+
+                                <div className="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+                                        <div className="flex flex-col items-center gap-16 md:flex-row">
+                                                <div className="order-2 w-full md:order-1 md:w-1/2">
+                                                        <h2 className="font-serif text-4xl text-mauve md:text-5xl">
+                                                                Matematyczka,
+                                                                <br />
+                                                                która zaufała <span className="text-gold italic">intuicji</span>.
+                                                        </h2>
+                                                        <div className="mt-8 space-y-6 text-lg font-light leading-relaxed text-mauve/80">
+                                                                <p>Brzmi jak sprzeczność? Dla mnie to pełnia. Z wykształcenia jestem umysłem ścisłym i wiem, jak ważne są fakty oraz rzetelna wiedza.</p>
+                                                                <p>Ale macierzyństwo nauczyło mnie, że <span className="font-medium text-mauve">najważniejsze dzieje się między słowami</span>, w emocjach i w ciele.</p>
+                                                                <p>Łączę oba światy. Daję Ci konkret, żebyś czuła się bezpiecznie, i obecność, dzięki której możesz poczuć się naprawdę zaopiekowana.</p>
+                                                        </div>
+                                                        <div className="mt-10">
+                                                                <BlobLink href="/o-mnie" label="Poznaj mnie lepiej" tone="gold" />
+                                                        </div>
+                                                </div>
+
+                                                <div className="order-1 flex w-full justify-center md:order-2 md:w-1/2">
+                                                        <div className="relative h-[350px] w-[350px] md:h-[450px] md:w-[450px]">
+                                                                <div className="absolute inset-0 scale-105 animate-morph bg-rose/20 blur-md" />
+                                                                <div className="absolute inset-0 scale-105 rotate-12 animate-morph border border-gold/40" />
+                                                                <div className="relative h-full w-full overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02]" style={{ borderRadius: '56% 44% 30% 70% / 60% 30% 70% 40%' }}>
+                                                                        <div className="pointer-events-none absolute inset-0 z-10 bg-gold/5 mix-blend-overlay" />
+                                                                        <img src={imageSrc('images/about_doula.png')} alt="Natalia Potocka" className="h-full w-full object-cover" loading="lazy" />
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </div>
+                                </div>
+                        </section>
+                </div>
+        );
+}
