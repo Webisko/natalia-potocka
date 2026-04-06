@@ -1,0 +1,394 @@
+---
+import ProductTeaserCard from './ProductTeaserCard.astro';
+
+const {
+  products = [],
+  ariaLabel = 'Produkty cyfrowe',
+} = Astro.props;
+
+const blobShapes = [
+  '46% 54% 39% 61% / 55% 38% 62% 45%',
+  '35% 65% 60% 40% / 37% 65% 35% 63%',
+  '66% 34% 31% 69% / 56% 41% 59% 44%',
+  '32% 68% 54% 46% / 64% 32% 68% 36%',
+  '54% 46% 42% 58% / 44% 48% 52% 56%',
+  '63% 37% 54% 46% / 38% 58% 42% 62%',
+  '41% 59% 34% 66% / 61% 46% 54% 39%',
+  '57% 43% 62% 38% / 49% 35% 65% 51%',
+];
+
+function hashString(value = '') {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = ((hash << 5) - hash + value.charCodeAt(index)) | 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function resolveShape(key, index, usedIndexes) {
+  const length = blobShapes.length;
+  const startIndex = (hashString(key) + index) % length;
+
+  for (let attempt = 0; attempt < length; attempt += 1) {
+    const candidateIndex = (startIndex + attempt) % length;
+    if (!usedIndexes.has(candidateIndex)) {
+      usedIndexes.add(candidateIndex);
+      return blobShapes[candidateIndex];
+    }
+  }
+
+  const fallbackIndex = startIndex % length;
+  usedIndexes.add(fallbackIndex);
+  return blobShapes[fallbackIndex];
+}
+
+const usedShapeIndexes = new Set();
+const items = products.map((product, index) => ({
+  product,
+  shape: resolveShape(product.slug || `${product.title || 'product'}-${index}`, index, usedShapeIndexes),
+}));
+---
+
+{items.length > 0 ? (
+  <div class="product-carousel" data-product-carousel data-overflow="false" data-at-start="true" data-at-end="false" aria-label={ariaLabel}>
+    <div class="relative">
+      <button
+        type="button"
+        class="product-carousel__nav product-carousel__nav--prev"
+        data-carousel-prev
+        hidden
+        aria-label="Poprzedni produkt"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <div class="product-carousel__track hide-scrollbar" data-carousel-track>
+        {items.map(({ product, shape }) => (
+          <div class="product-carousel__item" data-carousel-item>
+            <ProductTeaserCard product={product} shape={shape} />
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        class="product-carousel__nav product-carousel__nav--next"
+        data-carousel-next
+        hidden
+        aria-label="Następny produkt"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="mt-7 flex justify-center" data-carousel-footer hidden>
+      <div class="product-carousel__dots" data-carousel-dots></div>
+    </div>
+
+    <style is:global>
+      .product-carousel {
+        overflow: visible;
+      }
+
+      .product-carousel[data-overflow='false'] [data-carousel-track] {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+        gap: 1.5rem;
+        padding-bottom: 0.5rem;
+      }
+
+      .product-carousel[data-overflow='true'] [data-carousel-track] {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto;
+        overflow-y: visible;
+        padding: 0.5rem 1rem 2rem;
+        margin: -0.5rem -1rem -2rem;
+        scroll-padding-inline: 1rem;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+      }
+
+      .product-carousel[data-overflow='true'] .product-carousel__item {
+        flex: 0 0 min(86vw, 18rem);
+        scroll-snap-align: start;
+      }
+
+      .product-carousel__nav {
+        position: absolute;
+        top: 42%;
+        z-index: 20;
+        display: inline-flex;
+        height: 3rem;
+        width: 3rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;
+        border: 1px solid rgb(93 64 88 / 0.1);
+        background: rgb(255 255 255);
+        color: rgb(93 64 88 / 0.7);
+        box-shadow: 0 16px 38px -28px rgb(72 43 62 / 0.55);
+        transition: transform 250ms ease, background-color 250ms ease, color 250ms ease, opacity 250ms ease;
+      }
+
+      .product-carousel__nav:hover {
+        background: rgb(232 141 103);
+        color: white;
+      }
+
+      .product-carousel__nav[hidden] {
+        display: none;
+      }
+
+      .product-carousel__nav--prev {
+        left: -0.75rem;
+      }
+
+      .product-carousel__nav--next {
+        right: -0.75rem;
+        border-radius: 62% 38% 37% 63% / 59% 56% 44% 41%;
+      }
+
+      .product-carousel[data-at-start='true'] .product-carousel__nav--prev,
+      .product-carousel[data-at-end='true'] .product-carousel__nav--next {
+        opacity: 0.45;
+      }
+
+      .product-carousel__dots {
+        display: inline-flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.55rem;
+      }
+
+      .product-carousel__dot {
+        display: inline-flex;
+        height: 0.7rem;
+        width: 1.8rem;
+        border: 0;
+        border-radius: 9999px;
+        background: rgb(93 64 88 / 0.14);
+        transition: transform 250ms ease, background-color 250ms ease, width 250ms ease;
+      }
+
+      .product-carousel__dot:hover {
+        background: rgb(212 175 55 / 0.45);
+      }
+
+      .product-carousel__dot[aria-current='true'] {
+        width: 2.5rem;
+        background: linear-gradient(90deg, rgb(212 175 55 / 0.95), rgb(232 141 103 / 0.85));
+      }
+
+      @media (min-width: 640px) {
+        .product-carousel[data-overflow='true'] .product-carousel__item {
+          flex-basis: min(44vw, 18rem);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .product-carousel[data-overflow='true'] .product-carousel__item {
+          flex-basis: min(30vw, 18rem);
+        }
+
+        .product-carousel__nav--prev {
+          left: -1rem;
+        }
+
+        .product-carousel__nav--next {
+          right: -1rem;
+        }
+      }
+
+      @media (min-width: 1280px) {
+        .product-carousel[data-overflow='true'] .product-carousel__item {
+          flex-basis: min(23vw, 18rem);
+        }
+      }
+    </style>
+
+    <script is:inline>
+      if (!window.__nataliaProductCarouselInit) {
+        window.__nataliaProductCarouselInit = true;
+
+        const initializeProductCarousel = (root) => {
+          if (!(root instanceof HTMLElement) || root.dataset.carouselBound === 'true') {
+            return;
+          }
+
+          const track = root.querySelector('[data-carousel-track]');
+          const prevButton = root.querySelector('[data-carousel-prev]');
+          const nextButton = root.querySelector('[data-carousel-next]');
+          const footer = root.querySelector('[data-carousel-footer]');
+          const dotsContainer = root.querySelector('[data-carousel-dots]');
+
+          if (!(track instanceof HTMLElement) || !(prevButton instanceof HTMLButtonElement) || !(nextButton instanceof HTMLButtonElement) || !(footer instanceof HTMLElement) || !(dotsContainer instanceof HTMLElement)) {
+            return;
+          }
+
+          root.dataset.carouselBound = 'true';
+
+          let snapPoints = [];
+          let dotButtons = [];
+          let frameHandle = 0;
+
+          const getCards = () => Array.from(track.querySelectorAll('[data-carousel-item]')).filter((card) => card instanceof HTMLElement);
+
+          const getGapSize = () => {
+            const styles = window.getComputedStyle(track);
+            return Number.parseFloat(styles.columnGap || styles.gap || '0') || 0;
+          };
+
+          const getCardBasis = () => {
+            const viewportWidth = window.innerWidth || root.clientWidth || track.clientWidth;
+            const remBase = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize || '16') || 16;
+            const maxCardWidth = 18 * remBase;
+
+            if (viewportWidth >= 1280) {
+              return Math.min(viewportWidth * 0.23, maxCardWidth);
+            }
+
+            if (viewportWidth >= 1024) {
+              return Math.min(viewportWidth * 0.30, maxCardWidth);
+            }
+
+            if (viewportWidth >= 640) {
+              return Math.min(viewportWidth * 0.44, maxCardWidth);
+            }
+
+            return Math.min(viewportWidth * 0.86, maxCardWidth);
+          };
+
+          const shouldEnableSlider = () => {
+            const cards = getCards();
+            if (cards.length <= 1) {
+              return false;
+            }
+
+            const requiredWidth = (cards.length * getCardBasis()) + ((cards.length - 1) * getGapSize()) + 32;
+            return requiredWidth - root.clientWidth > 12;
+          };
+
+          const clampPosition = (value) => {
+            const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+            return Math.max(0, Math.min(value, maxScroll));
+          };
+
+          const rebuildDots = () => {
+            const cardOffsets = getCards().map((card) => clampPosition(card.offsetLeft));
+            snapPoints = [...new Set(cardOffsets)];
+            dotsContainer.innerHTML = '';
+            dotButtons = snapPoints.map((position, index) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.className = 'product-carousel__dot';
+              button.setAttribute('aria-label', `Przejdź do produktu ${index + 1}`);
+              button.addEventListener('click', () => {
+                track.scrollTo({ left: position, behavior: 'smooth' });
+              });
+              dotsContainer.appendChild(button);
+              return button;
+            });
+          };
+
+          const updateScrollState = () => {
+            const hasOverflow = root.dataset.overflow === 'true';
+            root.dataset.overflow = hasOverflow ? 'true' : 'false';
+            footer.hidden = !hasOverflow;
+            prevButton.hidden = !hasOverflow;
+            nextButton.hidden = !hasOverflow;
+
+            if (!hasOverflow) {
+              root.dataset.atStart = 'true';
+              root.dataset.atEnd = 'true';
+              track.scrollLeft = 0;
+              dotButtons.forEach((button, index) => button.setAttribute('aria-current', index === 0 ? 'true' : 'false'));
+              return;
+            }
+
+            const maxScroll = Math.max(0, track.scrollWidth - track.clientWidth);
+            const scrollLeft = track.scrollLeft;
+            root.dataset.atStart = scrollLeft <= 4 ? 'true' : 'false';
+            root.dataset.atEnd = scrollLeft >= maxScroll - 4 ? 'true' : 'false';
+
+            let activeIndex = 0;
+            for (let index = 0; index < snapPoints.length; index += 1) {
+              if (Math.abs(snapPoints[index] - scrollLeft) <= Math.abs((snapPoints[activeIndex] ?? 0) - scrollLeft)) {
+                activeIndex = index;
+              }
+            }
+
+            dotButtons.forEach((button, index) => button.setAttribute('aria-current', index === activeIndex ? 'true' : 'false'));
+          };
+
+          const refreshLayout = () => {
+            const hasOverflow = shouldEnableSlider();
+            const overflowValue = hasOverflow ? 'true' : 'false';
+
+            if (root.dataset.overflow !== overflowValue) {
+              root.dataset.overflow = overflowValue;
+            }
+
+            requestAnimationFrame(() => {
+              rebuildDots();
+              updateScrollState();
+            });
+          };
+
+          const scheduleUpdate = () => {
+            cancelAnimationFrame(frameHandle);
+            frameHandle = requestAnimationFrame(updateScrollState);
+          };
+
+          const scrollToAdjacent = (direction) => {
+            if (snapPoints.length === 0) {
+              return;
+            }
+
+            const current = track.scrollLeft;
+            const currentIndex = snapPoints.findIndex((point) => Math.abs(point - current) < 8);
+            const fallbackIndex = snapPoints.reduce((closestIndex, point, index) => (
+              Math.abs(point - current) < Math.abs(snapPoints[closestIndex] - current) ? index : closestIndex
+            ), 0);
+            const activeIndex = currentIndex >= 0 ? currentIndex : fallbackIndex;
+            const nextIndex = Math.max(0, Math.min(snapPoints.length - 1, activeIndex + direction));
+
+            track.scrollTo({ left: snapPoints[nextIndex], behavior: 'smooth' });
+          };
+
+          prevButton.addEventListener('click', () => scrollToAdjacent(-1));
+          nextButton.addEventListener('click', () => scrollToAdjacent(1));
+          track.addEventListener('scroll', scheduleUpdate, { passive: true });
+          window.addEventListener('resize', refreshLayout, { passive: true });
+
+          const resizeObserver = new ResizeObserver(() => {
+            refreshLayout();
+          });
+
+          resizeObserver.observe(track);
+          getCards().forEach((card) => resizeObserver.observe(card));
+
+          refreshLayout();
+        };
+
+        const initAllProductCarousels = () => {
+          document.querySelectorAll('[data-product-carousel]').forEach((root) => initializeProductCarousel(root));
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initAllProductCarousels, { once: true });
+        } else {
+          initAllProductCarousels();
+        }
+
+        new MutationObserver(() => initAllProductCarousels()).observe(document.body, { childList: true, subtree: true });
+      }
+    </script>
+  </div>
+) : null}

@@ -1,0 +1,74 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Enable CORS for local testing if needed, though Hostinger usually allows it
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+    # API Proxy Rules
+    # /api/products/slug -> /php_api/products.php?slug=slug
+    RewriteRule ^api/products/([^/]+)$ /php_api/products.php?slug=$1 [L,QSA]
+    RewriteRule ^api/products/?$ /php_api/products.php [L,QSA]
+    
+    # /api/admin/products
+    RewriteRule ^api/admin/products/([^/]+)$ /php_api/admin.php?action=products&id=$1 [L,QSA]
+    RewriteRule ^api/admin/products/?$ /php_api/admin.php?action=products [L,QSA]
+    
+    # /api/admin/grant-access
+    RewriteRule ^api/admin/grant-access$ /php_api/admin.php?action=grant-access [L,QSA]
+    
+    # /api/reviews
+    RewriteRule ^api/reviews/all$ /php_api/reviews.php?action=all [L,QSA]
+    RewriteRule ^api/reviews/([^/]+)$ /php_api/reviews.php?id=$1 [L,QSA]
+    RewriteRule ^api/reviews/?$ /php_api/reviews.php [L,QSA]
+    
+    # /api/checkout
+    RewriteRule ^api/checkout/create-session$ /php_api/checkout.php?action=create-session [L,QSA]
+    
+    # /api/courses
+    RewriteRule ^api/courses/by-product/([^/]+)$ /php_api/courses.php?action=by-product&productId=$1 [L,QSA]
+    RewriteRule ^api/courses/progress/([^/]+)$ /php_api/courses.php?action=progress&courseId=$1 [L,QSA]
+    RewriteRule ^api/courses/progress$ /php_api/courses.php?action=progress [L,QSA]
+
+    # Courses Admin
+    RewriteRule ^api/courses/modules/([^/]+)/lessons$ /php_api/courses.php?action=lesson-create&moduleId=$1 [L,QSA]
+    RewriteRule ^api/courses/lessons/([^/]+)/attachments$ /php_api/courses.php?action=attachment-create&lessonId=$1 [L,QSA]
+    
+    RewriteRule ^api/courses/([^/]+)/modules$ /php_api/courses.php?action=module-create&courseId=$1 [L,QSA]
+    
+    RewriteCond %{REQUEST_METHOD} PUT [OR]
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/modules/([^/]+)$ /php_api/courses.php?action=module-update&moduleId=$1 [L,QSA]
+    
+    RewriteCond %{REQUEST_METHOD} PUT [OR]
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/lessons/([^/]+)$ /php_api/courses.php?action=lesson-update&lessonId=$1 [L,QSA]
+    
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/attachments/([^/]+)$ /php_api/courses.php?action=attachment-delete&attachmentId=$1 [L,QSA]
+
+    RewriteCond %{REQUEST_METHOD} GET [OR]
+    RewriteCond %{REQUEST_METHOD} PUT [OR]
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/([^/]+)$ /php_api/courses.php?action=get&courseId=$1 [L,QSA]
+    
+    RewriteRule ^api/courses/?$ /php_api/courses.php?action=list [L,QSA]
+    
+    # /api/client
+    RewriteRule ^api/client/library$ /php_api/client.php?action=library [L,QSA]
+    
+    # /api/auth
+    RewriteRule ^api/auth/confirm/([^/]+)$ /php_api/auth.php?action=confirm&token=$1 [L,QSA]
+    RewriteRule ^api/auth/([^/]+)$ /php_api/auth.php?action=$1 [L,QSA]
+    
+    # /api/webhook
+    RewriteRule ^api/webhook/stripe$ /php_api/webhook.php [L,QSA]
+    RewriteRule ^api/webhook/?$ /php_api/webhook.php [L,QSA]
+
+    # Handle React Routing (SPA)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.html [QSA,L]
+</IfModule>

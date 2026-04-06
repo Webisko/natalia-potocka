@@ -1,0 +1,18 @@
+---
+import AuthForm from '../components/auth/AuthForm.astro';
+import AuthPageShell from '../components/auth/AuthPageShell.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const initialToken = Astro.url.searchParams.get('token') ?? '';
+---
+
+<BaseLayout
+  title="Nowe hasło | Natalia Potocka"
+  description="Ustaw nowe hasło do swojego konta."
+  noindex={true}
+  breadcrumbItems={[]}
+>
+  <AuthPageShell>
+    <AuthForm mode="reset-password" initialToken={initialToken} />
+  </AuthPageShell>
+</BaseLayout>

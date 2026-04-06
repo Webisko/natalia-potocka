@@ -1,0 +1,375 @@
+---
+import BlobArrowIcon from '../icons/BlobArrowIcon.astro';
+import { SERVICE_CONTENT } from '../../lib/serviceContent.js';
+import OptimizedImage from '../OptimizedImage.astro';
+import { getPagePathByKey } from '../../lib/pageSettings.js';
+import BenefitIcon from '../ui/BenefitIcon.jsx';
+
+const { product } = Astro.props;
+
+const content = SERVICE_CONTENT[product.slug] || {
+  badge: 'Usługa',
+  hero: product.title,
+  heroAccent: '',
+  heroFull: product.title,
+  subhero: product.description || '',
+  title: product.title,
+  description: product.description || '',
+  price: product.price,
+  priceNote: '',
+  benefitsHeading: 'Dlaczego warto wybrać tę formę wsparcia?',
+  benefits: [],
+  why: null,
+  process: { heading: '', sessions: [] },
+  finalCtaHeading: 'Porozmawiajmy o tym, czego dziś potrzebujesz.',
+  finalCtaLead: 'Jeśli chcesz sprawdzić, czy to wsparcie jest dla Ciebie, napisz do mnie i ustalmy kolejne kroki.',
+  cta: 'Napisz do mnie',
+};
+
+const mailtoHref = `mailto:kontakt@nataliapotocka.pl?subject=${encodeURIComponent(`Usługa: ${product.title}`)}`;
+const contactPath = getPagePathByKey('contact');
+const imageSrc = content.image ? (content.image.startsWith('/') ? content.image : `/${content.image}`) : null;
+const processImageSrc = product.secondary_image_url || imageSrc;
+const heroTitle = content.title || product.title;
+const heroLead = content.subhero || content.description || product.description || '';
+const introTitle = product.slug === 'uzdrowienie-traumy-porodowej' ? 'Czym jest Metoda Rewind?' : 'Na czym polega to wsparcie?';
+const isTraumaPage = product.slug === 'uzdrowienie-traumy-porodowej';
+const consultationPath = '/konsultacja-indywidualna';
+const heroTitleMain = isTraumaPage ? 'Uzdrowienie' : heroTitle;
+const heroTitleAccent = isTraumaPage ? 'Traumy Porodowej' : '';
+const heroCtaLabel = isTraumaPage ? 'Umów się' : content.cta;
+const finalPrimaryCtaLabel = isTraumaPage ? 'Umów się' : content.cta;
+const finalSecondaryCtaLabel = isTraumaPage ? 'Poznaj konsultację' : 'Kontakt';
+const whyParagraphs = String(content.why?.text || '').split('\n\n').map((paragraph) => paragraph.trim()).filter(Boolean);
+const introParagraphs = isTraumaPage
+  ? [
+      content.description,
+      'To łagodna metoda pracy z układem nerwowym. Nie polega na szczegółowym wracaniu do porodu, tylko na bezpiecznym przeprocesowaniu wspomnienia tak, aby przestało uruchamiać napięcie, lęk i poczucie zagrożenia.',
+    ].filter(Boolean)
+  : [content.description, ...whyParagraphs].filter(Boolean);
+const productBenefits = Array.isArray(product.benefits_json)
+  ? product.benefits_json
+      .map((item) => ({
+        icon: item?.icon || 'check',
+        title: item?.title || '',
+        desc: item?.description || item?.desc || '',
+      }))
+      .filter((item) => item.title || item.desc)
+  : [];
+const contentBenefits = Array.isArray(content.benefits)
+  ? content.benefits
+      .map((item) => ({
+        icon: item?.icon || 'check',
+        title: item?.title || '',
+        desc: item?.description || item?.desc || '',
+      }))
+      .filter((item) => item.title || item.desc)
+  : [];
+const displayBenefits = (productBenefits.length > 0 ? productBenefits : contentBenefits).slice(0, 4);
+const processSessions = isTraumaPage
+  ? [
+      {
+        eyebrow: '01',
+        title: 'Darmowa konsultacja (15 min)',
+        desc: 'Krótka rozmowa telefoniczna lub online, podczas której sprawdzamy, czy ta metoda jest dla Ciebie odpowiednia w tym momencie.',
+      },
+      {
+        eyebrow: '02',
+        title: 'Sesja przygotowawcza',
+        desc: 'Poznajemy się, budujemy poczucie bezpieczeństwa i uczysz się technik relaksacyjnych, które wykorzystamy podczas głównego procesu.',
+      },
+      {
+        eyebrow: '03',
+        title: 'Sesja Rewind',
+        desc: 'Właściwy proces w stanie głębokiego relaksu. Twój mózg bezpiecznie przetwarza trudne wspomnienia bez potrzeby ponownego przeżywania ich w pełni.',
+      },
+      {
+        eyebrow: '04',
+        title: 'Sesja sprawdzająca',
+        desc: 'Po krótkim czasie wracamy do rozmowy, aby zobaczyć, jakie zmiany zaszły w Twoim samopoczuciu, reakcjach i poczuciu bezpieczeństwa.',
+      },
+    ]
+  : Array.isArray(content.process?.sessions)
+    ? content.process.sessions
+        .filter((item) => item?.title || item?.desc)
+        .map((item, index) => ({
+          eyebrow: `Etap ${index + 1}`,
+          title: item.title,
+          desc: item.desc,
+        }))
+    : [];
+const benefitBlobShapes = [
+  '63% 37% 39% 61% / 48% 66% 34% 52%',
+  '36% 64% 56% 44% / 63% 47% 53% 37%',
+  '57% 43% 44% 56% / 39% 61% 39% 61%',
+  '41% 59% 60% 40% / 57% 39% 61% 43%',
+];
+const finalBlobShapes = [
+  '58% 42% 39% 61% / 51% 59% 41% 49%',
+  '40% 60% 59% 41% / 57% 42% 58% 43%',
+];
+const processBlobShapes = [
+  '34% 66% 60% 40% / 38% 43% 57% 62%',
+  '58% 42% 39% 61% / 54% 63% 37% 46%',
+  '43% 57% 61% 39% / 55% 40% 60% 45%',
+  '62% 38% 44% 56% / 40% 58% 42% 60%',
+];
+const pageShellClass = 'mx-auto w-full max-w-[1240px] px-6 md:px-12';
+---
+
+<div class="relative overflow-hidden bg-nude">
+  <div class="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_top,_rgba(234,221,215,0.55),_transparent_38%),radial-gradient(circle_at_85%_30%,_rgba(230,184,184,0.18),_transparent_30%),linear-gradient(180deg,_#faf7f2_0%,_#f8f4ef_100%)]"></div>
+  <div class="pointer-events-none absolute inset-0 -z-10 overflow-visible">
+    <div class="absolute -left-16 top-24 h-[320px] w-[320px] rounded-full bg-rose/10 blur-[110px] animate-breathe"></div>
+    <div class="absolute right-[-6rem] top-[28rem] h-[360px] w-[360px] rounded-full bg-gold/10 blur-[120px] animate-pulse-slow"></div>
+    <div class="absolute left-[14%] top-[62rem] h-[260px] w-[260px] rounded-full bg-blush/18 blur-[100px] animate-breathe"></div>
+    <div class="absolute right-[10%] bottom-[18rem] h-[300px] w-[300px] rounded-full bg-rose/10 blur-[120px] animate-pulse-slow"></div>
+    <svg viewBox="0 0 1440 2400" class="absolute inset-0 h-full w-full opacity-30" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M220,180 C530,360 790,210 1120,420 S1040,1100 430,1540" stroke="#D4AF37" stroke-width="1" fill="none" stroke-dasharray="12 44" class="animate-flow-slower opacity-20"></path>
+      <path d="M140,520 C480,720 910,560 1180,820 S980,1450 320,1880" stroke="#E6B8B8" stroke-width="1.5" fill="none" stroke-dasharray="16 54" class="animate-flow-slower opacity-20"></path>
+    </svg>
+  </div>
+
+  <section class:list={[pageShellClass, 'pb-14 pt-32 md:pb-20 md:pt-40 lg:pt-44']}>
+    <div class="mx-auto flex max-w-4xl flex-col items-center text-center">
+      <h1 class="font-serif text-[3rem] leading-[0.95] text-mauve md:text-[4.35rem] lg:text-[4.9rem]">
+        {heroTitleAccent ? (
+          <>
+            <span class="block">{heroTitleMain}</span>
+            <span class="block font-serif italic text-gold">{heroTitleAccent}</span>
+          </>
+        ) : (
+          heroTitle
+        )}
+      </h1>
+
+      {heroLead ? <p class="mt-8 max-w-3xl text-[1.14rem] font-light leading-[1.95] text-mauve/76 md:text-[1.24rem]">{heroLead}</p> : null}
+
+      <div class="mt-10 flex flex-col items-center gap-5">
+        <a href={mailtoHref} class="group relative inline-flex h-[50px] min-w-[15rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">{heroCtaLabel}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class:list={[pageShellClass, 'pb-16 md:pb-20']}>
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16">
+      <div class="flex justify-center lg:justify-start">
+        <div class="relative h-[340px] w-[300px] md:h-[460px] md:w-[420px]">
+          <div class="absolute inset-0 scale-105 animate-morph bg-gold/10" style="border-radius: 58% 42% 39% 61% / 44% 58% 42% 56%;"></div>
+          <div class="absolute -left-8 top-10 h-24 w-24 rounded-full bg-rose/10 blur-2xl animate-breathe"></div>
+          <div class="absolute inset-0 scale-[1.08] border border-mauve/10" style="border-radius: 58% 42% 39% 61% / 44% 58% 42% 56%;"></div>
+          {imageSrc ? (
+            <OptimizedImage
+              src={imageSrc}
+              alt={product.title}
+              class="relative h-full w-full animate-float object-cover shadow-[0_34px_90px_-40px_rgba(72,43,62,0.45)]"
+              style="border-radius: 58% 42% 39% 61% / 44% 58% 42% 56%;"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+              sizes="(min-width: 768px) 420px, 300px"
+            />
+          ) : (
+            <div class="relative flex h-full w-full items-center justify-center bg-white/80 font-serif text-3xl text-mauve/25 shadow-[0_34px_90px_-40px_rgba(72,43,62,0.45)]" style="border-radius: 58% 42% 39% 61% / 44% 58% 42% 56%;">{product.title}</div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-serif text-3xl leading-tight text-mauve md:text-5xl">{introTitle}</h2>
+        <div class="mt-6 space-y-5 text-[1.1rem] font-light leading-[1.95] text-mauve/76 md:text-[1.18rem]">
+          {introParagraphs.length > 0 ? introParagraphs.map((paragraph) => <p>{paragraph}</p>) : <p>{heroLead}</p>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {displayBenefits.length > 0 ? (
+    <section class="relative py-16 md:py-20">
+      <div class="pointer-events-none absolute inset-0 overflow-visible">
+        <div class="absolute left-[8%] top-[18%] h-32 w-32 rounded-full bg-rose/8 blur-[70px] animate-breathe"></div>
+        <div class="absolute right-[10%] bottom-[14%] h-40 w-40 rounded-full bg-gold/8 blur-[80px] animate-pulse-slow"></div>
+      </div>
+      <div class:list={[pageShellClass]}>
+        <div class="mx-auto max-w-3xl text-center">
+          <h2 class="font-serif text-3xl text-mauve md:text-5xl">{content.benefitsHeading || 'Dlaczego wybrać tę formę wsparcia'}</h2>
+          <div class="relative mx-auto mt-6 h-1.5 w-24 overflow-hidden rounded-full bg-gold/20">
+            <div class="absolute inset-0 animate-flow-slower rounded-full bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          </div>
+        </div>
+
+        <div class:list={[
+          'mx-auto mt-12 grid max-w-5xl gap-8 md:grid-cols-2',
+          displayBenefits.length <= 2 ? 'max-w-3xl' : '',
+        ]}>
+          {displayBenefits.map((benefit, index) => (
+            <div class="blob-card group isolate relative flex min-h-[24rem] h-full flex-col items-center justify-center rounded-[30px] px-8 py-10 text-center transition-all duration-300 md:min-h-[25rem] md:px-10 md:py-12">
+              <div
+                class="blob-bg absolute inset-x-6 inset-y-4 -z-10 bg-white shadow-[0_26px_70px_-40px_rgba(72,43,62,0.18)] transition-all duration-700 ease-out origin-center group-hover:!inset-0 group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10 group-hover:scale-[1.02]"
+                style={`border-radius: ${benefitBlobShapes[index % benefitBlobShapes.length]};`}
+              >
+                <div class="absolute inset-0 rounded-[inherit] border border-mauve/8 transition-colors duration-500 group-hover:rounded-[30px] group-hover:border-rose/10"></div>
+              </div>
+              <div class="relative z-10 mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gold/10 transition-transform duration-500 group-hover:scale-110 group-hover:bg-gold/12">
+                <BenefitIcon name={benefit.icon} size={40} className="text-gold transition-transform duration-500 group-hover:scale-110" />
+              </div>
+              <div class="relative z-10 max-w-[18rem]">
+                <h3 class="mb-4 font-serif text-[1.75rem] leading-tight text-mauve">{benefit.title}</h3>
+                <p class="mx-auto text-[1.05rem] font-light leading-8 text-mauve/76">{benefit.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ) : null}
+
+  {processSessions.length > 0 ? (
+    <section class:list={[pageShellClass, 'relative py-16 md:py-24']}>
+      <div class="pointer-events-none absolute inset-0 overflow-visible">
+        <div class="absolute left-[2%] top-[28%] h-40 w-40 rounded-full bg-blush/10 blur-[85px] animate-breathe"></div>
+        <div class="absolute right-[6%] top-[10%] h-48 w-48 rounded-full bg-gold/8 blur-[95px] animate-pulse-slow"></div>
+      </div>
+      <div class="grid gap-14 lg:grid-cols-[minmax(0,0.84fr)_minmax(0,1.16fr)] lg:items-start lg:gap-18">
+        <div>
+          <h2 class="font-serif text-3xl text-mauve md:text-5xl">{isTraumaPage ? <>Jak wygląda <span class="italic text-gold">proces?</span></> : content.process.heading || 'Jak wygląda proces?'}</h2>
+          <p class="mt-5 max-w-2xl text-[1.1rem] font-light leading-[1.95] text-mauve/78 md:text-[1.18rem]">
+            {isTraumaPage
+              ? 'To spokojny, elastyczny proces dopasowany do Ciebie. Bez sztywnego scenariusza i bez presji, żeby opowiadać więcej, niż naprawdę chcesz.'
+              : content.process.note || 'Każdy etap prowadzę w tempie, które pozwala Ci czuć się bezpiecznie i spokojnie.'}
+          </p>
+          <div class="relative mt-6 h-1.5 w-24 overflow-hidden rounded-full bg-gold/20">
+            <div class="absolute inset-0 animate-flow-slower rounded-full bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+          </div>
+
+          <div class="relative mt-10 mx-auto max-w-[360px] lg:mx-0 lg:max-w-[420px]">
+            <div class="relative h-[340px] w-[300px] md:h-[460px] md:w-[420px]">
+              <div class="absolute inset-0 scale-105 animate-morph bg-gold/10" style="border-radius: 42% 58% 49% 51% / 61% 39% 61% 39%;"></div>
+              <div class="absolute -right-6 top-12 h-24 w-24 rounded-full bg-rose/10 blur-2xl animate-breathe"></div>
+              <div class="absolute inset-0 scale-[1.08] border border-mauve/10" style="border-radius: 42% 58% 49% 51% / 61% 39% 61% 39%;"></div>
+              {processImageSrc ? (
+                <OptimizedImage
+                  src={processImageSrc}
+                  alt={product.title}
+                  class="relative h-full w-full animate-float object-cover shadow-[0_34px_90px_-40px_rgba(72,43,62,0.45)]"
+                  style="border-radius: 42% 58% 49% 51% / 61% 39% 61% 39%;"
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(min-width: 768px) 420px, 300px"
+                />
+              ) : (
+                <div class="relative flex h-full w-full items-center justify-center bg-white/80 font-serif text-3xl text-mauve/25 shadow-[0_34px_90px_-40px_rgba(72,43,62,0.45)]" style="border-radius: 42% 58% 49% 51% / 61% 39% 61% 39%;">{product.title}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2 md:gap-8">
+          {processSessions.map((session, index) => (
+            <article class:list={[
+              'offer-card group isolate relative min-h-[15rem] overflow-visible',
+              index % 2 === 0 ? 'md:-translate-y-4' : 'md:translate-y-4',
+            ]}>
+              <div class="absolute inset-0 -z-10 origin-center scale-x-[0.88] scale-y-[0.92] transition-transform duration-700 ease-in-out group-hover:scale-x-[1.02] group-hover:scale-y-[1.02]">
+                <div
+                  class="offer-blob relative h-full w-full bg-white shadow-[0_26px_70px_-40px_rgba(72,43,62,0.18)] transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:shadow-[0_34px_90px_-26px_rgba(72,43,62,0.18)]"
+                  style={`border-radius: ${processBlobShapes[index % processBlobShapes.length]};`}
+                >
+                  <div class="absolute inset-0 rounded-[inherit] border border-mauve/8 transition-all duration-500 group-hover:!rounded-[30px] group-hover:border-gold/18"></div>
+                </div>
+              </div>
+
+              <div class="relative z-10 flex h-full flex-col justify-start rounded-[30px] px-8 py-9 md:px-9 md:py-10">
+                <p class="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">{session.eyebrow}</p>
+                <h3 class="mt-4 max-w-[12ch] font-serif text-[1.5rem] leading-tight text-mauve md:text-[1.8rem]">{session.title}</h3>
+                <p class="mt-4 max-w-[22rem] text-[1.02rem] font-light leading-8 text-mauve/72">{session.desc}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {isTraumaPage && content.process.note ? (
+          <div class="lg:col-span-2">
+            <p class="mx-auto mt-6 max-w-3xl pb-3 text-center text-[1.08rem] font-light leading-9 text-mauve/70 md:pb-5 md:text-[1.16rem]">{content.process.note}</p>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  ) : null}
+
+  <section class:list={[pageShellClass, 'pb-24 pt-4 md:pb-28']}>
+    <div class="mx-auto max-w-4xl text-center">
+      <h2 class="font-serif text-3xl leading-tight text-mauve md:text-5xl">
+        {isTraumaPage ? (
+          <>
+            Zasługujesz na to, by wspomnienie porodu <span class="italic text-gold">przestało boleć.</span>
+          </>
+        ) : (
+          content.finalCtaHeading
+        )}
+      </h2>
+      <p class="mx-auto mt-5 max-w-3xl text-[1.12rem] font-light leading-[1.95] text-mauve/78 md:text-[1.2rem]">{content.finalCtaLead}</p>
+
+      {isTraumaPage ? (
+        <div class="mx-auto mt-14 grid max-w-6xl gap-10 text-left md:grid-cols-2 md:gap-12">
+          <div class="offer-card group isolate relative min-h-[25rem] overflow-visible">
+            <div class="offer-blob absolute inset-0 -z-10 bg-white/95 shadow-[0_28px_80px_-42px_rgba(72,43,62,0.28)] transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-[0_34px_90px_-26px_rgba(72,43,62,0.22)]" style={`border-radius: ${finalBlobShapes[0]};`}>
+              <div class="absolute inset-0 rounded-[inherit] border border-mauve/8 transition-colors duration-500 group-hover:!rounded-[30px] group-hover:border-rose/10"></div>
+            </div>
+            <div class="relative z-10 flex h-full flex-col justify-center p-9 md:p-11">
+              <div class="transition-transform duration-500 group-hover:-translate-y-1">
+                <p class="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">Ścieżka 1</p>
+                <h3 class="mt-3 font-serif text-[2rem] leading-tight text-mauve">Metoda Rewind</h3>
+                <p class="mt-4 max-w-[24rem] text-[1.08rem] font-light leading-8 text-mauve/76">Jeśli czujesz, że to właśnie trauma porodowa wciąż trzyma Cię w napięciu, zacznijmy od krótkiej konsultacji i sprawdźmy, czy to będzie dla Ciebie najlepsza droga.</p>
+              </div>
+              <div class="mt-8">
+                <a href={mailtoHref} class="group relative inline-flex h-[50px] min-w-[11rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+                  <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+                    <BlobArrowIcon />
+                  </span>
+                  <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">{finalPrimaryCtaLabel}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="offer-card group isolate relative min-h-[25rem] overflow-visible">
+            <div class="offer-blob absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(247,238,229,0.98)_0%,rgba(245,234,220,0.94)_100%)] shadow-[0_28px_80px_-42px_rgba(72,43,62,0.22)] transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-[0_34px_90px_-26px_rgba(72,43,62,0.2)]" style={`border-radius: ${finalBlobShapes[1]};`}>
+              <div class="absolute inset-0 rounded-[inherit] transition-all duration-500 group-hover:!rounded-[30px]"></div>
+            </div>
+            <div class="relative z-10 flex h-full flex-col justify-center p-9 md:p-11">
+              <div class="transition-transform duration-500 group-hover:-translate-y-1">
+                <p class="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">Ścieżka 2</p>
+                <h3 class="mt-3 font-serif text-[2rem] leading-tight text-mauve">Konsultacja <span class="italic text-gold">indywidualna</span></h3>
+                <p class="mt-4 max-w-[24rem] text-[1.08rem] font-light leading-8 text-mauve/76">Jeśli nie masz jeszcze pewności, czy to dobry moment na pracę z traumą, możemy zacząć od spokojnej rozmowy jeden na jeden i dobrać formę wsparcia do Twojej sytuacji.</p>
+              </div>
+              <div class="mt-8">
+                <a href={consultationPath} class="group relative inline-flex h-[50px] min-w-[14rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+                  <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+                    <BlobArrowIcon />
+                  </span>
+                  <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">{finalSecondaryCtaLabel}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a href={mailtoHref} class="group relative inline-flex h-[50px] min-w-[16rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+            <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+              <BlobArrowIcon />
+            </span>
+            <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">{content.cta}</span>
+          </a>
+          <a href={contactPath} class="inline-flex h-12 items-center justify-center rounded-full bg-mauve px-7 text-fs-ui font-bold uppercase tracking-[0.18em] text-white transition-colors hover:bg-mauve/90">Kontakt</a>
+        </div>
+      )}
+    </div>
+  </section>
+</div>

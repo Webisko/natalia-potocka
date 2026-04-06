@@ -1,10 +1,13 @@
-import { useEffect } from 'react';
-import { AuthProvider, useAuth } from '../../../frontend/src/context/AuthContext.jsx';
-import ClientDashboard from '../../../frontend/src/pages/ClientDashboard.jsx';
-import BlobArrowIcon from '../../../frontend/src/components/BlobArrowIcon.jsx';
+import { useEffect, useState } from 'react';
+import { AuthProvider, useAuth } from './AuthContext.jsx';
+import ClientDashboard from './pages/ClientDashboard.jsx';
+import BlobArrowIcon from './BlobArrowIcon.jsx';
+import AccountSettingsModal from './AccountSettingsModal.jsx';
+import { Settings } from 'lucide-react';
 
 function PanelFrame() {
   const { logout, user, loading } = useAuth();
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -12,7 +15,14 @@ function PanelFrame() {
     }
 
     if (!user) {
-      window.location.replace('/logowanie');
+      const url = new URL(window.location.href);
+      const destination = new URL('/logowanie', window.location.origin);
+
+      if (url.searchParams.get('success')) {
+        destination.searchParams.set('purchase', 'success');
+      }
+
+      window.location.replace(destination.toString());
     }
   }, [loading, user]);
 
@@ -34,10 +44,18 @@ function PanelFrame() {
       <header className="fixed top-0 z-50 w-full border-b border-gold/10 bg-nude">
         <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 py-4">
           <div className="font-serif text-fs-title-sm font-bold text-mauve">Panel użytkownika</div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <span className="hidden text-fs-ui font-light text-mauve/70 sm:inline-block">
               Zalogowano: <strong className="font-medium text-mauve">{user.email}</strong>
             </span>
+            <button
+              type="button"
+              onClick={() => setAccountModalOpen(true)}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/10 bg-white text-mauve/65 transition hover:border-gold/20 hover:text-mauve"
+              title="Moje konto"
+            >
+              <Settings size={18} />
+            </button>
             <button
               onClick={handleLogout}
               className="group relative inline-flex h-10 min-w-[2.5rem] w-auto cursor-pointer items-center justify-start border-0 outline-none sm:min-w-[10rem]"
@@ -59,6 +77,8 @@ function PanelFrame() {
       <main className="flex-grow px-4 pt-24 sm:px-6">
         <ClientDashboard />
       </main>
+
+      {accountModalOpen ? <AccountSettingsModal onClose={() => setAccountModalOpen(false)} /> : null}
     </div>
   );
 }

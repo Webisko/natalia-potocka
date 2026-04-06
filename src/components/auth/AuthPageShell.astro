@@ -1,0 +1,23 @@
+---
+---
+
+<section class="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12 md:px-10">
+  <div class="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(circle_at_top,_rgba(212,175,55,0.14),_transparent_55%)]"></div>
+  <div class="pointer-events-none absolute -left-20 top-24 h-64 w-64 rounded-full bg-blush/45 blur-3xl"></div>
+  <div class="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-gold/10 blur-3xl"></div>
+
+  <div class="relative w-full max-w-xl text-center">
+    <a href="/" class="group inline-flex flex-col items-center">
+      <span class="font-serif text-fs-title-lg font-bold leading-[0.9] tracking-tight text-mauve">
+        Natalia Potocka
+      </span>
+      <span class="pt-1 text-fs-label font-medium uppercase tracking-[0.28em] text-gold transition-colors group-hover:text-mauve/70">
+        Terapia &amp; Wsparcie
+      </span>
+    </a>
+
+    <div class="mx-auto mt-8 max-w-xl text-left">
+      <slot />
+    </div>
+  </div>
+</section>

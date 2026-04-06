@@ -1,0 +1,12 @@
+---
+import PanelLayout from '../../../layouts/PanelLayout.astro';
+import AdminProductEditIsland from '../../../components/panel/AdminProductEditIsland.jsx';
+---
+
+<PanelLayout
+  title="Nowy produkt | Panel administratora"
+  description="Tworzenie nowego produktu w panelu administracyjnym Natalii Potockiej."
+  noindex={true}
+>
+  <AdminProductEditIsland productId="new" client:load />
+</PanelLayout>

@@ -1,0 +1,18 @@
+---
+// Komponent OptimizedImage jako proxy.
+// Aktualnie używamy standardowego <img>, docelowo można podłączyć zew. CDN lub Vite.
+const {
+  src,
+  alt,
+  class: className = '',
+  style,
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority,
+  sizes = '100vw',
+  width,
+  height,
+} = Astro.props;
+---
+
+<img src={src} alt={alt} class={className} style={style} loading={loading} decoding={decoding} fetchpriority={fetchpriority} width={width} height={height} />

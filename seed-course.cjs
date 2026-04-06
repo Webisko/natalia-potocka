@@ -2,11 +2,35 @@
 const db = require('./api/db.js').default;
 const crypto = require('crypto');
 
-const courseProductId = '5ad92564-8f08-4d98-993f-2a8921979f0f'; // Testowy Kurs
+const requestedSlug = process.argv[2] || 'test-course';
 
-// Update the product to have type 'course'
-db.prepare("UPDATE products SET type = 'course', description = ? WHERE id = ?").run(
+function resolveCourseProduct() {
+  const requestedProduct = db.prepare('SELECT id, slug, title FROM products WHERE slug = ?').get(requestedSlug);
+  if (requestedProduct) {
+    return requestedProduct;
+  }
+
+  const firstCourseProduct = db.prepare("SELECT id, slug, title FROM products WHERE type = 'course' ORDER BY created_at DESC LIMIT 1").get();
+  if (firstCourseProduct) {
+    return firstCourseProduct;
+  }
+
+  const fallbackProduct = db.prepare("SELECT id, slug, title FROM products ORDER BY created_at DESC LIMIT 1").get();
+  if (!fallbackProduct) {
+    throw new Error('Brak produktów w bazie. Najpierw uruchom seed produktów.');
+  }
+
+  return fallbackProduct;
+}
+
+const courseProduct = resolveCourseProduct();
+const courseProductId = courseProduct.id;
+const fallbackThumbnail = '/images/hero_doula.png';
+
+// Update the product to have type 'course' and ensure the demo course has a visible local thumbnail.
+db.prepare("UPDATE products SET type = 'course', description = ?, thumbnail_url = ? WHERE id = ?").run(
   `Kompleksowy kurs online dla przyszłych i obecnych mam, który przeprowadzi Cię przez najważniejsze etapy przygotowania do porodu i połogu.\n\nCzego się nauczysz:\n- Jak przygotować ciało i umysł do porodu\n- Jak zarządzać oddechem i bólem w czasie porodu\n- Jak stworzyć plan porodu dostosowany do siebie\n- Jak wejść w połóg świadomie i z zasobami\n- Jak zadbać o siebie i niemowlę w pierwszych tygodniach`,
+  fallbackThumbnail,
   courseProductId
 );
 
@@ -18,7 +42,7 @@ if (!course) {
   db.prepare('INSERT INTO courses (id, product_id, title, description) VALUES (?, ?, ?, ?)').run(
     courseId,
     courseProductId,
-    'Świadome Macierzyństwo – Kurs Online',
+    courseProduct.title || 'Świadome Macierzyństwo – Kurs Online',
     'Kompleksowy program przygotowania do porodu i połogu'
   );
   course = db.prepare('SELECT * FROM courses WHERE id = ?').get(courseId);
@@ -27,7 +51,9 @@ if (!course) {
 
 const courseId = course.id;
 
-// Delete existing modules to recreate
+// Delete existing content to recreate a clean structure.
+db.prepare('DELETE FROM lesson_attachments WHERE lesson_id IN (SELECT l.id FROM lessons l JOIN modules m ON m.id = l.module_id WHERE m.course_id = ?)').run(courseId);
+db.prepare('DELETE FROM lessons WHERE module_id IN (SELECT id FROM modules WHERE course_id = ?)').run(courseId);
 db.prepare('DELETE FROM modules WHERE course_id = ?').run(courseId);
 
 // MODULE 1
@@ -106,6 +132,6 @@ for (const [i, l] of lessons3.entries()) {
 db.prepare("UPDATE products SET price = 297 WHERE id = ?").run(courseProductId);
 
 console.log('✅ Demo course created successfully!');
-console.log('   URL: http://localhost:3000/product/testowy-kurs');
+console.log(`   Product slug: ${courseProduct.slug}`);
 console.log('   Course ID:', courseId);
 process.exit(0);

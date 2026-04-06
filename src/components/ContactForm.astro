@@ -1,0 +1,87 @@
+<section class="card-surface relative overflow-hidden p-8 md:p-12" id="astro-contact-form">
+  <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-rose/10 blur-[60px]"></div>
+  <div class="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-gold/10 blur-[40px]"></div>
+
+  <div class="relative z-10">
+    <p class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Napisz wiadomość</p>
+    <h2 class="mt-4 font-serif text-fs-title-lg text-mauve">Opisz krótko, czego teraz potrzebujesz.</h2>
+    <p class="mt-4 max-w-2xl text-fs-body text-mauve/70">
+      Formularz trafia bezpośrednio do backendu PHP. Jeśli wolisz, zawsze możesz też napisać od razu na kontakt@nataliapotocka.pl.
+    </p>
+
+    <form class="mt-8 grid gap-5" novalidate>
+      <div>
+        <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60" for="contact-name">Imię</label>
+        <input id="contact-name" name="name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-4 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" placeholder="Jak masz na imię?" />
+      </div>
+
+      <div>
+        <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60" for="contact-email">Adres e-mail</label>
+        <input id="contact-email" name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-4 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" placeholder="twoj@email.pl" />
+      </div>
+
+      <div class="hidden" aria-hidden="true">
+        <label for="contact-website">Strona internetowa</label>
+        <input id="contact-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div>
+        <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60" for="contact-message">W czym mogę Ci pomóc?</label>
+        <textarea id="contact-message" name="message" rows="6" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-4 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" placeholder="Opisz krótko swoją sytuację i oczekiwania."></textarea>
+      </div>
+
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <button type="submit" class="button-primary min-w-[14rem]">Wyślij wiadomość</button>
+        <p class="text-fs-ui text-mauve/55" data-status></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.getElementById('astro-contact-form');
+    if (!root) return;
+
+    const form = root.querySelector('form');
+    const status = root.querySelector('[data-status]');
+    const submitButton = form?.querySelector('button[type="submit"]');
+
+    const setStatus = (message, isError = false) => {
+      if (!status) return;
+      status.textContent = message;
+      status.className = `text-fs-ui ${isError ? 'text-terracotta' : 'text-mauve/55'}`;
+    };
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('');
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+
+      submitButton?.setAttribute('disabled', 'disabled');
+      setStatus('Wysyłam wiadomość...');
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || 'Nie udało się wysłać wiadomości.');
+        }
+
+        form.reset();
+        setStatus(data.message || 'Wiadomość została wysłana.');
+      } catch (error) {
+        setStatus(error.message || 'Nie udało się wysłać wiadomości.', true);
+      } finally {
+        submitButton?.removeAttribute('disabled');
+      }
+    });
+  })();
+</script>

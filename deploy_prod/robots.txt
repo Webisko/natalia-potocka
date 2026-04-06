@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /administrator
+Disallow: /panel
+Disallow: /logowanie
+Disallow: /zapomnialam-hasla
+Disallow: /resetowanie-hasla
+
+Sitemap: https://nataliapotocka.pl/sitemap.xml

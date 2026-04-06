@@ -1,0 +1,16 @@
+---
+import AuthForm from '../components/auth/AuthForm.astro';
+import AuthPageShell from '../components/auth/AuthPageShell.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Reset hasła | Natalia Potocka"
+  description="Wyślij link do resetu hasła do swojego konta."
+  noindex={true}
+  breadcrumbItems={[]}
+>
+  <AuthPageShell>
+    <AuthForm mode="forgot-password" />
+  </AuthPageShell>
+</BaseLayout>

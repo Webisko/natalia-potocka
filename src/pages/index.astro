@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeSections from '../components/home/HomeSections.astro';
+import ReviewsShowcase from '../components/home/ReviewsShowcase.astro';
+import { getActiveReviews } from '../lib/reviews.js';
+import { getPagePathByKey, getPageSettings } from '../lib/pageSettings.js';
+import { buildCollectionPageSchema } from '../lib/structuredData.js';
+
+const reviews = getActiveReviews();
+const homePage = getPageSettings('home');
+const aboutPage = getPageSettings('about');
+const offerPagePath = getPagePathByKey('offer');
+const collectionItems = /** @type {Array<{ name: string; href: string }>} */ ([
+  { name: 'O mnie', href: getPagePathByKey('about') },
+  { name: 'Oferta', href: offerPagePath },
+  { name: 'Kontakt', href: getPagePathByKey('contact') },
+]);
+const structuredData = buildCollectionPageSchema({
+  title: homePage?.meta_title || homePage?.title || 'Natalia Potocka',
+  description: homePage?.meta_desc || 'Wsparcie okołoporodowe, konsultacje, szkolenia i produkty cyfrowe Natalii Potockiej.',
+  path: '/',
+  image: homePage?.meta_image_url || homePage?.featured_image_url || null,
+  items: collectionItems,
+});
+---
+
+<BaseLayout
+  title={homePage?.meta_title || homePage?.title || 'Natalia Potocka'}
+  description={homePage?.meta_desc || 'Wsparcie okołoporodowe, konsultacje, szkolenia i produkty cyfrowe Natalii Potockiej.'}
+  socialImage={homePage?.meta_image_url || homePage?.featured_image_url || null}
+  canonicalUrl={homePage?.canonical_url || null}
+  noindex={Boolean(homePage?.noindex)}
+  structuredData={structuredData}
+>
+  <div class="relative w-full overflow-hidden">
+    {/* Global scrolling background blobs for Homepage */}
+    <div class="pointer-events-none absolute left-[-10%] top-[0%] h-[70vw] w-[70vw] rounded-full bg-[#EADDD7]/30 blur-[130px] mix-blend-multiply animate-breathe"></div>
+    <div class="pointer-events-none absolute right-[-5%] top-[20%] h-[50vw] w-[50vw] rounded-full bg-rose/10 blur-[120px] mix-blend-multiply animate-heartbeat"></div>
+    <div class="pointer-events-none absolute left-[10%] top-[40%] h-[60vw] w-[60vw] rounded-full bg-[#F4E2A1]/5 blur-[120px] mix-blend-multiply animate-breathe"></div>
+    <div class="pointer-events-none absolute right-[5%] top-[60%] h-[65vw] w-[65vw] rounded-full bg-blush/10 blur-[140px] mix-blend-multiply animate-heartbeat"></div>
+    <div class="pointer-events-none absolute left-[5%] top-[80%] h-[50vw] w-[50vw] rounded-full bg-rose/10 blur-[100px] mix-blend-multiply animate-breathe"></div>
+    <div class="pointer-events-none absolute right-[-10%] bottom-[-5%] h-[70vw] w-[70vw] rounded-full bg-[#EADDD7]/20 blur-[120px] mix-blend-multiply animate-heartbeat"></div>
+
+
+    <HomeSections
+      aboutPagePath={getPagePathByKey('about')}
+      offerPagePath={offerPagePath}
+      heroImageSrc={homePage?.featured_image_url || '/images/hero_doula.png'}
+      aboutImageSrc={aboutPage?.featured_image_url || '/images/about_doula.png'}
+    />
+    <ReviewsShowcase reviews={reviews} />
+  </div>
+</BaseLayout>

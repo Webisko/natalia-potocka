@@ -1,0 +1,300 @@
+---
+const { mode = 'login', initialToken = '' } = Astro.props;
+
+const token = initialToken ?? '';
+const isLogin = mode === 'login';
+const isForgotPassword = mode === 'forgot-password';
+const isResetPassword = mode === 'reset-password';
+const hasResetToken = Boolean(token);
+---
+
+<div
+  class:list={[
+    'rounded-[32px] border border-white/80 shadow-soft backdrop-blur-md md:p-10',
+    isLogin ? 'bg-white/70 p-8 backdrop-blur-sm' : 'bg-white/60 p-8',
+  ]}
+  data-auth-form-root
+  data-mode={mode}
+  data-token={token}
+>
+  {isLogin && (
+    <>
+      <h1 class="mb-2 text-center font-serif text-fs-title-md text-mauve">Zaloguj się</h1>
+      <p class="mb-8 text-center text-fs-ui font-light text-mauve/55">
+        Wpisz dane swojego konta, aby przejść do panelu klientki lub administratora.
+      </p>
+
+      <div class="mb-6 hidden rounded-2xl border border-gold/20 bg-gold/10 p-4 text-fs-ui text-gold" data-auth-message></div>
+      <div class="mb-6 hidden rounded-2xl border border-rose/40 bg-rose/20 p-4 text-fs-ui font-semibold text-mauve shadow-sm" data-auth-error></div>
+
+      <form class="flex flex-col gap-5" data-auth-form>
+        <div>
+          <label class="mb-2 ml-1 block text-fs-label font-bold uppercase tracking-widest text-mauve/40">Adres e-mail</label>
+          <input
+            type="email"
+            name="email"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            placeholder="twoj@email.pl"
+            required
+          />
+        </div>
+        <div>
+          <label class="mb-2 ml-1 block text-fs-label font-bold uppercase tracking-widest text-mauve/40">Hasło</label>
+          <input
+            type="password"
+            name="password"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            placeholder="••••••••••••"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="mt-2 h-14 w-full rounded-2xl bg-gold text-fs-label font-bold uppercase tracking-widest text-white transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-gold/20 disabled:opacity-50"
+          data-submit-button
+          data-label-idle="Zaloguj się"
+          data-label-loading="Logowanie..."
+        >
+          Zaloguj się
+        </button>
+
+        <div class="text-center">
+          <a href="/zapomnialam-hasla" class="text-fs-ui text-mauve/50 transition-colors hover:text-gold">
+            Zapomniałaś hasła?
+          </a>
+        </div>
+      </form>
+    </>
+  )}
+
+  {isForgotPassword && (
+    <>
+      <h1 class="mb-2 text-center font-serif text-fs-title-md text-mauve">Zresetuj hasło</h1>
+      <p class="mb-8 text-center text-fs-ui font-light text-mauve/50">
+        Podaj adres e-mail przypisany do konta, a wyślemy Ci link do zmiany hasła.
+      </p>
+
+      <div class="mb-6 hidden rounded-2xl border border-gold/20 bg-gold/10 p-4 text-fs-ui text-gold" data-auth-message></div>
+      <div class="mb-6 hidden rounded-2xl border border-rose/10 bg-rose/5 p-4 text-fs-ui text-rose" data-auth-error></div>
+
+      <form class="flex flex-col gap-5" data-auth-form>
+        <div>
+          <label class="mb-2 ml-1 block text-fs-label font-bold uppercase tracking-widest text-mauve/40">Adres e-mail</label>
+          <input
+            type="email"
+            name="email"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            placeholder="twoj@email.pl"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="mt-4 h-14 w-full rounded-2xl bg-gold text-fs-label font-bold uppercase tracking-widest text-white transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-gold/20 disabled:opacity-50"
+          data-submit-button
+          data-label-idle="Wyślij link"
+          data-label-loading="Wysyłanie..."
+        >
+          Wyślij link
+        </button>
+      </form>
+
+      <div class="mt-8 text-center">
+        <a href="/logowanie" class="block text-fs-ui text-mauve/50 transition-colors hover:text-gold">
+          Wróć do logowania
+        </a>
+      </div>
+    </>
+  )}
+
+  {isResetPassword && !hasResetToken && (
+    <div class="text-center">
+      <h1 class="mb-4 font-serif text-fs-title-md text-mauve">Błąd linku</h1>
+      <p class="mb-8 font-light text-rose/80">Brak tokenu resetującego. Skopiuj pełny link z e-maila.</p>
+      <a href="/zapomnialam-hasla" class="text-fs-label font-bold uppercase tracking-widest text-gold transition-colors hover:text-gold/80">
+        Wyślij link ponownie
+      </a>
+    </div>
+  )}
+
+  {isResetPassword && hasResetToken && (
+    <>
+      <h1 class="mb-2 text-center font-serif text-fs-title-md text-mauve">Nowe hasło</h1>
+      <p class="mb-8 text-center text-fs-ui font-light text-mauve/50">
+        Utwórz nowe, silne hasło dla swojego konta (min. 12 znaków).
+      </p>
+
+      <div class="mb-6 hidden rounded-2xl border border-rose/10 bg-rose/5 p-4 text-fs-ui text-rose" data-auth-error></div>
+      <div class="hidden rounded-2xl border border-gold/20 bg-gold/10 p-6 text-center text-gold" data-auth-success>
+        <p class="mb-2 font-bold">Sukces!</p>
+        <p class="text-fs-ui" data-auth-message></p>
+        <p class="mt-4 text-fs-label opacity-50">Przekierowywanie do logowania...</p>
+      </div>
+
+      <form class="flex flex-col gap-5" data-auth-form>
+        <div>
+          <label class="mb-2 ml-1 block text-fs-label font-bold uppercase tracking-widest text-mauve/40">Nowe hasło</label>
+          <input
+            type="password"
+            name="password"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            placeholder="••••••••••••"
+            required
+            minlength="12"
+          />
+        </div>
+        <div>
+          <label class="mb-2 ml-1 block text-fs-label font-bold uppercase tracking-widest text-mauve/40">Powtórz nowe hasło</label>
+          <input
+            type="password"
+            name="password_confirm"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            placeholder="••••••••••••"
+            required
+            minlength="12"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="mt-4 h-14 w-full rounded-2xl bg-gold text-fs-label font-bold uppercase tracking-widest text-white transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-gold/20 disabled:opacity-50"
+          data-submit-button
+          data-label-idle="Zmień hasło"
+          data-label-loading="Zapisywanie..."
+        >
+          Zmień hasło
+        </button>
+      </form>
+    </>
+  )}
+</div>
+
+<script>
+  // @ts-nocheck
+  /** @returns {Promise<any>} */
+  async function postJson(url, payload) {
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    /** @type {any} */
+    let body = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+
+    if (!response.ok) {
+      const errorMessage = body && typeof body === 'object' && 'error' in body ? body.error : null;
+      throw new Error(errorMessage || 'Wystąpił błąd.');
+    }
+
+    return body;
+  }
+
+  function setHidden(element, hidden) {
+    if (!element) return;
+    element.classList.toggle('hidden', hidden);
+  }
+
+  document.querySelectorAll('[data-auth-form-root]').forEach((node) => {
+    const root = node instanceof HTMLElement ? node : null;
+    const mode = root?.dataset.mode || 'login';
+    const token = root?.dataset.token || '';
+    const form = root?.querySelector('[data-auth-form]');
+    const errorBox = root?.querySelector('[data-auth-error]');
+    const messageBox = root?.querySelector('[data-auth-message]');
+    const successBox = root?.querySelector('[data-auth-success]');
+    const submitButton = root?.querySelector('[data-submit-button]');
+
+    if (!(form instanceof HTMLFormElement) || !(submitButton instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const idleLabel = submitButton.dataset.labelIdle || submitButton.textContent?.trim() || 'Wyślij';
+    const loadingLabel = submitButton.dataset.labelLoading || 'Przetwarzanie...';
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const setLoading = (loading) => {
+      submitButton.disabled = loading;
+      submitButton.textContent = loading ? loadingLabel : idleLabel;
+    };
+
+    const showError = (message = '') => {
+      if (!errorBox) return;
+      errorBox.textContent = message;
+      setHidden(errorBox, !message);
+    };
+
+    const showMessage = (message = '') => {
+      if (successBox && messageBox && mode === 'reset-password') {
+        messageBox.textContent = message;
+        setHidden(successBox, !message);
+        setHidden(form, Boolean(message));
+        return;
+      }
+
+      if (!messageBox) return;
+      messageBox.textContent = message;
+      setHidden(messageBox, !message);
+    };
+
+    if (mode === 'login' && searchParams.get('purchase') === 'success') {
+      showMessage('Płatność została przyjęta. Jeśli to Twój pierwszy zakup, potwierdź adres e-mail z wiadomości, a następnie zaloguj się, aby otworzyć panel i materiały.');
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showError('');
+      showMessage('');
+      setLoading(true);
+
+      const formData = new FormData(form);
+
+      try {
+        if (mode === 'login') {
+          const result = /** @type {any} */ (await postJson('/api/auth/login', {
+            email: String(formData.get('email') || '').trim(),
+            password: String(formData.get('password') || ''),
+          }));
+          const destination = result?.user?.is_admin ? '/administrator' : '/panel';
+          window.location.assign(destination);
+          return;
+        }
+
+        if (mode === 'forgot-password') {
+          const result = /** @type {any} */ (await postJson('/api/auth/forgot-password', {
+            email: String(formData.get('email') || '').trim(),
+          }));
+          showMessage(result?.message || 'Wysłaliśmy wiadomość z dalszymi instrukcjami.');
+          form.reset();
+          return;
+        }
+
+        const result = /** @type {any} */ (await postJson('/api/auth/resetowanie-hasla', {
+          token,
+          password: String(formData.get('password') || ''),
+          password_confirm: String(formData.get('password_confirm') || ''),
+        }));
+
+        showMessage(result?.message || 'Hasło zostało zmienione.');
+        form.reset();
+        window.setTimeout(() => {
+          window.location.assign('/logowanie');
+        }, 3000);
+      } catch (error) {
+        showError(error.message || 'Wystąpił błąd.');
+      } finally {
+        setLoading(false);
+      }
+    });
+  });
+</script>

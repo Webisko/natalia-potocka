@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LegalLayout from '../layouts/LegalLayout.astro';
+import AboutPageContent from '../components/pages/AboutPageContent.astro';
+import ContactPageContent from '../components/pages/ContactPageContent.astro';
+import OfferPageContent from '../components/pages/OfferPageContent.astro';
+import LegalPrivacyContent from '../components/pages/LegalPrivacyContent.astro';
+import LegalTermsContent from '../components/pages/LegalTermsContent.astro';
+import ServiceProductTemplate from '../components/product/ServiceProductTemplate.astro';
+import { getCustomSlugPages, getPagePathByKey, getPageSettingsBySlug } from '../lib/pageSettings.js';
+import { PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
+import { getPublishedOfferProducts } from '../lib/products.js';
+import { getServiceOfferBySlug, getServiceOffers, SERVICE_CONTENT } from '../lib/serviceContent.js';
+import { buildCollectionPageSchema, buildFaqSchema, buildProductSchema } from '../lib/structuredData.js';
+
+export function getStaticPaths() {
+  return getCustomSlugPages().map((page) => ({
+    params: { pageSlug: page.slug },
+  }));
+}
+
+const slug = String(Astro.params.pageSlug || '');
+const page = getPageSettingsBySlug(slug);
+const digitalProducts = getPublishedOfferProducts();
+const serviceProducts = getServiceOffers();
+const offerItems = [...serviceProducts, ...digitalProducts];
+const serviceProduct = page?.page_kind === 'service-landing' ? getServiceOfferBySlug(page.linked_slug || page.slug) : null;
+const breadcrumbItems = page
+  ? [
+      { name: 'Strona główna', href: '/' },
+      { name: page.title || page.page_name, href: getPagePathByKey(page.page_key) },
+    ]
+  : [];
+const offerStructuredData = page?.page_key === 'offer'
+  ? buildCollectionPageSchema({
+      title: page.meta_title || PAGE_SETTINGS_BY_KEY.offer.meta_title,
+      description: page.meta_desc || PAGE_SETTINGS_BY_KEY.offer.meta_desc,
+      path: getPagePathByKey('offer'),
+      image: page.meta_image_url || page.featured_image_url || null,
+      items: offerItems.map((item) => ({
+        name: item.title,
+        href: `/oferta/${item.slug}`,
+      })),
+    })
+  : null;
+
+if (!page) {
+  return Astro.redirect('/');
+}
+
+if (page.page_kind === 'service-landing' && !serviceProduct) {
+  return Astro.redirect('/#oferta');
+}
+
+const serviceFaq = serviceProduct ? SERVICE_CONTENT[serviceProduct.slug]?.faq || [] : [];
+const serviceStructuredData = serviceProduct
+  ? (() => {
+      const productSchema = buildProductSchema({
+        product: serviceProduct,
+        path: getPagePathByKey(page.page_key),
+        description: page.meta_desc || serviceProduct.meta_desc || serviceProduct.excerpt || serviceProduct.description || serviceProduct.title,
+        image: page.meta_image_url || page.featured_image_url || serviceProduct.meta_image_url || serviceProduct.thumbnail_url || null,
+      });
+      const faqSchema = buildFaqSchema(serviceFaq);
+      return faqSchema ? [productSchema, faqSchema] : [productSchema];
+    })()
+  : null;
+---
+
+{page.page_key === 'about' ? (
+  <BaseLayout
+    title={page.meta_title || PAGE_SETTINGS_BY_KEY.about.meta_title}
+    description={page.meta_desc || PAGE_SETTINGS_BY_KEY.about.meta_desc}
+    socialImage={page.meta_image_url || page.featured_image_url || null}
+    canonicalUrl={page.canonical_url || null}
+    noindex={Boolean(page.noindex)}
+    pageType="AboutPage"
+    breadcrumbItems={breadcrumbItems}
+  >
+    <AboutPageContent featuredImageSrc={page.featured_image_url || PAGE_SETTINGS_BY_KEY.about.featured_image_url} offerPagePath={getPagePathByKey('offer')} />
+  </BaseLayout>
+) : page.page_key === 'contact' ? (
+  <BaseLayout
+    title={page.meta_title || PAGE_SETTINGS_BY_KEY.contact.meta_title}
+    description={page.meta_desc || PAGE_SETTINGS_BY_KEY.contact.meta_desc}
+    socialImage={page.meta_image_url || page.featured_image_url || null}
+    canonicalUrl={page.canonical_url || null}
+    noindex={Boolean(page.noindex)}
+    pageType="ContactPage"
+    breadcrumbItems={breadcrumbItems}
+  >
+    <ContactPageContent />
+  </BaseLayout>
+) : page.page_kind === 'service-landing' && serviceProduct ? (
+  <BaseLayout
+    title={page.meta_title || `${serviceProduct.title} | Natalia Potocka`}
+    description={page.meta_desc || serviceProduct.meta_desc || serviceProduct.excerpt || serviceProduct.title}
+    socialImage={page.meta_image_url || page.featured_image_url || serviceProduct.meta_image_url || serviceProduct.thumbnail_url || null}
+    canonicalUrl={page.canonical_url || null}
+    noindex={Boolean(page.noindex)}
+    ogType="product"
+    breadcrumbItems={breadcrumbItems}
+    showBreadcrumbs={false}
+    structuredData={serviceStructuredData}
+  >
+    <ServiceProductTemplate product={serviceProduct} />
+  </BaseLayout>
+) : page.page_key === 'offer' ? (
+  Astro.redirect('/#oferta')
+) : page.page_key === 'privacy' ? (
+  <LegalLayout
+    title={page.title || PAGE_SETTINGS_BY_KEY.privacy.title}
+    lead={page.meta_desc || PAGE_SETTINGS_BY_KEY.privacy.meta_desc}
+    seoTitle={page.meta_title || PAGE_SETTINGS_BY_KEY.privacy.meta_title}
+    seoDescription={page.meta_desc || PAGE_SETTINGS_BY_KEY.privacy.meta_desc}
+    socialImage={page.meta_image_url || page.featured_image_url || null}
+    canonicalUrl={page.canonical_url || null}
+    noindex={Boolean(page.noindex)}
+    breadcrumbItems={breadcrumbItems}
+  >
+    <LegalPrivacyContent />
+  </LegalLayout>
+) : (
+  <LegalLayout
+    title={page.title || PAGE_SETTINGS_BY_KEY.terms.title}
+    lead={page.meta_desc || PAGE_SETTINGS_BY_KEY.terms.meta_desc}
+    seoTitle={page.meta_title || PAGE_SETTINGS_BY_KEY.terms.meta_title}
+    seoDescription={page.meta_desc || PAGE_SETTINGS_BY_KEY.terms.meta_desc}
+    socialImage={page.meta_image_url || page.featured_image_url || null}
+    canonicalUrl={page.canonical_url || null}
+    noindex={Boolean(page.noindex)}
+    breadcrumbItems={breadcrumbItems}
+  >
+    <LegalTermsContent />
+  </LegalLayout>
+)}

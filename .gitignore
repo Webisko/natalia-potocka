@@ -31,3 +31,4 @@ data/
 *.sqlite-shm
 tmp_*.json
 .vscode/
+deployment_keys/

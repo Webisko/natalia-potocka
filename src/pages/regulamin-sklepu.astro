@@ -1,0 +1,31 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import LegalTermsContent from '../components/pages/LegalTermsContent.astro';
+import { PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
+import { getPagePathByKey, getPageSettings, normalizePagePath } from '../lib/pageSettings.js';
+
+const page = getPageSettings('terms');
+const currentPath = normalizePagePath(Astro.url.pathname);
+const configuredPath = normalizePagePath(getPagePathByKey('terms'));
+const breadcrumbItems = [
+  { name: 'Strona główna', href: '/' },
+  { name: page?.title || PAGE_SETTINGS_BY_KEY.terms.title, href: configuredPath },
+];
+
+if (configuredPath !== currentPath) {
+  return Astro.redirect(configuredPath);
+}
+---
+
+<LegalLayout
+  title={page?.title || PAGE_SETTINGS_BY_KEY.terms.title}
+  lead={page?.meta_desc || PAGE_SETTINGS_BY_KEY.terms.meta_desc}
+  seoTitle={page?.meta_title || PAGE_SETTINGS_BY_KEY.terms.meta_title}
+  seoDescription={page?.meta_desc || PAGE_SETTINGS_BY_KEY.terms.meta_desc}
+  socialImage={page?.meta_image_url || page?.featured_image_url || null}
+  canonicalUrl={page?.canonical_url || null}
+  noindex={Boolean(page?.noindex)}
+  breadcrumbItems={breadcrumbItems}
+>
+  <LegalTermsContent />
+</LegalLayout>

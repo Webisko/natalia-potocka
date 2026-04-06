@@ -32,11 +32,11 @@ const contactPath = Astro.props.contactPath || '/kontakt';
         <p class="mt-8 max-w-3xl text-xl font-light leading-relaxed text-mauve/72 md:text-[1.35rem]">Znajdziesz tu zarówno indywidualne wsparcie 1:1, jak i produkty cyfrowe, do których możesz wracać we własnym tempie. Każda forma została zaprojektowana tak, żeby dawać Ci więcej spokoju, wiedzy i poczucia oparcia.</p>
 
         <div class="mt-10 flex flex-col gap-4 sm:flex-row">
-          <a href="#oferta-uslugi" class="group relative inline-flex h-12 min-w-[14rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
-            <span class="circle absolute left-0 top-0 z-0 block h-12 w-12 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+          <a href="#oferta-uslugi" class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+            <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
               <BlobArrowIcon />
             </span>
-            <span class="text-fs-label relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center font-bold uppercase tracking-wider text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Konsultacje i terapia</span>
+            <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Konsultacje i terapia</span>
           </a>
           <a href="#oferta-cyfrowa" class="text-fs-label inline-flex h-12 items-center justify-center rounded-full border border-mauve/15 bg-white/70 px-6 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Webinary i medytacja</a>
         </div>
@@ -93,11 +93,11 @@ const contactPath = Astro.props.contactPath || '/kontakt';
               <p class="mb-8 max-w-lg text-lg font-light leading-relaxed text-mauve/70">{product.excerpt || product.description}</p>
               <div class="mt-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="font-serif text-3xl text-terracotta">{formatPrice(product.currentPrice || product.price)}</div>
-                <a href={`/oferta/${product.slug}`} class="group relative inline-flex h-12 min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
-                  <span class="circle absolute left-0 top-0 z-0 block h-12 w-12 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]" aria-hidden="true">
+                <a href={`/oferta/${product.slug}`} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+                  <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
                     <BlobArrowIcon />
                   </span>
-                  <span class="text-fs-label relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center font-bold uppercase tracking-wider text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz szczegóły</span>
+                  <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz szczegóły</span>
                 </a>
               </div>
             </div>

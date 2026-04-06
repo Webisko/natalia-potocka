@@ -1,0 +1,105 @@
+---
+import '../styles/global.css';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../../shared/siteConfig.js';
+import { buildBreadcrumbSchema, buildPersonSchema, buildWebPageSchema, buildWebsiteSchema, toAbsoluteUrl } from '../lib/structuredData.js';
+
+interface Props {
+  title: string;
+  description?: string;
+  socialImage?: string | null;
+  canonicalUrl?: string | null;
+  noindex?: boolean;
+  ogType?: string;
+  pageType?: string;
+  breadcrumbItems?: Array<{ name: string; href?: string | null }>;
+  structuredData?: Record<string, unknown> | Array<Record<string, unknown>> | null;
+  showHeader?: boolean;
+  showFooter?: boolean;
+  showBreadcrumbs?: boolean;
+}
+
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  socialImage = null,
+  canonicalUrl = null,
+  noindex = false,
+  ogType = 'website',
+  pageType = 'WebPage',
+  breadcrumbItems = [],
+  structuredData = null,
+  showHeader = true,
+  showFooter = true,
+  showBreadcrumbs = true,
+} = Astro.props;
+
+const siteUrl = Astro.site ? Astro.site.toString() : SITE_URL;
+const resolvedCanonicalUrl = canonicalUrl
+  ? new URL(canonicalUrl, siteUrl).toString()
+  : toAbsoluteUrl(Astro.url.pathname || '/');
+const resolvedSocialImage = socialImage
+  ? new URL(socialImage, siteUrl).toString()
+  : toAbsoluteUrl(DEFAULT_SOCIAL_IMAGE);
+const robotsContent = noindex ? 'noindex, nofollow' : 'index, follow';
+const normalizedStructuredData = Array.isArray(structuredData)
+  ? structuredData.filter(Boolean)
+  : structuredData
+    ? [structuredData]
+    : [];
+const defaultStructuredData = [
+  buildPersonSchema(),
+  buildWebsiteSchema(),
+  buildWebPageSchema({
+    title,
+    description,
+    path: Astro.url.pathname || '/',
+    type: pageType,
+    image: resolvedSocialImage,
+  }),
+  buildBreadcrumbSchema(breadcrumbItems),
+].filter(Boolean);
+const allStructuredData = [...defaultStructuredData, ...normalizedStructuredData];
+const faviconHref = '/favicon.svg?v=np-monogram-1';
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsContent} />
+    <link rel="icon" type="image/svg+xml" href={faviconHref} />
+    <link rel="shortcut icon" href={faviconHref} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" />
+    {resolvedCanonicalUrl && <link rel="canonical" href={resolvedCanonicalUrl} />}
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {resolvedCanonicalUrl && <meta property="og:url" content={resolvedCanonicalUrl} />}
+    {resolvedSocialImage && <meta property="og:image" content={resolvedSocialImage} />}
+    <meta name="twitter:card" content={resolvedSocialImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {resolvedSocialImage && <meta name="twitter:image" content={resolvedSocialImage} />}
+    {allStructuredData.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+    ))}
+  </head>
+  <body class="min-h-screen flex flex-col bg-[#FAF7F2] relative">
+    {showHeader && <SiteHeader />}
+    <main class="flex-grow z-0">
+      {showBreadcrumbs && <Breadcrumbs items={breadcrumbItems} />}
+      <slot />
+    </main>
+    {showFooter && <SiteFooter />}
+  </body>
+ </html>

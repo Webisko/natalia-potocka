@@ -1,0 +1,12 @@
+---
+import PanelLayout from '../../layouts/PanelLayout.astro';
+import AdminDashboardIsland from '../../components/panel/AdminDashboardIsland.jsx';
+---
+
+<PanelLayout
+  title="Opinie | Panel administratora"
+  description="Sekcja opinii w panelu administracyjnym Natalii Potockiej."
+  noindex={true}
+>
+  <AdminDashboardIsland initialTab="reviews" client:load />
+</PanelLayout>

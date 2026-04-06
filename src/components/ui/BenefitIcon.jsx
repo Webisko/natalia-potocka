@@ -1,0 +1,58 @@
+import {
+  Baby,
+  BookOpen,
+  Calendar,
+  Check,
+  Clock3,
+  Flower2,
+  HandHeart,
+  Heart,
+  Leaf,
+  Lightbulb,
+  MapPin,
+  Medal,
+  MessageCircleHeart,
+  MoonStar,
+  Download,
+  PlayCircle,
+  Shield,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  SunMedium,
+  Target,
+  Users,
+  Volume2,
+} from 'lucide-react';
+
+const ICONS = {
+  heart: Heart,
+  star: Star,
+  book: BookOpen,
+  sparkles: Sparkles,
+  play: PlayCircle,
+  audio: Volume2,
+  clock: Clock3,
+  users: Users,
+  shield: Shield,
+  check: Check,
+  calendar: Calendar,
+  download: Download,
+  map: MapPin,
+  bag: ShoppingBag,
+  leaf: Leaf,
+  flower: Flower2,
+  moon: MoonStar,
+  sun: SunMedium,
+  target: Target,
+  medal: Medal,
+  bulb: Lightbulb,
+  care: HandHeart,
+  support: MessageCircleHeart,
+  baby: Baby,
+};
+
+export default function BenefitIcon({ name = 'check', size = 26, className = '' }) {
+  const Icon = ICONS[name] || Check;
+  return <Icon size={size} strokeWidth={1.8} className={className} aria-hidden="true" />;
+}

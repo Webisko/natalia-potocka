@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { AuthProvider, useAuth } from '../../../frontend/src/context/AuthContext.jsx';
-import BlobArrowIcon from '../../../frontend/src/components/BlobArrowIcon.jsx';
+import { AuthProvider, useAuth } from './AuthContext.jsx';
+import BlobArrowIcon from './BlobArrowIcon.jsx';
 
 function AdminFrameContent({ children, title }) {
   const { logout, user, loading } = useAuth();

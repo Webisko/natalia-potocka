@@ -1,0 +1,13 @@
+---
+import { sanitizeRichTextHtml } from '../../shared/richText.js';
+
+const { value, className = '' } = Astro.props;
+const html = sanitizeRichTextHtml(value);
+---
+
+{html ? (
+  <div
+    class={`space-y-4 text-fs-body text-mauve/75 [&_a]:text-terracotta [&_a]:underline [&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-8 [&_h2]:font-serif [&_h2]:text-fs-title-md [&_h2]:text-mauve [&_h3]:mt-6 [&_h3]:font-serif [&_h3]:text-fs-title-sm [&_h3]:text-mauve [&_li]:ml-5 [&_li]:pl-1 [&_ol]:list-decimal [&_ul]:list-disc ${className}`.trim()}
+    set:html={html}
+  />
+) : null}

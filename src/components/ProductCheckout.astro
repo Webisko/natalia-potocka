@@ -1,0 +1,659 @@
+---
+import { formatPrice } from '../lib/products.js';
+import { getPagePathByKey } from '../lib/pageSettings.js';
+import OptimizedImage from './OptimizedImage.astro';
+
+const { product } = Astro.props;
+const layout = Astro.props.layout || 'card';
+const buttonLabel = Astro.props.buttonLabel || 'Kup dostęp';
+const buttonClass = Astro.props.buttonClass || 'button-primary';
+const purchasedLabel = Astro.props.purchasedLabel || 'Przejdź do Biblioteki';
+const purchasedClass = Astro.props.purchasedClass || 'button-secondary';
+const noteText = Astro.props.noteText || 'Natychmiastowy dostęp po opłaceniu. Bezpieczne płatności: Stripe.';
+const supportHref = Astro.props.supportHref || getPagePathByKey('contact');
+const supportLabel = Astro.props.supportLabel || 'Zapytaj o wsparcie';
+const showSupportLink = Astro.props.showSupportLink ?? true;
+const showNote = Astro.props.showNote ?? true;
+const showButtonIcon = Astro.props.showButtonIcon ?? false;
+const showPurchasedIcon = Astro.props.showPurchasedIcon ?? false;
+const buttonStyle = Astro.props.buttonStyle || 'default';
+const termsPath = getPagePathByKey('terms');
+const tertiaryBlobShapeClass = 'rounded-[35%_65%_63%_37%/42%_43%_57%_58%]';
+const checkoutInstanceId =
+  Astro.props.instanceId ||
+  `checkout-${String(product.id || 'product')}-${String(layout || 'inline')}-${String(buttonLabel || 'buy')}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+const checkoutRootId = `${checkoutInstanceId}-root`;
+const checkoutModalId = `${checkoutInstanceId}-modal`;
+
+const productPayload = {
+  id: product.id,
+  slug: product.slug,
+  title: product.title,
+  price: product.price,
+  currentPrice: product.currentPrice,
+  promotionalPrice: product.promotional_price,
+  promoActive: product.promoActive,
+  lowestPrice30Days: product.lowest_price_30_days,
+};
+---
+
+<div data-checkout-instance={checkoutInstanceId}>
+{layout === 'card' ? (
+  <aside class="card-surface overflow-hidden lg:sticky lg:top-28" id={checkoutRootId}>
+    <div class="aspect-[4/3] bg-white">
+      {product.thumbnail_url ? (
+        <OptimizedImage src={product.thumbnail_url} alt={product.title} class="h-full w-full object-cover" loading="eager" decoding="async" sizes="(min-width: 1024px) 24rem, 100vw" />
+      ) : (
+        <div class="flex h-full items-center justify-center bg-gradient-to-br from-blush to-white font-serif text-fs-title-md text-mauve/40">{product.title}</div>
+      )}
+    </div>
+    <div class="p-8">
+      <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Cena</p>
+      <div class="mt-4">
+        {product.promoActive && <p class="text-fs-body-lg text-mauve/35 line-through">{formatPrice(product.price)}</p>}
+        <p class="font-serif text-fs-title-xl text-terracotta">{formatPrice(product.currentPrice)}</p>
+      </div>
+      {product.promoActive && product.lowest_price_30_days != null && (
+        <p class="mt-3 border-l-2 border-gold/30 pl-3 text-fs-ui text-mauve/55">Najniższa cena z 30 dni przed obniżką: {formatPrice(product.lowest_price_30_days)}</p>
+      )}
+
+      <div class="mt-8 rounded-[24px] border border-gold/15 bg-nude/70 p-5 text-fs-ui text-mauve/70">
+        Zakup działa już bezpośrednio z backendem przez ten modal. Dla Stripe dostępne są karta, BLIK i Przelewy24, a przelew tradycyjny tworzy zamówienie do ręcznej obsługi.
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3" data-purchase-group>
+        <button type="button" data-open-modal data-open-checkout-modal={product.id} class={buttonClass}>{buttonLabel}</button>
+        {showSupportLink && <a href={supportHref} class="button-secondary">{supportLabel}</a>}
+      </div>
+      <a href="/panel" class={purchasedClass} data-purchased-link hidden>{purchasedLabel}</a>
+      {showNote && <p class="mt-4 text-center text-fs-label font-light text-mauve/50" data-checkout-note>{noteText}</p>}
+    </div>
+  </aside>
+) : (
+  <div id={checkoutRootId} class="w-full">
+    <div class="flex flex-col gap-4" data-purchase-group>
+      {buttonStyle === 'homepage-blob' ? (
+        <button type="button" data-open-modal data-open-checkout-modal={product.id} class={buttonClass}>
+          <span class:list={[
+            'circle absolute left-0 top-0 z-0 block h-12 w-12 bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.625rem]',
+            tertiaryBlobShapeClass,
+          ]} aria-hidden="true">
+            {showButtonIcon ? (
+              <span class="absolute inset-y-0 left-[0.78rem] z-10 my-auto flex h-7 w-7 items-center justify-center text-white transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:translate-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  <path d="M3.103 6.034h17.794"></path>
+                  <path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path>
+                </svg>
+              </span>
+            ) : null}
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-label font-bold uppercase tracking-wider text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">{buttonLabel}</span>
+        </button>
+      ) : (
+        <button type="button" data-open-modal data-open-checkout-modal={product.id} class={buttonClass}>
+          <span class="relative z-10 flex items-center justify-center gap-3">
+            {showButtonIcon && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                <path d="M3.103 6.034h17.794"></path>
+                <path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path>
+              </svg>
+            )}
+            {buttonLabel}
+          </span>
+        </button>
+      )}
+      {showSupportLink && <a href={supportHref} class="button-secondary">{supportLabel}</a>}
+    </div>
+    <a href="/panel" class={purchasedClass} data-purchased-link hidden>
+      {showPurchasedIcon && (
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+          <path d="M3.103 6.034h17.794"></path>
+          <path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path>
+        </svg>
+      )}
+      {purchasedLabel}
+    </a>
+    {showNote && <p class="mt-4 text-center text-fs-label font-light text-mauve/50" data-checkout-note>{noteText}</p>}
+  </div>
+)}
+
+<div id={checkoutModalId} class="fixed inset-0 z-[9999] hidden items-center justify-center px-4 py-8">
+  <div class="absolute inset-0 bg-mauve/40 backdrop-blur-sm" data-close-modal></div>
+  <div class="relative z-10 max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[32px] bg-white/95 p-8 shadow-2xl md:p-10">
+    <button type="button" class="absolute right-5 top-5 text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
+
+    <div class="relative z-10">
+      <p class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Zakup</p>
+      <h2 class="mt-4 font-serif text-fs-title-lg text-mauve" data-modal-title>Kupujesz po raz pierwszy</h2>
+      <p class="mt-3 text-fs-ui text-mauve/60" data-modal-subtitle>Możesz od razu przejść do płatności. Konto przypiszemy do tego zakupu, a dostęp aktywujesz po potwierdzeniu adresu e-mail.</p>
+      <p class="mt-2 rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70" data-user-summary hidden></p>
+      <p class="mt-4 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-ui text-terracotta" data-error hidden></p>
+
+      <div class="mt-6 flex gap-2 rounded-2xl bg-nude/80 p-2" data-auth-switch>
+        <button type="button" class="flex-1 rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70" data-switch-mode="guest">Kupuję pierwszy raz</button>
+        <button type="button" class="flex-1 rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70" data-switch-mode="login">Mam już konto</button>
+      </div>
+
+      <form class="mt-6 grid gap-4" data-guest-form>
+        <div class="grid gap-4 md:grid-cols-2">
+          <div>
+            <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Imię</label>
+            <input name="first_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          </div>
+          <div>
+            <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Nazwisko</label>
+            <input name="last_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          </div>
+        </div>
+        <div>
+          <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
+          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+        </div>
+        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
+          <input name="setPasswordNow" type="checkbox" class="mt-1 h-4 w-4 accent-gold" />
+          <span>
+            Chcę od razu ustawić hasło do konta.
+            <span class="mt-1 block text-mauve/55">Jeśli pominiesz ten krok, po zakupie wyślemy link, przez który dokończysz konfigurację konta.</span>
+          </span>
+        </label>
+        <div class="grid gap-4" data-password-fields hidden>
+          <div>
+            <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
+            <input name="password" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <p class="mt-2 text-fs-ui text-mauve/55">Minimum 12 znaków, mała i wielka litera, cyfra oraz znak specjalny.</p>
+          </div>
+          <div>
+            <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Powtórz hasło</label>
+            <input name="password_confirm" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          </div>
+        </div>
+        <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Materiały będą dostępne po opłaceniu i potwierdzeniu adresu e-mail. Jeśli ustawisz hasło teraz, zalogujesz się zaraz po potwierdzeniu konta.</p>
+      </form>
+
+      <form class="mt-6 space-y-4" data-login-form hidden>
+        <div>
+          <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
+          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+        </div>
+        <div>
+          <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
+          <input name="password" type="password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+        </div>
+      </form>
+
+      <div class="mt-6 rounded-2xl border border-gold/20 bg-gold/10 p-4 text-fs-ui text-mauve/70" data-confirm-panel hidden>
+        Konto jest już aktywne. Wystarczy potwierdzić zgody i wybrać sposób płatności.
+      </div>
+
+      <div class="mt-6 grid gap-4" data-shared-panel>
+        <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Sposób płatności</p>
+          <div class="mt-4 grid gap-3">
+            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4">
+              <input type="radio" name="paymentMethod" value="stripe" checked class="mt-1 h-4 w-4 accent-gold" />
+              <span>
+                <span class="block font-semibold text-mauve">Stripe: karta, BLIK, Przelewy24</span>
+                <span class="mt-1 block text-fs-ui text-mauve/60">Po wyborze przejdziesz do bezpiecznej płatności Stripe.</span>
+              </span>
+            </label>
+            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4">
+              <input type="radio" name="paymentMethod" value="bank_transfer" class="mt-1 h-4 w-4 accent-gold" />
+              <span>
+                <span class="block font-semibold text-mauve">Przelew tradycyjny</span>
+                <span class="mt-1 block text-fs-ui text-mauve/60">Otrzymasz dane do przelewu i zamówienie zostanie zapisane jako oczekujące.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
+          <label class="mb-2 block text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold" for="checkout-coupon-code">Kod rabatowy</label>
+          <input id="checkout-coupon-code" name="couponCode" type="text" placeholder="Wpisz kod, jeśli go masz" class="w-full rounded-2xl border border-white/80 bg-white/90 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <p class="mt-3 text-fs-ui text-mauve/60" data-coupon-status>Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.</p>
+        </div>
+
+        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
+          <input type="checkbox" name="termsAccepted" class="mt-1 h-4 w-4 accent-gold" />
+          <span>Akceptuję <a href={termsPath} target="_blank" class="font-semibold text-gold">regulamin sklepu</a>.</span>
+        </label>
+        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
+          <input type="checkbox" name="digitalContentAccepted" class="mt-1 h-4 w-4 accent-gold" />
+          <span>Wyrażam zgodę na dostarczenie treści cyfrowej przed upływem terminu odstąpienia od umowy i przyjmuję do wiadomości utratę tego prawa.</span>
+        </label>
+      </div>
+
+      <div class="mt-6 space-y-4 rounded-[24px] border border-mauve/10 bg-nude/70 p-5 text-fs-ui text-mauve/75" data-bank-transfer-panel hidden>
+        <div>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Kwota</p>
+          <p class="mt-2 font-serif text-fs-title-md text-mauve" data-bank-amount></p>
+        </div>
+        <div>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Odbiorca</p>
+          <p class="mt-2" data-bank-account-name></p>
+        </div>
+        <div data-bank-name-row hidden>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Bank</p>
+          <p class="mt-2" data-bank-name></p>
+        </div>
+        <div>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Numer konta</p>
+          <p class="mt-2 break-all font-mono text-fs-body text-mauve" data-bank-account-number></p>
+        </div>
+        <div>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Tytuł przelewu</p>
+          <p class="mt-2 font-semibold text-mauve" data-bank-transfer-title></p>
+        </div>
+        <div data-bank-instructions-row hidden>
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Dodatkowe informacje</p>
+          <p class="mt-2 whitespace-pre-line" data-bank-instructions></p>
+        </div>
+        <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Instrukcje zostały także wysłane na podany adres e-mail. Dostęp zostanie nadany ręcznie po zaksięgowaniu wpłaty.</p>
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <button type="button" class="button-primary" data-submit-guest>Przejdź do płatności</button>
+        <button type="button" class="button-primary" data-submit-login hidden>Zaloguj się i kup</button>
+        <button type="button" class="button-primary" data-submit-confirm hidden>Przejdź do płatności</button>
+        <button type="button" class="button-secondary" data-close-bank hidden>Zamknij</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ product: productPayload, checkoutRootId, checkoutModalId }}>
+  (() => {
+    const card = document.getElementById(checkoutRootId);
+    const modal = document.getElementById(checkoutModalId);
+    if (!card || !modal) return;
+
+    const state = {
+      mode: 'guest',
+      user: null,
+      busy: false,
+      bankTransfer: null,
+      purchased: false,
+    };
+
+    const openButtons = Array.from(card.querySelectorAll(`[data-open-checkout-modal="${product.id}"]`));
+    const closeButtons = modal.querySelectorAll('[data-close-modal]');
+    const bankCloseButton = modal.querySelector('[data-close-bank]');
+    const authSwitch = modal.querySelector('[data-auth-switch]');
+    const guestForm = modal.querySelector('[data-guest-form]');
+    const loginForm = modal.querySelector('[data-login-form]');
+    const confirmPanel = modal.querySelector('[data-confirm-panel]');
+    const sharedPanel = modal.querySelector('[data-shared-panel]');
+    const bankPanel = modal.querySelector('[data-bank-transfer-panel]');
+    const userSummary = modal.querySelector('[data-user-summary]');
+    const errorBox = modal.querySelector('[data-error]');
+    const title = modal.querySelector('[data-modal-title]');
+    const subtitle = modal.querySelector('[data-modal-subtitle]');
+    const guestButton = modal.querySelector('[data-submit-guest]');
+    const loginButton = modal.querySelector('[data-submit-login]');
+    const confirmButton = modal.querySelector('[data-submit-confirm]');
+    const purchaseGroup = card.querySelector('[data-purchase-group]');
+    const purchasedLink = card.querySelector('[data-purchased-link]');
+    const checkoutNote = card.querySelector('[data-checkout-note]');
+    const paymentInputs = () => Array.from(sharedPanel.querySelectorAll('input[name="paymentMethod"]'));
+    const couponInput = sharedPanel.querySelector('input[name="couponCode"]');
+    const couponStatus = sharedPanel.querySelector('[data-coupon-status]');
+    const termsInput = sharedPanel.querySelector('input[name="termsAccepted"]');
+    const digitalInput = sharedPanel.querySelector('input[name="digitalContentAccepted"]');
+    const setPasswordNowInput = guestForm?.querySelector('input[name="setPasswordNow"]');
+    const passwordFields = guestForm?.querySelector('[data-password-fields]');
+    const passwordInput = guestForm?.querySelector('input[name="password"]');
+    const passwordConfirmInput = guestForm?.querySelector('input[name="password_confirm"]');
+
+    const formatPrice = (value) => new Intl.NumberFormat('pl-PL', {
+      style: 'currency',
+      currency: 'PLN',
+      minimumFractionDigits: 2,
+    }).format(Number(value || 0));
+
+    const setBusy = (busy) => {
+      state.busy = busy;
+      [guestButton, loginButton, confirmButton, ...openButtons].forEach((button) => {
+        if (!button) return;
+        if (busy) button.setAttribute('disabled', 'disabled');
+        else button.removeAttribute('disabled');
+      });
+    };
+
+    const setHidden = (element, hidden) => {
+      if (!element) return;
+      element.hidden = hidden;
+    };
+
+    const showError = (message = '') => {
+      if (!message) {
+        setHidden(errorBox, true);
+        errorBox.textContent = '';
+        return;
+      }
+      errorBox.textContent = message;
+      setHidden(errorBox, false);
+    };
+
+    const setCouponStatus = (message = '') => {
+      if (!couponStatus) return;
+      couponStatus.textContent = message || 'Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.';
+    };
+
+    const getSelectedPaymentMethod = () => paymentInputs().find((input) => input.checked)?.value || 'stripe';
+
+    const validateConsents = () => {
+      if (!termsInput.checked || !digitalInput.checked) {
+        showError('Aby przejść dalej, zaakceptuj obie wymagane zgody.');
+        return false;
+      }
+      return true;
+    };
+
+    const togglePasswordFields = () => {
+      const isChecked = Boolean(setPasswordNowInput?.checked);
+      setHidden(passwordFields, !isChecked);
+      if (passwordInput) passwordInput.required = isChecked;
+      if (passwordConfirmInput) passwordConfirmInput.required = isChecked;
+      if (!isChecked) {
+        if (passwordInput) passwordInput.value = '';
+        if (passwordConfirmInput) passwordConfirmInput.value = '';
+      }
+    };
+
+    const validateGuestForm = () => {
+      const formData = new FormData(guestForm);
+      const firstName = String(formData.get('first_name') || '').trim();
+      const lastName = String(formData.get('last_name') || '').trim();
+      const email = String(formData.get('email') || '').trim().toLowerCase();
+      const setPasswordNow = Boolean(formData.get('setPasswordNow'));
+      const password = String(formData.get('password') || '');
+      const passwordConfirm = String(formData.get('password_confirm') || '');
+
+      if (!firstName || !lastName || !email) {
+        throw new Error('Uzupełnij imię, nazwisko i adres e-mail.');
+      }
+
+      if (setPasswordNow && password !== passwordConfirm) {
+        throw new Error('Hasła muszą być identyczne.');
+      }
+
+      return {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        setPasswordNow,
+        ...(setPasswordNow ? { password, password_confirm: passwordConfirm } : {}),
+      };
+    };
+
+    const setMode = (mode) => {
+      state.mode = mode;
+      state.bankTransfer = mode === 'bank-transfer' ? state.bankTransfer : null;
+
+      setHidden(guestForm, mode !== 'guest');
+      setHidden(loginForm, mode !== 'login');
+      setHidden(confirmPanel, mode !== 'confirm');
+      setHidden(sharedPanel, mode === 'bank-transfer');
+      setHidden(bankPanel, mode !== 'bank-transfer');
+      setHidden(authSwitch, mode === 'confirm' || mode === 'bank-transfer');
+      setHidden(guestButton, mode !== 'guest');
+      setHidden(loginButton, mode !== 'login');
+      setHidden(confirmButton, mode !== 'confirm');
+      setHidden(bankCloseButton, mode !== 'bank-transfer');
+
+      Array.from(authSwitch.querySelectorAll('[data-switch-mode]')).forEach((button) => {
+        const isActive = button.getAttribute('data-switch-mode') === mode;
+        button.classList.toggle('bg-white', isActive);
+        button.classList.toggle('text-mauve', isActive);
+        button.classList.toggle('shadow-sm', isActive);
+      });
+
+      if (mode === 'guest') {
+        title.textContent = 'Kupujesz po raz pierwszy';
+        subtitle.textContent = 'Możesz od razu przejść do płatności. Konto przypiszemy do zakupu, a materiały odblokujesz po potwierdzeniu adresu e-mail.';
+      } else if (mode === 'login') {
+        title.textContent = 'Zaloguj się i kup';
+        subtitle.textContent = 'Jeśli konto już istnieje, zaloguj się i przejdź od razu do płatności.';
+      } else if (mode === 'confirm') {
+        title.textContent = 'Potwierdź zakup';
+        subtitle.textContent = 'Konto jest już aktywne. Pozostało tylko zaakceptować zgody i wybrać płatność.';
+      } else {
+        title.textContent = 'Instrukcje przelewu';
+        subtitle.textContent = 'Zamówienie zostało zapisane. Poniżej znajdziesz dane do przelewu tradycyjnego.';
+      }
+    };
+
+    const updateUserSummary = () => {
+      if (!state.user) {
+        setHidden(userSummary, true);
+        userSummary.textContent = '';
+        return;
+      }
+
+      userSummary.textContent = `Zalogowano jako ${state.user.email}`;
+      setHidden(userSummary, false);
+    };
+
+    const syncPurchasedState = () => {
+      state.purchased = Boolean(state.user?.purchased_items?.includes(String(product.id)) || state.user?.purchased_items?.includes(product.id));
+
+      if (purchaseGroup) {
+        purchaseGroup.hidden = state.purchased;
+      }
+
+      if (purchasedLink) {
+        purchasedLink.hidden = !state.purchased;
+      }
+
+      if (checkoutNote) {
+        checkoutNote.hidden = state.purchased;
+      }
+    };
+
+    const fillBankTransfer = (details) => {
+      modal.querySelector('[data-bank-amount]').textContent = formatPrice(details.amount);
+      modal.querySelector('[data-bank-account-name]').textContent = details.accountName || '-';
+      modal.querySelector('[data-bank-account-number]').textContent = details.accountNumber || '-';
+      modal.querySelector('[data-bank-transfer-title]').textContent = details.transferTitle || '-';
+
+      const bankNameRow = modal.querySelector('[data-bank-name-row]');
+      const instructionsRow = modal.querySelector('[data-bank-instructions-row]');
+      const bankName = modal.querySelector('[data-bank-name]');
+      const instructions = modal.querySelector('[data-bank-instructions]');
+
+      if (details.bankName) {
+        bankName.textContent = details.bankName;
+        setHidden(bankNameRow, false);
+      } else {
+        bankName.textContent = '';
+        setHidden(bankNameRow, true);
+      }
+
+      if (details.instructions) {
+        instructions.textContent = details.instructions;
+        setHidden(instructionsRow, false);
+      } else {
+        instructions.textContent = '';
+        setHidden(instructionsRow, true);
+      }
+    };
+
+    const updateCouponStatusFromResponse = (appliedCoupon) => {
+      if (!appliedCoupon) {
+        setCouponStatus();
+        return;
+      }
+
+      setCouponStatus(`Kod ${appliedCoupon.code} został zastosowany. Cena po rabacie: ${formatPrice(appliedCoupon.discountedAmount)}.`);
+    };
+
+    const apiRequest = async (url, options = {}) => {
+      const response = await fetch(url, {
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(options.headers || {}),
+        },
+        ...options,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || data.message || 'Wystąpił błąd.');
+      }
+      return data;
+    };
+
+    const refreshUser = async () => {
+      try {
+        const session = await apiRequest('/api/auth/me?optional=1', { headers: {} });
+        state.user = session?.authenticated ? session.user : null;
+      } catch (error) {
+        state.user = null;
+      }
+      updateUserSummary();
+      syncPurchasedState();
+    };
+
+    const startCheckout = async ({ customer } = {}) => {
+      if (!validateConsents()) return;
+
+      setBusy(true);
+      showError('');
+
+      try {
+        const payload = {
+          productId: product.id,
+          paymentMethod: getSelectedPaymentMethod(),
+          termsAccepted: termsInput.checked,
+          digitalContentAccepted: digitalInput.checked,
+        };
+
+        const couponCode = String(couponInput?.value || '').trim();
+        if (couponCode) {
+          payload.couponCode = couponCode;
+        }
+
+        if (customer) {
+          payload.customer = customer;
+        }
+
+        const data = await apiRequest('/api/checkout/create-session', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+
+        if (data.url) {
+          updateCouponStatusFromResponse(data.appliedCoupon);
+          window.location.href = data.url;
+          return;
+        }
+
+        if (data.bankTransfer) {
+          state.bankTransfer = data.bankTransfer;
+          fillBankTransfer(data.bankTransfer);
+          updateCouponStatusFromResponse(data.appliedCoupon);
+          setMode('bank-transfer');
+        }
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setBusy(false);
+      }
+    };
+
+    const openModal = async () => {
+      showError('');
+      state.bankTransfer = null;
+      setCouponStatus();
+      await refreshUser();
+      if (state.purchased) {
+        window.location.href = '/panel';
+        return;
+      }
+      if (guestForm) {
+        guestForm.reset();
+      }
+      togglePasswordFields();
+      setMode(state.user ? 'confirm' : 'guest');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+      showError('');
+      setCouponStatus();
+    };
+
+    openButtons.forEach((button) => button.addEventListener('click', openModal));
+    closeButtons.forEach((button) => button.addEventListener('click', closeModal));
+    bankCloseButton?.addEventListener('click', closeModal);
+
+    authSwitch.querySelectorAll('[data-switch-mode]').forEach((button) => {
+      button.addEventListener('click', () => {
+        showError('');
+        setMode(button.getAttribute('data-switch-mode'));
+      });
+    });
+
+    guestButton?.addEventListener('click', async () => {
+      setBusy(true);
+      showError('');
+      try {
+        const customer = validateGuestForm();
+        await startCheckout({ customer });
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    loginButton?.addEventListener('click', async () => {
+      const formData = new FormData(loginForm);
+      const password = String(formData.get('password') || '');
+      const email = String(formData.get('email') || '').trim().toLowerCase();
+
+      setBusy(true);
+      showError('');
+      try {
+        await apiRequest('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({ email, password }),
+        });
+
+        await refreshUser();
+        await startCheckout();
+      } catch (error) {
+        showError(error.message);
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    confirmButton?.addEventListener('click', async () => {
+      await startCheckout();
+    });
+
+    setPasswordNowInput?.addEventListener('change', togglePasswordFields);
+
+    refreshUser();
+    togglePasswordFields();
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  })();
+</script>
+</div>

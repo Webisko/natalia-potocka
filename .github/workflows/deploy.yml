@@ -1,4 +1,4 @@
-name: Deploy Frontend to GitHub Pages
+name: Deploy Astro Site to GitHub Pages
 
 on:
   push:
@@ -28,17 +28,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: npm
 
       - name: Install dependencies
-        working-directory: ./frontend
         run: npm ci || npm install
 
       - name: Build project
-        working-directory: ./frontend
-        run: npx vite build --base=/natalia-potocka/ --outDir=dist --emptyOutDir
-
-      - name: Fix SPA routing for GitHub Pages
-        run: cp frontend/dist/index.html frontend/dist/404.html
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -46,7 +42,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./frontend/dist
+          path: ./dist
 
       - name: Deploy to GitHub Pages
         id: deployment
