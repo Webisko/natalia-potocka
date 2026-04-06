@@ -93,7 +93,20 @@ $rootHtaccess = <<<EOD
 </IfModule>
 
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+  SetOutputFilter DEFLATE
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript application/json
+  AddOutputFilterByType DEFLATE application/xml application/xhtml+xml image/svg+xml
+  AddOutputFilterByType DEFLATE font/ttf font/otf font/woff application/font-woff application/font-woff2
+  BrowserMatch ^Mozilla/4 gzip-only-text/html
+  BrowserMatch ^Mozilla/4\.0[678] no-gzip
+  BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+  Header append Vary User-Agent env=!dont-vary
+</IfModule>
+
+<IfModule mod_filter.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css
+  AddOutputFilterByType DEFLATE application/javascript application/json
 </IfModule>
 EOD;
 file_put_contents($buildDir . '/.htaccess', $rootHtaccess);
