@@ -75,10 +75,20 @@ const faviconHref = '/favicon.svg?v=np-monogram-1';
     <meta name="robots" content={robotsContent} />
     <link rel="icon" type="image/svg+xml" href={faviconHref} />
     <link rel="shortcut icon" href={faviconHref} />
+    {resolvedCanonicalUrl && <link rel="canonical" href={resolvedCanonicalUrl} />}
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {resolvedCanonicalUrl && <meta property="og:url" content={resolvedCanonicalUrl} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" />
-    {resolvedCanonicalUrl && <link rel="canonical" href={resolvedCanonicalUrl} />}
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" />
+    </noscript>
     <meta property="og:locale" content="pl_PL" />
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:type" content={ogType} />
