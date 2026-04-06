@@ -85,8 +85,9 @@ function setAuthCookie(array $user, string $secret): void {
         'path' => '/',
         'httponly' => true,
         'secure' => $secure,
-        'samesite' => 'Strict',
+        'samesite' => 'Lax',
     ]);
+
 }
 
 if ($method === 'POST') {
@@ -327,8 +328,9 @@ if ($method === 'POST') {
             'path' => '/',
             'httponly' => true,
             'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-            'samesite' => 'Strict',
+            'samesite' => 'Lax',
         ]);
+
         sendJson(['message' => 'Wylogowano.']);
     }
 }

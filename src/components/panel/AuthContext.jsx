@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 
+// Upewnij się, że cookies (auth_token) są wysyłane z każdym żądaniem axios
+axios.defaults.withCredentials = true;
+
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
