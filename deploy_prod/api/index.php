@@ -75,6 +75,10 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     $_GET['action'] = 'media';
     require __DIR__ . '/admin.php';
     exit;
+} elseif (preg_match('#^/api/admin/sync-media$#', $path)) {
+    $_GET['action'] = 'sync-media';
+    require __DIR__ . '/admin.php';
+    exit;
 } elseif (preg_match('#^/api/admin/grant-access$#', $path)) {
     $_GET['action'] = 'grant-access';
     require __DIR__ . '/admin.php';

@@ -13,6 +13,12 @@ import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '../../shared/siteConfig.js';
 import { buildBreadcrumbSchema, buildPersonSchema, buildWebPageSchema, buildWebsiteSchema, toAbsoluteUrl } from '../lib/structuredData.js';
+import { getGlobalSettings } from '../lib/globalSettings.js';
+
+const globalSettings = getGlobalSettings();
+const defaultTitle = globalSettings.seo_default_title || SITE_NAME;
+const defaultDescription = globalSettings.seo_default_desc || SITE_DESCRIPTION;
+const defaultSocialImage = globalSettings.seo_default_social_image || DEFAULT_SOCIAL_IMAGE;
 
 interface Props {
   title: string;
@@ -30,9 +36,9 @@ interface Props {
 }
 
 const {
-  title,
-  description = SITE_DESCRIPTION,
-  socialImage = null,
+  title = defaultTitle,
+  description = defaultDescription,
+  socialImage = defaultSocialImage,
   canonicalUrl = null,
   noindex = false,
   ogType = 'website',
@@ -70,7 +76,7 @@ const defaultStructuredData = [
   buildBreadcrumbSchema(breadcrumbItems),
 ].filter(Boolean);
 const allStructuredData = [...defaultStructuredData, ...normalizedStructuredData];
-const faviconHref = '/favicon.svg?v=np-monogram-1';
+const faviconHref = globalSettings.favicon_url || '/favicon.svg?v=np-monogram-1';
 ---
 
 <!doctype html>

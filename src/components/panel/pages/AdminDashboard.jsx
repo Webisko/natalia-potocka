@@ -23,8 +23,10 @@ import { useAuth } from '../AuthContext.jsx';
 import AdminActionIconButton from '../admin/AdminActionIconButton';
 import AdminCouponModal from '../admin/AdminCouponModal';
 import AdminListCard from '../admin/AdminListCard';
-import AdminPageSettingsModal from '../admin/AdminPageSettingsModal';
+import AdminImagePicker from '../admin/AdminImagePicker';
 import AdminMediaLibraryTab from '../admin/AdminMediaLibraryTab';
+import AdminPageSettingsModal from '../admin/AdminPageSettingsModal';
+import { SITE_NAME } from '../../../shared/siteConfig';
 import AdminStatusBadge from '../admin/AdminStatusBadge';
 import AdminStatusIcon from '../admin/AdminStatusIcon';
 
@@ -822,6 +824,33 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
               </div>
 
               <form onSubmit={handleSaveSettings} className="space-y-6">
+                <SettingsGroup eyebrow="Wygląd i SEO" title="Ustawienia globalne" description="Domyślne metadane strony oraz favicon. Uwaga: zmiany w tych ustawieniach będą widoczne dla klientów dopiero po ponownej publikacji serwisu (kolejnym wdrożeniu / zapisaniu jakiejkolwiek strony).">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Favicon (ikona w karcie przeglądarki)</p>
+                      <AdminImagePicker
+                        value={settings.favicon_url || ''}
+                        onChange={(url) => setSettings({ ...settings, favicon_url: url })}
+                      />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
+                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
+                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
+                      <AdminImagePicker
+                        value={settings.seo_default_social_image || ''}
+                        onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
+                      />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
                 <SettingsGroup eyebrow="Płatności" title="Stripe" description="Wszystkie klucze Stripe są zebrane w jednym bloku, aby łatwiej kontrolować konfigurację checkoutu i webhooków.">
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">

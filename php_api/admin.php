@@ -839,8 +839,8 @@ if ($method === 'POST' && $action === 'media-upload') {
     }
 
     $mimeType = mime_content_type($_FILES['file']['tmp_name']) ?: ($_FILES['file']['type'] ?? '');
-    if (strpos($mimeType, 'image/') !== 0) {
-        sendJson(['error' => 'Do biblioteki mediów można przesyłać tylko obrazy.'], 400);
+    if (strpos($mimeType, 'image/') !== 0 && $mimeType !== 'image/x-icon' && $mimeType !== 'image/vnd.microsoft.icon' && $mimeType !== 'application/ico') {
+        sendJson(['error' => 'Do biblioteki mediów można przesyłać tylko obrazy i ikony.'], 400);
     }
 
     $extension = strtolower(pathinfo((string) $_FILES['file']['name'], PATHINFO_EXTENSION));
