@@ -884,4 +884,57 @@ if ($method === 'DELETE' && $action === 'media') {
     }
 }
 
+if ($method === 'POST' && $action === 'sync-media') {
+    if (empty($currentUser['is_admin'])) {
+        sendJson(['error' => 'Brak uprawnień'], 403);
+    }
+
+    $publicImagesDir = realpath(__DIR__ . '/../images') ?: realpath(__DIR__ . '/../public/images');
+    if (!$publicImagesDir) {
+        sendJson(['error' => 'Nie znaleziono katalogu images: ' . __DIR__], 500);
+    }
+
+    $images = array_merge(glob($publicImagesDir . '/*.png') ?: [], glob($publicImagesDir . '/*/*.webp') ?: []);
+    $favicon = realpath(__DIR__ . '/../favicon.ico') ?: realpath(__DIR__ . '/../public/favicon.ico');
+    if ($favicon) {
+        $images[] = $favicon;
+    }
+
+    $added = 0;
+    foreach ($images as $path) {
+        if (!file_exists($path)) continue;
+
+        $filename = basename($path);
+        // build correct public url
+        // Jeśli plik jest w /images/optimized to public_url ma być /images/optimized/nazwa
+        $isOptimized = strpos($path, 'optimized') !== false;
+        if ($filename === 'favicon.ico') {
+            $public_url = '/favicon.ico';
+        } elseif ($isOptimized) {
+            $public_url = '/images/optimized/' . $filename;
+        } else {
+            $public_url = '/images/' . $filename;
+        }
+
+        $stmt = $db->prepare("SELECT id FROM media_assets WHERE public_url = ?");
+        $stmt->execute([$public_url]);
+        if ($stmt->fetch()) {
+            continue; 
+        }
+        
+        $mediaId = bin2hex(random_bytes(16));
+        $mimeType = mime_content_type($path);
+        $size = filesize($path);
+        $alt = 'Zdjęcie ' . str_replace(['_', '.png', '.ico', '.webp'], [' ', '', '', ''], $filename);
+        
+        $stmtIns = $db->prepare('INSERT INTO media_assets (id, file_name, original_name, mime_type, size_bytes, width, height, alt_text, public_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
+        $stmtIns->execute([
+            $mediaId, $filename, $filename, $mimeType ?: 'image/png', $size, null, null, $alt, $public_url
+        ]);
+        $added++;
+    }
+
+    sendJson(['message' => 'Zsynchronizowano', 'added_count' => $added]);
+}
+
 sendJson(['error' => 'Unknown action'], 400);
