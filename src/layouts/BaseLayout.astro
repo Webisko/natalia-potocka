@@ -104,6 +104,7 @@ const faviconHref = globalSettings.favicon_url || '/favicon.svg?v=np-monogram-1'
     {allStructuredData.map((schema) => (
       <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
     ))}
+    {globalSettings.marketing_head_scripts ? <Fragment set:html={globalSettings.marketing_head_scripts} /> : null}
   </head>
   <body class="min-h-screen flex flex-col bg-[#FAF7F2] relative">
     {showHeader && <SiteHeader />}
@@ -112,5 +113,6 @@ const faviconHref = globalSettings.favicon_url || '/favicon.svg?v=np-monogram-1'
       <slot />
     </main>
     {showFooter && <SiteFooter />}
+    {globalSettings.marketing_body_scripts ? <Fragment set:html={globalSettings.marketing_body_scripts} /> : null}
   </body>
- </html>
+</html>

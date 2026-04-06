@@ -437,6 +437,27 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
           </nav>
         </div>
 
+        {isAdmin ? (
+          <div className="mb-10 grid gap-4 grid-cols-2 md:grid-cols-4">
+               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
+                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Suma zamówień (zakończone)</p>
+                 <p className="mt-2 text-xl font-serif text-mauve">{formatCurrency(orders.filter(o => o.status === 'completed' || o.status === 'manual').reduce((sum, o) => sum + o.amount_total, 0))}</p>
+               </div>
+               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
+                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Wszystkie zamówienia</p>
+                 <p className="mt-2 text-xl font-serif text-mauve">{orders.length}</p>
+               </div>
+               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
+                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Zarejestrowane konta</p>
+                 <p className="mt-2 text-xl font-serif text-mauve">{users.length}</p>
+               </div>
+               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
+                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Dostępne produkty</p>
+                 <p className="mt-2 text-xl font-serif text-mauve">{products.length}</p>
+               </div>
+          </div>
+        ) : null}
+
         <div className="animate-in fade-in duration-500 space-y-8">
           {activeTab === 'products' ? (
             <AdminListCard
@@ -847,6 +868,21 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                         value={settings.seo_default_social_image || ''}
                         onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
                       />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Marketing i Kody" title="Skrypty zagnieżdżone" description="Wklej tutaj zewnętrzne skrypty narzędzi analitycznych i reklamowych (np. Piksel Meta/Facebook, Google Analytics 4, Hotjar, Google Tag Manager). Zmiany w kodach również wymagają ponownej modyfikacji i wdrożenia platformy.">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;head&gt;</p>
+                      <textarea value={settings.marketing_head_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_head_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane przed końcowym znacznikiem &lt;/head&gt;. Tutaj umieszcza się większość kodów weryfikacyjnych i śledzących.</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;body&gt; (na końcu)</p>
+                      <textarea value={settings.marketing_body_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_body_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane tuż przed &lt;/body&gt; na dole strony. Np. skrypty czatów, dodatkowe pop-upy z zewnętrznych narzędzi.</p>
                     </div>
                   </div>
                 </SettingsGroup>
