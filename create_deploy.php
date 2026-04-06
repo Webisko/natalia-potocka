@@ -60,17 +60,43 @@ $rootHtaccess = <<<EOD
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-    RewriteRule ^(product|uslugi|produkty)/(.*)$ /oferta/$2 [R=301,L,QSA]
+  RewriteRule ^(product|uslugi|produkty)/(.*)$ /oferta/$2 [R=301,L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !^/api/ [NC]
   RewriteCond %{REQUEST_URI} !^/data/ [NC]
   RewriteRule ^(.*)$ index.html [L,QSA]
 </IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "^(.*)\.[0-9a-zA-Z]{8}\.(js|css)$">
+    Header set Cache-Control "max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(ico|webp|avif|jpg|jpeg|png|gif|svg)$">
+    Header set Cache-Control "max-age=31536000, public"
+  </FilesMatch>
+  <FilesMatch "^(index\.html|sitemap\.xml|robots\.txt)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+</IfModule>
 EOD;
 file_put_contents($buildDir . '/.htaccess', $rootHtaccess);
-
-
 echo "5. Konfiguracja routingu API (/api/.htaccess)...\n";
 $apiHtaccess = <<<EOD
 <IfModule mod_rewrite.c>
