@@ -326,7 +326,7 @@ const isContact = currentPath === contactPath;
 
     const loadAuthState = async () => {
       try {
-        const response = await fetch('/api/auth/me?optional=1', { credentials: 'include' });
+        const response = await fetch('/api/auth/me?optional=1&_t=' + Date.now(), { credentials: 'include' });
         if (!response.ok) {
           renderLoggedOut();
           return;

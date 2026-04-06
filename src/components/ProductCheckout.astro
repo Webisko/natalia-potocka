@@ -511,7 +511,7 @@ const productPayload = {
 
     const refreshUser = async () => {
       try {
-        const session = await apiRequest('/api/auth/me?optional=1', { headers: {} });
+        const session = await apiRequest('/api/auth/me?optional=1&_t=' + Date.now(), { headers: {} });
         state.user = session?.authenticated ? session.user : null;
       } catch (error) {
         state.user = null;

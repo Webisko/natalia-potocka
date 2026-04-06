@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
 
   const fetchSession = async () => {
     try {
-      const response = await axios.get('/api/auth/me?optional=1');
+      const response = await axios.get('/api/auth/me?optional=1&_t=' + Date.now());
       setUser(response.data?.authenticated ? response.data.user : null);
     } catch {
       setUser(null);
