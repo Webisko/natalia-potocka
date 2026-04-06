@@ -119,12 +119,28 @@ $apiHtaccess = <<<EOD
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^(.*)$ index.php [L,QSA]
 </IfModule>
+
+<IfModule LiteSpeed>
+    CacheDisable public /
+    CacheDisable private /
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+</IfModule>
 EOD;
 file_put_contents($buildDir . '/api/.htaccess', $apiHtaccess);
 
 echo "6. Generowanie aktualnego routera /api/index.php...\n";
 $apiIndex = <<<EOD
 <?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Wygasło w przeszłości
+header("X-LiteSpeed-Cache-Control: no-cache");
+
 \$path = parse_url(\$_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Zabezpieczenie wejścia bezpośredniego w /api lub /api/ -> powrót do frontu
