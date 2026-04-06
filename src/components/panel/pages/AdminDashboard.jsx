@@ -26,7 +26,7 @@ import AdminListCard from '../admin/AdminListCard';
 import AdminImagePicker from '../admin/AdminImagePicker';
 import AdminMediaLibraryTab from '../admin/AdminMediaLibraryTab';
 import AdminPageSettingsModal from '../admin/AdminPageSettingsModal';
-import { SITE_NAME } from '../../../shared/siteConfig';
+import { SITE_NAME } from '../../../../shared/siteConfig';
 import AdminStatusBadge from '../admin/AdminStatusBadge';
 import AdminStatusIcon from '../admin/AdminStatusIcon';
 
