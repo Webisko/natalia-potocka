@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactPageContent from '../components/pages/ContactPageContent.astro';
+import { PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
+import { getPagePathByKey, getPageSettings, normalizePagePath } from '../lib/pageSettings.js';
+
+const page = getPageSettings('contact');
+const currentPath = normalizePagePath(Astro.url.pathname);
+const configuredPath = normalizePagePath(getPagePathByKey('contact'));
+const breadcrumbItems = [
+  { name: 'Strona główna', href: '/' },
+  { name: page?.title || PAGE_SETTINGS_BY_KEY.contact.title, href: configuredPath },
+];
+
+if (configuredPath !== currentPath) {
+  return Astro.redirect(configuredPath);
+}
+---
+
+<BaseLayout
+  title={page?.meta_title || page?.title || PAGE_SETTINGS_BY_KEY.contact.meta_title}
+  description={page?.meta_desc || PAGE_SETTINGS_BY_KEY.contact.meta_desc}
+  socialImage={page?.meta_image_url || page?.featured_image_url || null}
+  canonicalUrl={page?.canonical_url || null}
+  noindex={Boolean(page?.noindex)}
+  pageType="ContactPage"
+  breadcrumbItems={breadcrumbItems}
+  showBreadcrumbs={false}
+>
+  <ContactPageContent />
+</BaseLayout>

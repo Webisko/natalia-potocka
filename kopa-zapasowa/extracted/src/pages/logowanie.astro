@@ -1,0 +1,19 @@
+---
+import AuthForm from '../components/auth/AuthForm.astro';
+import AuthPageShell from '../components/auth/AuthPageShell.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Logowanie | Natalia Potocka"
+  description="Zaloguj się do panelu klientki lub administratora Natalii Potockiej."
+  noindex={true}
+  showHeader={false}
+  showFooter={false}
+  showBreadcrumbs={false}
+  breadcrumbItems={[]}
+>
+  <AuthPageShell>
+    <AuthForm mode="login" />
+  </AuthPageShell>
+</BaseLayout>

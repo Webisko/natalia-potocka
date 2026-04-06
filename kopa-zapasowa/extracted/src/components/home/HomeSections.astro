@@ -1,0 +1,284 @@
+---
+import BlobArrowIcon from '../icons/BlobArrowIcon.astro';
+import OptimizedImage from '../OptimizedImage.astro';
+import ProductCarousel from '../product/ProductCarousel.astro';
+import { getPublishedStorefrontProducts } from '../../lib/products.js';
+
+const aboutPagePath = Astro.props.aboutPagePath || '/o-mnie';
+const offerPagePath = Astro.props.offerPagePath || '/#oferta';
+const offerSectionHref = offerPagePath === '/oferta' ? '#oferta' : offerPagePath;
+const heroImageSrc = Astro.props.heroImageSrc || '/images/hero_doula.png';
+const aboutImageSrc = Astro.props.aboutImageSrc || '/images/about_doula.png';
+const storefrontProducts = getPublishedStorefrontProducts();
+---
+
+<div class="relative w-full bg-transparent overflow-visible">
+<section class="relative flex min-h-screen w-full items-center justify-center pt-16">
+  <div class="absolute inset-0 pointer-events-none z-0">
+    <svg viewBox="0 0 1440 900" class="h-full w-full opacity-50" preserveAspectRatio="none">
+      <path d="M-100,600 C200,800 400,200 800,400 C1200,600 1300,100 1600,200" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="10 20" class="animate-flow-slower opacity-60"></path>
+      <path d="M-100,650 C250,850 450,250 850,450 C1250,650 1350,150 1650,250" fill="none" stroke="#E6B8B8" stroke-width="2" stroke-dasharray="10 30" class="animate-flow-slow opacity-60"></path>
+    </svg>
+  </div>
+  <div class="absolute right-20 top-20 h-64 w-64 rounded-full bg-rose/20 blur-[80px] animate-float"></div>
+  <div class="absolute bottom-20 left-20 h-80 w-80 rounded-full bg-goldLight/30 blur-[100px] animate-pulse-slow"></div>
+
+  <div class="relative z-10 mx-auto flex max-w-[1440px] flex-col-reverse items-center gap-12 px-8 pt-20 md:flex-row md:px-16">
+    <div class="flex-1 space-y-8 text-center md:text-left">
+      <h1 class="font-serif text-fs-display leading-[1.08] text-mauve drop-shadow-sm">
+        Wesprę Cię w drodze do <span class="bg-gradient-to-r from-gold to-[#B88A44] bg-clip-text pr-2 italic text-transparent">świadomego porodu</span>
+      </h1>
+      <p class="max-w-xl text-fs-body-lg font-light leading-relaxed text-mauve/80">Mam na imię <strong>Natalia</strong>, jestem terapeutką traumy i wsparciem na Twojej drodze przez macierzyństwo.</p>
+      <div class="flex flex-col gap-4 pt-6 md:flex-row md:justify-start">
+        <a href={offerSectionHref} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz, jak mogę Ci pomóc</span>
+        </a>
+        <a href={aboutPagePath} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Poznaj mnie</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="relative flex flex-1 justify-center">
+      <div class="relative h-[400px] w-[300px] md:h-[500px] md:w-[400px]">
+        <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
+        <OptimizedImage src={heroImageSrc} alt="Natalia Potocka - terapeutka" class="relative h-full w-full animate-float object-cover shadow-2xl" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;" loading="eager" decoding="async" fetchpriority="high" sizes="(min-width: 768px) 400px, 300px" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="relative flex min-h-[500px] items-center justify-center py-32">
+  <div class="absolute inset-0 overflow-visible pointer-events-none">
+    <svg class="absolute h-full w-full opacity-30" viewBox="0 0 1440 600" preserveAspectRatio="none">
+      <path d="M-200,300 C200,100 600,500 1000,300 C1400,100 1800,400 2200,200" fill="none" stroke="#E6B8B8" stroke-width="2" class="animate-float"></path>
+    </svg>
+    <div class="absolute left-[5%] top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-rose/10 blur-[60px] animate-breathe mix-blend-multiply"></div>
+    <div class="absolute right-[5%] top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-gold/5 blur-[80px] animate-pulse-slow mix-blend-multiply"></div>
+  </div>
+
+  <div class="relative z-10 mx-auto max-w-4xl px-8 text-center md:px-12">
+    <div class="relative mb-10 inline-block">
+      <div class="absolute inset-0 h-16 w-16 rounded-full bg-gold/20 blur-xl"></div>
+      <svg class="relative z-10 h-8 w-8 animate-heartbeat text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"></path>
+      </svg>
+    </div>
+    <blockquote class="font-serif text-[clamp(1.55rem,1.2rem+1vw,2.3rem)] italic leading-[1.4] text-mauve md:leading-[1.35]">
+      "Macierzyństwo to nie tylko rola, którą przyjmujesz, ale głęboka podróż do wnętrza siebie. Jestem tu, by towarzyszyć Ci w każdym kroku tej drogi."
+    </blockquote>
+    <div class="mt-14 flex flex-col items-center gap-3">
+      <div class="relative h-1.5 w-24 overflow-hidden rounded-full bg-gold/20">
+        <div class="absolute inset-0 animate-flow-slower rounded-full bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+      </div>
+      <span class="mt-2 text-fs-ui font-bold uppercase tracking-[0.25em] text-mauve/80">Natalia Potocka</span>
+    </div>
+  </div>
+</section>
+
+<section class="relative py-24">
+  <div class="absolute inset-0 overflow-visible pointer-events-none">
+    <div class="absolute left-[-5%] top-[10%] h-[400px] w-[400px] rounded-full bg-blush/40 blur-[90px] animate-breathe"></div>
+    <div class="absolute bottom-[10%] right-[-5%] h-[350px] w-[350px] rounded-full bg-gold/10 blur-[80px] animate-pulse-slow"></div>
+    <div class="absolute top-[50%] left-[50%] h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/10 blur-[100px] animate-float"></div>
+  </div>
+
+  <div class="container-shell relative z-10">
+    <div class="mx-auto mb-20 max-w-3xl text-center">
+      <h2 class="font-serif text-fs-title-lg text-mauve">Odkryj swoją naturę</h2>
+      <p class="text-fs-body-lg font-light leading-relaxed text-mauve/60">
+        Moje podejście opiera się na przekonaniu, że poród to instynktowne wydarzenie. Wspólnie budujemy trzy kluczowe filary:
+      </p>
+    </div>
+
+    <div class="grid items-stretch gap-8 md:grid-cols-3">
+      <div class="blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300">
+        <div class="blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 bg-white shadow-sm transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 54% 46% 42% 58% / 44% 48% 52% 56%;"></div>
+        <div class="relative z-10 mb-6 flex h-40 w-40 items-center justify-center">
+          <svg class="h-12 w-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2 21l3.1-3.1"></path>
+          </svg>
+        </div>
+        <div class="relative z-10">
+          <h3 class="mb-4 font-serif text-fs-title-sm text-mauve">Czujesz luz i spokój</h3>
+          <p class="mx-auto max-w-xs font-light leading-relaxed text-mauve/70">
+            Zamiast lęku przed porodem, czujesz gotowość i ciekawość nadchodzącego czasu.
+          </p>
+        </div>
+      </div>
+
+      <div class="blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300 md:-mt-8">
+        <div class="blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 animate-heartbeat bg-terracotta shadow-xl shadow-terracotta/20 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!shadow-2xl group-hover:!animate-none" style="border-radius: 35% 65% 63% 37% / 42% 43% 57% 58%;"></div>
+        <div class="relative z-10 mb-6 flex h-40 w-40 items-center justify-center">
+          <svg class="h-14 w-14 animate-heartbeat text-white transition-transform duration-500 group-hover:scale-110 group-hover:animate-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+        </div>
+        <div class="relative z-10">
+          <h3 class="mb-4 font-serif text-fs-title-sm text-mauve transition-colors duration-300 group-hover:text-white">Masz pewność siebie</h3>
+          <p class="mx-auto max-w-xs font-light leading-relaxed text-mauve/70 transition-colors duration-300 group-hover:text-white/90">
+            Jesteś pewna swoich kompetencji jako matka i ufasz swojej intuicji.
+          </p>
+        </div>
+      </div>
+
+      <div class="blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300">
+        <div class="blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 bg-white shadow-sm transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!bg-white/95 group-hover:!shadow-2xl group-hover:!shadow-mauve/10" style="border-radius: 64% 36% 47% 53% / 61% 53% 47% 39%;"></div>
+        <div class="relative z-10 mb-6 flex h-40 w-40 items-center justify-center">
+          <svg class="h-12 w-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"></path>
+          </svg>
+        </div>
+        <div class="relative z-10">
+          <h3 class="mb-4 font-serif text-fs-title-sm text-mauve">Masz rzetelną wiedzę</h3>
+          <p class="mx-auto max-w-xs font-light leading-relaxed text-mauve/70">
+            Otrzymujesz konkretne informacje o fizjologii, połogu i laktacji, które dają Ci poczucie kontroli i bezpieczeństwa.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="oferta" class="relative scroll-mt-20 py-24 md:scroll-mt-24 lg:scroll-mt-28">
+  <div class="absolute inset-0 pointer-events-none z-0 overflow-visible">
+    <svg viewBox="0 0 1440 1600" class="h-full w-full" preserveAspectRatio="none">
+      <path d="M200,100 C500,300 800,100 1100,300 S1000,800 400,1200" stroke="#D4AF37" stroke-width="1" fill="none" stroke-dasharray="10 40" class="animate-flow-slower opacity-15"></path>
+      <path d="M150,150 C450,350 750,150 1050,350 S950,850 350,1250" stroke="#E6B8B8" stroke-width="1.5" fill="none" stroke-dasharray="15 50" class="animate-flow-slower opacity-20"></path>
+    </svg>
+  </div>
+
+  <div class="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+    <div class="mx-auto mb-16 max-w-3xl text-center">
+      <h2 class="mb-6 font-serif text-fs-title-xl text-mauve">Wsparcie skrojone <span class="relative inline-block">na miarę<span class="absolute -bottom-2 left-0 h-1 w-full rounded-full bg-gold pl-2 pr-2 opacity-60"></span></span></h2>
+      <p class="text-fs-body-lg font-light text-mauve/70">Niezależnie od tego, na jakim etapie jesteś – znajdziesz tu bezpieczną przystań.</p>
+    </div>
+
+    <div class="mb-24 grid gap-8 lg:grid-cols-12">
+      <div class="offer-card group isolate relative lg:col-span-7">
+        <div class="offer-blob absolute inset-0 -z-10 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-xl" style="border-radius: 63% 37% 39% 61% / 48% 66% 34% 52%;">
+          <div class="absolute inset-0 rounded-[inherit] border-2 border-transparent transition-colors duration-500 group-hover:!rounded-[30px] group-hover:border-rose/10"></div>
+        </div>
+        <div class="relative z-10 flex h-full flex-col justify-center p-10 md:p-14">
+          <div class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-mauve/10 bg-mauve/5 px-4 py-1.5 text-[clamp(0.7rem,0.68rem+0.08vw,0.78rem)] font-bold uppercase tracking-[0.16em] text-mauve backdrop-blur-sm">
+            <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            PRIORYTET
+          </div>
+          <h3 class="mb-6 font-serif text-fs-title-lg leading-tight text-mauve">
+            <a href="/uzdrowienie-traumy-porodowej" class="transition-colors group-hover:text-terracotta">Uzdrowienie <span class="font-serif italic text-gold">Traumy Porodowej</span></a>
+          </h3>
+          <div class="mb-8 max-w-lg text-[clamp(1.04rem,0.99rem+0.28vw,1.18rem)] font-light leading-relaxed text-mauve/72">
+            <div>
+              <p>Metoda Rewind – delikatna, bezpieczna technika terapeutyczna, która pozwala przepracować trudne doświadczenie porodu bez konieczności ponownego przeżywania traumy.</p>
+              <p class="mt-4">Sesja trwa około 90 minut. W jej trakcie nie musisz opowiadać szczegółów traumatycznego wydarzenia – technika działa na poziomie podświadomości, co czyni ją wyjątkowo łagodną.</p>
+            </div>
+          </div>
+          <div class="mt-auto">
+            <a href="/uzdrowienie-traumy-porodowej" class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+              <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+                <BlobArrowIcon />
+              </span>
+              <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Dowiedz się więcej</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="offer-card group isolate relative lg:col-span-5">
+        <div class="offer-blob absolute inset-0 -z-10 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-xl" style="border-radius: 36% 64% 56% 44% / 63% 47% 53% 37%;">
+          <div class="absolute inset-0 rounded-[inherit] border-2 border-transparent transition-colors duration-500 group-hover:!rounded-[30px] group-hover:border-rose/10"></div>
+        </div>
+        <div class="relative z-10 flex h-full flex-col justify-center p-10 md:p-14">
+          <div class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-mauve/10 bg-mauve/5 px-4 py-1.5 text-[clamp(0.7rem,0.68rem+0.08vw,0.78rem)] font-bold uppercase tracking-[0.16em] text-mauve backdrop-blur-sm">
+            <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            MENTORING JEDEN NA JEDEN
+          </div>
+          <h3 class="mb-6 font-serif text-fs-title-md leading-tight text-mauve">
+            <a href="/konsultacja-indywidualna" class="transition-colors group-hover:text-terracotta">Konsultacja <span class="font-serif italic text-gold">Indywidualna</span></a>
+          </h3>
+          <div class="mb-8 max-w-lg text-[clamp(1.04rem,0.99rem+0.28vw,1.18rem)] font-light leading-relaxed text-mauve/72">
+            <div>
+              <p>Spotkanie jeden na jeden, podczas którego omówimy Twoje potrzeby, obawy i stworzymy plan działania dopasowany do Twojej sytuacji.</p>
+              <p class="mt-4">To bezpieczna przestrzeń, w której możesz porozmawiać o ciąży, porodzie, połogu czy macierzyństwie.</p>
+            </div>
+          </div>
+          <div class="mt-auto">
+            <a href="/konsultacja-indywidualna" class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+              <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+                <BlobArrowIcon />
+              </span>
+              <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Dowiedz się więcej</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="webinary" class="scroll-mt-32">
+      <div class="mb-16 text-center">
+        <div>
+          <h3 class="font-serif text-fs-title-lg text-mauve">Webinary, Medytacje i Szkolenia</h3>
+          <p class="text-fs-body-lg font-light text-mauve/60">Wiedza i ukojenie dostępne na wyciągnięcie ręki.</p>
+        </div>
+      </div>
+
+      <ProductCarousel products={storefrontProducts} ariaLabel="Webinary, medytacje i szkolenia online" />
+    </div>
+  </div>
+</section>
+
+<section id="about" class="relative py-32">
+  <svg class="absolute right-0 top-0 h-full opacity-30 pointer-events-none" viewBox="0 0 400 900">
+    <path d="M400,0 C200,300 100,600 300,900" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="5 10"></path>
+  </svg>
+  <div class="absolute left-10 top-1/3 h-[500px] w-[500px] rounded-full bg-rose/10 blur-[120px] animate-breathe"></div>
+  <div class="absolute right-10 bottom-0 h-[400px] w-[400px] rounded-full bg-gold/10 blur-[130px] animate-pulse-slow"></div>
+
+  <div class="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+    <div class="flex flex-col items-center gap-16 md:flex-row">
+      <div class="order-2 w-full md:order-1 md:w-1/2">
+        <h2 class="font-serif text-fs-title-xl text-mauve">Matematyczka, <br />która zaufała <span class="italic text-gold">intuicji</span></h2>
+        <div class="mt-8 space-y-6 text-fs-body-lg font-light leading-relaxed text-mauve/80">
+          <p>Brzmi jak sprzeczność? Dla mnie to pełnia. Z wykształcenia jestem umysłem ścisłym. Wiem, jak ważne są fakty i rzetelna wiedza.</p>
+          <p>Ale macierzyństwo nauczyło mnie, że <span class="font-medium text-mauve">najważniejsze dzieje się między słowami</span>. W emocjach. W ciele.</p>
+          <p>Jako konsultantka i terapeutka traumy łączę te dwa światy. Daję Ci twarde dane, byś czuła się bezpiecznie, i miękką obecność, byś czuła się zaopiekowana.</p>
+        </div>
+        <div class="mt-10">
+          <a href={aboutPagePath} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+            <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+              <BlobArrowIcon />
+            </span>
+            <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Poznaj mnie lepiej</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="order-1 flex w-full justify-center md:order-2 md:w-1/2">
+        <div class="relative h-[350px] w-[350px] md:h-[450px] md:w-[450px]">
+          <div class="absolute inset-0 animate-morph bg-rose/20 blur-md"></div>
+          <div class="absolute inset-0 scale-105 rotate-12 animate-morph border border-gold/40"></div>
+          <div class="relative h-full w-full overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02]" style="border-radius: 56% 44% 30% 70% / 60% 30% 70% 40%;">
+            <div class="absolute inset-0 z-10 bg-gold/5 mix-blend-overlay"></div>
+            <OptimizedImage src={aboutImageSrc} alt="Natalia Potocka" class="h-full w-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 768px) 450px, 350px" />
+          </div>
+          <div class="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gold/10 blur-xl animate-heartbeat"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+

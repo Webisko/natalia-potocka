@@ -1,0 +1,119 @@
+---
+import OptimizedImage from '../OptimizedImage.astro';
+
+const { reviews } = Astro.props;
+---
+
+<section id="opinie" class="relative z-0 flex min-h-screen flex-col justify-center overflow-hidden bg-transparent py-20 pb-80">
+  <div class="pointer-events-none absolute inset-0 z-0">
+    <svg class="h-full w-full" viewBox="0 0 1440 600" preserveAspectRatio="none">
+      <defs>
+        <path id="cordPathAstro" d="M-100,300 C200,100 600,500 1000,300 C1400,100 1600,400 1800,300"></path>
+        <linearGradient id="flowGradientAstro" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#E6B8B8" stop-opacity="0.1"></stop>
+          <stop offset="50%" stop-color="#E6B8B8" stop-opacity="0.8"></stop>
+          <stop offset="100%" stop-color="#E6B8B8" stop-opacity="0.1"></stop>
+        </linearGradient>
+      </defs>
+      <use href="#cordPathAstro" stroke="#D4AF37" stroke-width="1" fill="none" opacity="0.2"></use>
+      <use href="#cordPathAstro" stroke="url(#flowGradientAstro)" stroke-width="3" fill="none" stroke-dasharray="100 400" class="animate-flow-slower" stroke-linecap="round"></use>
+      <path d="M-100,320 C220,120 620,520 1020,320 C1420,120 1620,420 1820,320" fill="none" stroke="#5D4058" stroke-width="1" opacity="0.1"></path>
+      <path d="M-100,320 C220,120 620,520 1020,320 C1420,120 1620,420 1820,320" fill="none" stroke="#E6B8B8" stroke-width="1.5" stroke-dasharray="50 350" class="animate-flow" opacity="0.4" stroke-linecap="round"></path>
+    </svg>
+  </div>
+  <div class="relative z-10 mx-auto w-full max-w-[1440px] px-6 md:px-12">
+    <div class="relative mx-auto mt-16 max-w-4xl text-center">
+      <div class="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-16 opacity-5">
+        <svg viewBox="0 0 24 24" class="h-[200px] w-[200px] fill-current text-mauve" stroke="currentColor" stroke-width="1">
+          <path d="M9.983 3v7.391c0 2.445-1.017 4.391-4.482 4.391H3V21h2.5c5.514 0 7.5-3.467 7.5-8.109V3H9.983zm11 0v7.391c0 2.445-1.017 4.391-4.482 4.391H14V21h2.5c5.514 0 7.5-3.467 7.5-8.109V3h-3.017z"></path>
+        </svg>
+      </div>
+
+      {reviews.length > 1 && (
+        <button id="reviews-prev" class="group absolute left-0 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-mauve/10 bg-white/50 shadow-sm backdrop-blur-sm transition-all duration-700 ease-in-out hover:-translate-x-2 hover:border-terracotta hover:bg-terracotta md:-left-8 md:h-14 md:w-14" style="border-radius: 38% 62% 63% 37% / 41% 44% 56% 59%;" aria-label="Poprzednia opinia" type="button">
+          <svg class="h-5 w-5 text-mauve/50 transition-colors group-hover:text-white md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+      )}
+
+      {reviews.length > 1 && (
+        <button id="reviews-next" class="group absolute right-0 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-mauve/10 bg-white/50 shadow-sm backdrop-blur-sm transition-all duration-700 ease-in-out hover:translate-x-2 hover:border-terracotta hover:bg-terracotta md:-right-8 md:h-14 md:w-14" style="border-radius: 62% 38% 37% 63% / 59% 56% 44% 41%;" aria-label="Następna opinia" type="button">
+          <svg class="h-5 w-5 text-mauve/50 transition-colors group-hover:text-white md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      )}
+
+      <div class="relative grid min-h-[400px] grid-cols-1 items-center justify-items-center px-14 md:px-20">
+        {reviews.map((review, index) => (
+          <div data-review-slide class:list={[
+            'col-start-1 row-start-1 flex w-full flex-col items-center transform transition-all duration-700 ease-out',
+            index === 0 ? 'z-10 scale-100 translate-y-0 opacity-100' : 'pointer-events-none z-0 scale-95 translate-y-8 opacity-0',
+          ]}>
+            <div class="mb-6 flex justify-center gap-1 text-gold">
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+              <span>★</span>
+            </div>
+            <p class="mb-10 min-h-[1.2em] font-serif text-[clamp(1.45rem,1.14rem+0.95vw,2.15rem)] italic leading-[1.38] text-mauve drop-shadow-sm md:leading-[1.32]">
+              {review.content}
+            </p>
+            <div class="relative">
+              <div class="absolute left-1/2 top-1/2 -z-10 h-28 w-28 -translate-x-1/2 -translate-y-1/2 animate-morph rounded-full bg-rose/20 mix-blend-multiply"></div>
+              <div class="absolute left-1/2 top-1/2 -z-10 h-24 w-24 -translate-x-1/2 -translate-y-1/2 animate-morph rounded-full border border-gold/40" style="animation-delay: 2s;"></div>
+              <div class="flex h-20 w-20 items-center justify-center rounded-full border border-white bg-white p-1 shadow-sm backdrop-blur-sm">
+                {review.thumbnail_url ? (
+                  <OptimizedImage src={review.thumbnail_url} alt={review.author} class="h-full w-full rounded-full object-cover" loading="lazy" decoding="async" sizes="80px" width={72} height={72} />
+                ) : (
+                  <span class="font-serif text-fs-title-md uppercase text-mauve/40 drop-shadow-sm">{String(review.author || '').substring(0, 2)}</span>
+                )}
+              </div>
+            </div>
+            <div class="mt-6 text-center">
+              <h4 class="text-[clamp(1.05rem,1rem+0.24vw,1.18rem)] font-semibold text-mauve">{review.author}</h4>
+              <p class="mt-2 text-[clamp(0.72rem,0.7rem+0.08vw,0.8rem)] font-medium uppercase tracking-[0.16em] text-gold">{review.subtitle}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const reviewSlides = Array.from(document.querySelectorAll('[data-review-slide]'));
+    const prevButton = document.getElementById('reviews-prev');
+    const nextButton = document.getElementById('reviews-next');
+    const totalSlides = reviewSlides.length;
+    let activeSlide = 0;
+
+    const renderSlides = () => {
+      reviewSlides.forEach((slide, index) => {
+        const isActive = index === activeSlide;
+        slide.classList.toggle('opacity-100', isActive);
+        slide.classList.toggle('translate-y-0', isActive);
+        slide.classList.toggle('scale-100', isActive);
+        slide.classList.toggle('z-10', isActive);
+        slide.classList.toggle('opacity-0', !isActive);
+        slide.classList.toggle('translate-y-8', !isActive);
+        slide.classList.toggle('scale-95', !isActive);
+        slide.classList.toggle('z-0', !isActive);
+        slide.classList.toggle('pointer-events-none', !isActive);
+      });
+    };
+
+    prevButton?.addEventListener('click', () => {
+      activeSlide = activeSlide === 0 ? totalSlides - 1 : activeSlide - 1;
+      renderSlides();
+    });
+
+    nextButton?.addEventListener('click', () => {
+      activeSlide = activeSlide === totalSlides - 1 ? 0 : activeSlide + 1;
+      renderSlides();
+    });
+
+    renderSlides();
+  </script>
+</section>

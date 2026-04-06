@@ -1,0 +1,21 @@
+---
+import PanelLayout from '../../../layouts/PanelLayout.astro';
+import AdminProductEditIsland from '../../../components/panel/AdminProductEditIsland.jsx';
+import { getAdminProductIds } from '../../../lib/products.js';
+
+export function getStaticPaths() {
+  return getAdminProductIds().map((id) => ({
+    params: { id },
+  }));
+}
+
+const { id = '' } = Astro.params;
+---
+
+<PanelLayout
+  title="Edycja produktu | Panel administratora"
+  description="Edycja produktu w panelu administracyjnym Natalii Potockiej."
+  noindex={true}
+>
+  <AdminProductEditIsland productId={id} client:load />
+</PanelLayout>

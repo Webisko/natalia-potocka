@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-nude text-mauve font-sans antialiased;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+}
+
+@layer components {
+  .container-shell {
+    @apply mx-auto w-full max-w-[1240px] px-6 md:px-12;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-gold/20 bg-white/70 px-4 py-2 font-extrabold uppercase tracking-[0.24em] text-gold;
+    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+    line-height: 1.35;
+  }
+
+  .card-surface {
+    @apply rounded-[28px] border border-white/80 bg-white/75 shadow-soft backdrop-blur-sm;
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-terracotta px-6 py-3 font-bold uppercase tracking-[0.18em] text-white transition hover:bg-terracotta/90;
+    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+    line-height: 1.35;
+  }
+
+  .button-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-mauve/15 bg-white/80 px-6 py-3 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold;
+    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+    line-height: 1.35;
+  }
+
+  .legal-copy h2 {
+    @apply mb-4 mt-10 font-serif text-mauve;
+    font-size: clamp(1.5rem, 1.28rem + 0.95vw, 2rem);
+    line-height: 1.18;
+  }
+
+  .legal-copy h2:first-child {
+    @apply mt-0;
+  }
+
+  .legal-copy p {
+    @apply mb-4 text-mauve/80;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  .legal-copy ul,
+  .legal-copy ol {
+    @apply mb-4 space-y-2 pl-6 text-mauve/80;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  .legal-copy ul {
+    @apply list-disc;
+  }
+
+  .legal-copy ol {
+    @apply list-decimal;
+  }
+}

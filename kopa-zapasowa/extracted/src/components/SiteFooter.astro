@@ -1,0 +1,122 @@
+---
+import { getPagePathByKey } from '../lib/pageSettings.js';
+
+const offerPagePath = getPagePathByKey('offer');
+const offerHref = offerPagePath === '/oferta' ? '/#oferta' : offerPagePath;
+const aboutPath = getPagePathByKey('about');
+const contactPath = getPagePathByKey('contact');
+const termsPath = getPagePathByKey('terms');
+const privacyPath = getPagePathByKey('privacy');
+const instagramUrl = 'https://www.instagram.com/nataliapotocka.doula/';
+---
+
+<footer
+  id="contact"
+  class="relative z-30 flex flex-col overflow-hidden bg-mauve text-blush shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.3)] transition-[border-radius] duration-300 ease-out"
+  style="border-top-left-radius: 80px; border-top-right-radius: 80px;"
+>
+  <div class="pointer-events-none absolute left-1/2 top-0 h-96 w-full max-w-4xl -translate-x-1/2 bg-rose/10 blur-[120px]"></div>
+  <div class="pointer-events-none absolute bottom-0 right-0 h-96 w-96 bg-gold/5 blur-[100px]"></div>
+  <svg class="pointer-events-none absolute inset-0 h-full w-full opacity-10" viewBox="0 0 1440 600" preserveAspectRatio="none">
+    <path d="M-100,400 C300,200 700,500 1100,300 C1300,200 1400,350 1600,300" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="8 18" class="animate-flow-vein-gold"></path>
+    <path d="M-100,450 C300,250 700,550 1100,350 C1300,250 1400,400 1600,350" fill="none" stroke="#E6B8B8" stroke-width="2" stroke-dasharray="14 28" class="animate-flow-vein-rose"></path>
+  </svg>
+
+  <div class="relative z-10 flex flex-grow items-center justify-center px-8 py-12 md:px-16 md:py-16">
+    <div class="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-stretch gap-12 lg:grid-cols-2 lg:gap-16">
+      <div class="flex flex-col justify-between space-y-6">
+        <h2 class="font-serif text-fs-display leading-[0.92] text-white">
+          Zacznijmy <br /> <span class="italic text-gold">rozmowę.</span>
+        </h2>
+        <p class="max-w-md text-fs-body-lg font-light leading-relaxed text-white/70">
+          Każda podróż zaczyna się od pierwszego kroku. Jestem tu, aby odpowiedzieć na Twoje pytania i rozwiać wątpliwości.
+        </p>
+        <div>
+          <span class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Napisz do mnie</span>
+          <a href="mailto:kontakt@nataliapotocka.pl" class="group flex items-center gap-4 font-serif text-fs-title-sm text-white transition-colors hover:text-gold">
+            kontakt@nataliapotocka.pl
+            <svg class="h-5 w-5 -rotate-45 transform transition-transform duration-500 group-hover:rotate-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="flex gap-4">
+          <a href="mailto:kontakt@nataliapotocka.pl" aria-label="Email" class="flex h-12 w-12 items-center justify-center border border-white/15 bg-white/5 backdrop-blur-sm transition-all duration-500 ease-in-out hover:-translate-y-1 hover:border-terracotta hover:bg-terracotta" style="border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;">
+            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+          </a>
+          <a href={instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="flex h-12 w-12 items-center justify-center border border-white/15 bg-white/5 backdrop-blur-sm transition-all duration-500 ease-in-out hover:-translate-y-1 hover:border-terracotta hover:bg-terracotta" style="border-radius: 54% 46% 42% 58% / 44% 48% 52% 56%;">
+            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </a>
+          <div aria-label="Facebook" class="flex h-12 w-12 items-center justify-center border border-white/15 bg-white/5 opacity-70 backdrop-blur-sm" style="border-radius: 63% 37% 30% 70% / 50% 45% 55% 50%;">
+            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex w-full flex-col justify-between pt-2 md:w-auto">
+        <div class="grid grid-cols-2 gap-10 md:gap-16">
+          <nav class="flex flex-col gap-3">
+            <p class="mb-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold/80">Mapa strony</p>
+            <a href={offerHref} class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Oferta<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href={aboutPath} class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">O mnie<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/#opinie" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Opinie<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href={contactPath} class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Kontakt<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href={termsPath} class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Regulamin sklepu<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href={privacyPath} class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Polityka prywatności<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+          </nav>
+
+          <nav class="flex flex-col gap-3">
+            <p class="mb-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold/80">Oferta</p>
+            <a href="/uzdrowienie-traumy-porodowej" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Uzdrowienie Traumy<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/konsultacja-indywidualna" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Konsultacja Indywidualna<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/oferta/otulic-polog" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Otulić Połóg<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/oferta/porod-domowy" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Poród Domowy<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/oferta/glowa-w-porodzie" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Głowa w Porodzie<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+            <a href="/oferta/hipnotyczny-obrot" class="group relative w-fit text-fs-ui font-light text-white/60 transition-colors hover:text-gold">Hipnotyczny Obrót<span class="absolute -bottom-0.5 left-0 h-[1px] w-0 bg-gold transition-all duration-300 group-hover:w-full"></span></a>
+          </nav>
+        </div>
+
+        <div class="mt-auto flex flex-col gap-4 pt-8 text-fs-label uppercase tracking-widest text-white/30">
+          <div class="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <p>© {new Date().getFullYear()} Natalia Potocka.</p>
+            <p>Designed by <a href="https://webisko.pl" class="text-gold transition-colors hover:text-terracotta" target="_blank" rel="noopener noreferrer">Webisko.pl</a> with ♥ for Mothers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const footer = document.getElementById('contact');
+    const HEADER_H = 64;
+
+    const updateFooter = () => {
+      if (!footer) return;
+      const viewportH = window.innerHeight;
+      const limit = viewportH - HEADER_H;
+      const naturalH = footer.scrollHeight;
+      footer.style.maxHeight = naturalH <= limit ? `${limit}px` : '';
+
+      const rect = footer.getBoundingClientRect();
+      const distanceBelow = rect.top - HEADER_H;
+      const start = 160;
+      const progress = Math.max(0, Math.min(1, 1 - distanceBelow / start));
+      const radius = Math.round(80 * (1 - progress));
+      footer.style.borderTopLeftRadius = `${radius}px`;
+      footer.style.borderTopRightRadius = `${radius}px`;
+    };
+
+    window.addEventListener('scroll', updateFooter, { passive: true });
+    window.addEventListener('resize', updateFooter);
+    updateFooter();
+  </script>
+</footer>

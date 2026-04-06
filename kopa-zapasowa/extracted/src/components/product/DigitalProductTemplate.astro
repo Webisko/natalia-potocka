@@ -1,0 +1,350 @@
+---
+import ProductCheckout from '../ProductCheckout.astro';
+import OptimizedImage from '../OptimizedImage.astro';
+import ProductCarousel from './ProductCarousel.astro';
+import { getDigitalProductContent } from '../../lib/productContent.js';
+import { getPublishedStorefrontProducts } from '../../lib/products.js';
+
+const { product } = Astro.props;
+const offerPagePath = '/oferta';
+const content = getDigitalProductContent(product.slug) || {};
+const isAudio = product.type === 'audio';
+const displayImage = product.thumbnail_url || content.image || null;
+const secondaryImage = product.secondary_image_url || null;
+const currentPrice = product.currentPrice ?? product.price;
+const priceAmount = Number(currentPrice || 0).toFixed(2);
+const lowestPriceAmount = Number(product.lowest_price_30_days || 0).toFixed(2);
+const leadText = product.short_description || content.lead || product.excerpt || product.description || '';
+const durationText = product.duration_label || content.duration || null;
+const benefitCards = (Array.isArray(product.benefits_json) && product.benefits_json.length > 0
+  ? product.benefits_json
+  : Array.isArray(content.benefitCards)
+    ? content.benefitCards
+    : [])
+  .slice(0, 3);
+const faqItems = Array.isArray(product.faq_json)
+  ? product.faq_json.filter((item) => item?.q && item?.a)
+  : [];
+const relatedProducts = getPublishedStorefrontProducts()
+  .filter((candidate) => candidate.slug !== product.slug && candidate.type !== 'service');
+const benefitBlobShapes = [
+  '54% 46% 42% 58% / 44% 48% 52% 56%',
+  '35% 65% 63% 37% / 42% 43% 57% 58%',
+  '64% 36% 47% 53% / 61% 53% 47% 39%',
+];
+const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
+---
+
+<div class="relative overflow-hidden bg-nude">
+  <div class="pointer-events-none absolute inset-0 -z-10 bg-nude"></div>
+
+  <section class:list={[pageShellClass, 'pb-16 pt-32 md:pb-20 md:pt-40 lg:pt-44']}>
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
+      <div class="relative flex w-full justify-center lg:justify-start">
+        <div class="relative h-[400px] w-[300px] md:h-[500px] md:w-[400px] lg:h-[560px] lg:w-[430px]">
+          <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
+          {displayImage ? (
+            <OptimizedImage
+              src={displayImage}
+              alt={product.title}
+              class="relative h-full w-full animate-float object-cover shadow-2xl"
+              style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+              sizes="(min-width: 1024px) 430px, (min-width: 768px) 400px, 300px"
+            />
+          ) : (
+            <div class="relative flex h-full w-full items-center justify-center bg-gradient-to-br from-blush/40 to-rose/20 font-serif text-4xl text-mauve/20 shadow-2xl" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;">{product.title}</div>
+          )}
+        </div>
+      </div>
+
+      <div class="w-full pt-0">
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-fs-label text-mauve/40">
+          <a href="/" class="transition-colors hover:text-gold">Strona główna</a>
+          <span aria-hidden="true" class="text-gold/40">/</span>
+          <a href={offerPagePath} class="transition-colors hover:text-gold">Oferta</a>
+          <span aria-hidden="true" class="text-gold/40">/</span>
+          <span class="text-mauve/65">{product.title}</span>
+        </nav>
+
+        <div class="mb-5 inline-flex items-center gap-3">
+          <span class="h-px w-8 bg-gold/60"></span>
+          <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">{isAudio ? 'Medytacja audio' : 'Webinar / Wideo'}</span>
+        </div>
+
+        <h1 class="max-w-[15ch] font-serif text-[2.65rem] leading-[1.06] text-mauve md:text-[3.35rem] lg:text-[3.15rem]">{product.title || content.hero}</h1>
+        <p class="mt-5 max-w-2xl text-[1.18rem] font-light leading-[1.75] text-mauve">{leadText}</p>
+
+        <div class="mb-8 mt-7 flex flex-col gap-3 text-[1.18rem] font-light leading-[1.7] text-mauve">
+          {durationText ? (
+            <span class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+              {durationText}
+            </span>
+          ) : null}
+          <span class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            Dostęp natychmiastowy
+          </span>
+        </div>
+
+        {/* PRICE + BUY BLOCK */}
+        <div class="mt-8">
+          <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:gap-10">
+            <div class="min-w-0">
+              <p class="mb-1 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/40">Inwestycja</p>
+              <div class="flex items-baseline gap-2 font-serif text-5xl text-terracotta">
+                {product.promoActive ? (
+                  <>
+                    <span class="mr-2 text-2xl text-mauve/30 line-through">{Number(product.price || 0).toFixed(2)}</span>
+                    {priceAmount}
+                    <span class="text-xl font-light font-sans text-terracotta/55">PLN</span>
+                  </>
+                ) : (
+                  <>
+                    {priceAmount}
+                    <span class="text-xl font-light font-sans text-terracotta/55">PLN</span>
+                  </>
+                )}
+              </div>
+              {product.promoActive && product.lowest_price_30_days != null && (
+                <div class="text-fs-label mt-2 border-l-2 border-gold/30 pl-3 leading-5 text-mauve/75">
+                  Najniższa cena z 30 dni przed obniżką: <span class="font-bold">{lowestPriceAmount} PLN</span>
+                </div>
+              )}
+            </div>
+
+            <div class="w-full sm:w-auto sm:flex-shrink-0">
+              <ProductCheckout
+                product={product}
+                layout="inline"
+                buttonLabel="Kup Dostęp Teraz"
+                buttonClass="group relative inline-flex h-[50px] min-w-[14rem] w-full cursor-pointer items-center justify-start border-0 outline-none"
+                purchasedLabel="Przejdź do biblioteki"
+                purchasedClass="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-mauve font-medium tracking-wide text-white transition-all hover:bg-mauve/90"
+                showButtonIcon={true}
+                buttonStyle="homepage-blob"
+                noteText="Natychmiastowy dostęp po opłaceniu. Bezpieczne płatności: Stripe"
+                showSupportLink={false}
+                showNote={false}
+              />
+            </div>
+          </div>
+          <p class="text-fs-label mt-5 font-light text-mauve/80">Natychmiastowy dostęp po opłaceniu &middot; Bezpieczne płatności: <span class="font-medium text-mauve">Stripe</span></p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {benefitCards.length > 0 && (
+    <section class:list={[pageShellClass, 'py-14 md:py-16']}>
+      <div class="mx-auto mb-12 max-w-3xl text-center">
+        <h2 class="font-serif text-3xl text-mauve md:text-5xl">Co zyskasz?</h2>
+        <p class="mt-4 text-lg font-light leading-relaxed text-mauve">Trzy najważniejsze jakości, z którymi wyjdziesz po przerobieniu tego materiału.</p>
+      </div>
+      <div class="grid items-stretch gap-8 md:grid-cols-3">
+        {benefitCards.map((card, index) => (
+          <div class:list={['blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300', index === 1 && 'md:-mt-8']}>
+            <div
+              class:list={[
+                'blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!shadow-2xl',
+                index === 1
+                  ? 'animate-heartbeat bg-terracotta shadow-xl shadow-terracotta/20 group-hover:!animate-none'
+                  : 'bg-white shadow-sm group-hover:!bg-white/95 group-hover:!shadow-mauve/10',
+              ]}
+              style={`border-radius: ${benefitBlobShapes[index % benefitBlobShapes.length]};`}
+            ></div>
+            <div class="relative z-10 mb-6 flex h-40 w-40 items-center justify-center">
+              {index === 0 && (
+                <svg class="h-12 w-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2 21l3.1-3.1"></path>
+                </svg>
+              )}
+              {index === 1 && (
+                <svg class="h-14 w-14 animate-heartbeat text-white transition-transform duration-500 group-hover:scale-110 group-hover:animate-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 0 0 0 6.364L12 20.364l7.682-7.682a4.5 4.5 0 0 0-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 0 0-6.364 0z"></path>
+                </svg>
+              )}
+              {index === 2 && (
+                <svg class="h-12 w-12 text-terracotta transition-transform duration-500 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+              )}
+            </div>
+            <div class="relative z-10">
+              <h3 class:list={['mb-4 font-serif text-2xl transition-colors duration-300', index === 1 ? 'text-mauve group-hover:text-white' : 'text-mauve']}>
+                {card.title}
+              </h3>
+              <p class:list={['mx-auto max-w-xs font-light leading-relaxed transition-colors duration-300', index === 1 ? 'text-mauve group-hover:text-white/90' : 'text-mauve/90']}>
+                {card.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {(product.long_description || content.longDescription) && (
+    <section class:list={[pageShellClass, 'py-16 md:py-24']}>
+      <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:items-center lg:gap-20">
+        <div>
+          <div class="mb-6 inline-flex items-center gap-3">
+            <span class="h-px w-8 bg-gold/60"></span>
+            <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Szczeg&oacute;ły</span>
+          </div>
+          <div class="prose prose-mauve max-w-none space-y-6 font-light text-mauve [&_p]:text-[1.08rem] [&_p]:leading-[1.9] md:[&_p]:text-[1.14rem] [&_li]:text-[1.05rem] [&_li]:leading-[1.85] [&_strong]:font-semibold [&_strong]:text-mauve" set:html={product.long_description || content.longDescription} />
+        </div>
+
+        {secondaryImage ? (
+          <div class="flex justify-center lg:justify-end">
+            <div class="relative h-[360px] w-[280px] md:h-[460px] md:w-[370px]">
+              <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
+              <OptimizedImage
+                src={secondaryImage}
+                alt={`${product.title} - dodatkowy obrazek`}
+                class="relative h-full w-full animate-float object-cover shadow-2xl"
+                style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;"
+                loading="lazy"
+                decoding="async"
+                sizes="(min-width: 1024px) 370px, (min-width: 768px) 320px, 280px"
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )}
+
+  {faqItems.length > 0 && (
+    <section class:list={[pageShellClass, 'pb-20 pt-2 md:pb-24']}>
+      <div class="mx-auto max-w-4xl">
+        <div class="mb-6 inline-flex items-center gap-3">
+          <span class="h-px w-8 bg-gold/60"></span>
+          <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">FAQ</span>
+        </div>
+        <div class="rounded-[30px] border border-white/80 bg-white/65 p-6 shadow-[0_22px_70px_-48px_rgba(72,43,62,0.45)] backdrop-blur-sm md:p-10">
+          <h2 class="mb-8 font-serif text-3xl text-mauve md:text-4xl">Najczęstsze pytania</h2>
+          <div>
+            {faqItems.map((item) => (
+              <div class="faq-accordion-item border-b border-mauve/10 py-5 last:border-0" data-faq-item data-open="false">
+                <button type="button" class="flex w-full cursor-pointer items-center justify-between gap-4 text-left font-medium text-mauve" data-faq-toggle aria-expanded="false">
+                  <span>{item.q}</span>
+                  <svg class="faq-accordion-icon h-4 w-4 flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <div class="faq-accordion-content" data-faq-content>
+                  <div class="faq-accordion-inner overflow-hidden">
+                    <p class="pt-5 pr-4 font-light leading-relaxed text-mauve">{item.a}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <style is:global>
+    .faq-accordion-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition: grid-template-rows 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease;
+    }
+
+    .faq-accordion-item[data-open='true'] .faq-accordion-content {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    .faq-accordion-icon {
+      display: block;
+      transform: rotate(0deg);
+      transform-origin: center;
+      transform-box: fill-box;
+      transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-accordion-item[data-open='true'] .faq-accordion-icon {
+      transform: rotate(180deg);
+    }
+  </style>
+
+  <script is:inline>
+    if (!window.__nataliaFaqAccordionInit) {
+      window.__nataliaFaqAccordionInit = true;
+
+      const initializeFaqAccordions = () => {
+        document.querySelectorAll('[data-faq-item]').forEach((item) => {
+          if (!(item instanceof HTMLElement) || item.dataset.faqBound === 'true') {
+            return;
+          }
+
+          const toggle = item.querySelector('[data-faq-toggle]');
+          const content = item.querySelector('[data-faq-content]');
+          if (!(toggle instanceof HTMLButtonElement) || !(content instanceof HTMLElement)) {
+            return;
+          }
+
+          item.dataset.faqBound = 'true';
+
+          const setExpanded = (expanded) => {
+            item.dataset.open = expanded ? 'true' : 'false';
+            toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          };
+
+          setExpanded(false);
+
+          toggle.addEventListener('click', () => {
+            const expanded = item.dataset.open === 'true';
+            setExpanded(!expanded);
+          });
+        });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeFaqAccordions, { once: true });
+      } else {
+        initializeFaqAccordions();
+      }
+
+      new MutationObserver(() => initializeFaqAccordions()).observe(document.body, { childList: true, subtree: true });
+    }
+  </script>
+
+  {relatedProducts.length > 0 && (
+    <section class:list={[pageShellClass, 'pb-24 pt-12 md:pt-16']}>
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div class="mb-4 inline-flex items-center gap-3">
+            <span class="h-px w-8 bg-gold/60"></span>
+            <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Pozostałe produkty</span>
+          </div>
+          <h2 class="font-serif text-3xl text-mauve md:text-4xl">Zobacz także</h2>
+          <p class="mt-3 max-w-2xl font-light leading-7 text-mauve/82">Jeśli ten temat jest Ci bliski, poniżej znajdziesz kolejne materiały, które dobrze uzupełniają tę ścieżkę przygotowania i wsparcia.</p>
+        </div>
+      </div>
+
+      <div class="mt-12">
+        <ProductCarousel products={relatedProducts} ariaLabel="Pozostałe produkty cyfrowe" />
+      </div>
+    </section>
+  )}
+</div>

@@ -1,0 +1,148 @@
+---
+import BlobArrowIcon from '../icons/BlobArrowIcon.astro';
+import { formatPrice, getProductKindLabel } from '../../lib/products.js';
+import OptimizedImage from '../OptimizedImage.astro';
+
+const serviceProducts = Astro.props.serviceProducts || [];
+const digitalProducts = Astro.props.digitalProducts || [];
+const featuredImageSrc = Astro.props.featuredImageSrc || '/images/hero_doula.png';
+const contactPath = Astro.props.contactPath || '/kontakt';
+---
+
+<div class="w-full bg-nude">
+  <section class="relative overflow-hidden pb-24 pt-12 md:pt-16">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-blush/20 via-nude to-white"></div>
+    <svg class="pointer-events-none absolute inset-0 h-full w-full opacity-25" viewBox="0 0 1440 900" preserveAspectRatio="none">
+      <path d="M-100,520 C240,240 620,640 1080,320 C1320,180 1500,340 1680,250" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="8 18" class="animate-flow-vein-gold"></path>
+      <path d="M-100,600 C260,320 640,720 1100,400 C1360,250 1540,420 1700,330" fill="none" stroke="#E6B8B8" stroke-width="2.5" stroke-dasharray="14 28" class="animate-flow-vein-rose"></path>
+    </svg>
+    <div class="pointer-events-none absolute -right-24 top-0 h-[420px] w-[420px] rounded-full bg-rose/20 blur-[110px] animate-breathe"></div>
+    <div class="pointer-events-none absolute bottom-10 left-[-5%] h-72 w-72 rounded-full bg-gold/10 blur-[90px] animate-pulse-slow"></div>
+
+    <div class="container-shell relative z-10 grid gap-12 lg:grid-cols-[minmax(0,1.1fr)_460px] lg:items-center lg:gap-16">
+      <div>
+        <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-gold/20 bg-white/70 px-4 py-2 backdrop-blur-sm">
+          <svg class="h-4 w-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+          <span class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Oferta</span>
+        </div>
+
+        <h1 class="max-w-4xl font-serif text-4xl leading-[1.06] text-mauve md:text-6xl lg:text-7xl">Wsparcie dobrane do Twojego momentu.</h1>
+        <p class="mt-8 max-w-3xl text-xl font-light leading-relaxed text-mauve/72 md:text-[1.35rem]">Znajdziesz tu zarówno indywidualne wsparcie 1:1, jak i produkty cyfrowe, do których możesz wracać we własnym tempie. Każda forma została zaprojektowana tak, żeby dawać Ci więcej spokoju, wiedzy i poczucia oparcia.</p>
+
+        <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+          <a href="#oferta-uslugi" class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+            <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+              <BlobArrowIcon />
+            </span>
+            <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Konsultacje i terapia</span>
+          </a>
+          <a href="#oferta-cyfrowa" class="text-fs-label inline-flex h-12 items-center justify-center rounded-full border border-mauve/15 bg-white/70 px-6 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Webinary i medytacja</a>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="card-surface overflow-hidden bg-gradient-to-br from-white via-white/95 to-gold/10">
+          <div class="relative aspect-[4/5] overflow-hidden">
+            <div class="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-mauve/15 via-transparent to-transparent"></div>
+            <OptimizedImage src={featuredImageSrc} alt="Natalia Potocka" class="h-full w-full object-cover" loading="eager" decoding="async" fetchpriority="high" sizes="(min-width: 1024px) 460px, 100vw" />
+            <div class="absolute left-6 top-6 rounded-full border border-white/80 bg-white/75 px-4 py-2 backdrop-blur-sm">
+              <span class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Wsparcie online</span>
+            </div>
+          </div>
+
+          <div class="grid gap-4 p-6 md:p-8">
+            <div class="rounded-[24px] border border-white/80 bg-white/80 p-5 backdrop-blur-sm">
+              <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Co tu znajdziesz</p>
+              <ul class="mt-4 space-y-3 text-base leading-7 text-mauve/75">
+                <li class="flex items-start gap-3"><span class="mt-1 text-gold">✦</span><span>Wsparcie 1:1, gdy potrzebujesz rozmowy, planu i bezpiecznej przestrzeni.</span></li>
+                <li class="flex items-start gap-3"><span class="mt-1 text-gold">✦</span><span>Produkty cyfrowe do samodzielnej pracy, kiedy chcesz wracać do materiałów we własnym rytmie.</span></li>
+                <li class="flex items-start gap-3"><span class="mt-1 text-gold">✦</span><span>Podejście oparte na wiedzy, ale bez odcinania się od emocji i intuicji.</span></li>
+              </ul>
+            </div>
+            <a href={contactPath} class="button-secondary">Masz pytanie przed wyborem? Napisz do mnie</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="oferta-uslugi" class="relative overflow-hidden px-6 py-20 md:px-12">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-[#FDFCF8] to-blush/20"></div>
+    <div class="container-shell relative z-10">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="section-eyebrow">Wsparcie 1:1</span>
+        <h2 class="mt-6 font-serif text-4xl text-mauve md:text-5xl">Kiedy potrzebujesz obecności, rozmowy i konkretu.</h2>
+        <p class="mx-auto mt-6 max-w-2xl text-xl leading-8 text-mauve/70">To propozycje dla kobiet, które chcą przejść przez swój proces z większym spokojem i poczuciem, że ktoś naprawdę je prowadzi.</p>
+      </div>
+
+      <div class="mt-12 grid gap-8 lg:grid-cols-2">
+        {serviceProducts.map((product, index) => (
+          <article class="offer-card group isolate relative">
+            <div class="offer-blob absolute inset-0 -z-10 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-xl" style={index % 2 === 0 ? 'border-radius: 63% 37% 39% 61% / 48% 66% 34% 52%;' : 'border-radius: 36% 64% 56% 44% / 63% 47% 53% 37%;'}>
+              <div class="absolute inset-0 rounded-[inherit] border-2 border-transparent transition-colors duration-500 group-hover:!rounded-[30px] group-hover:border-rose/10"></div>
+            </div>
+            <div class="relative z-10 flex h-full flex-col justify-center p-10 md:p-14">
+              <div class="text-fs-label mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-mauve/10 bg-mauve/5 px-4 py-1.5 font-bold uppercase tracking-wider text-mauve backdrop-blur-sm">
+                <span>{getProductKindLabel(product.type)}</span>
+              </div>
+              <h3 class="mb-6 font-serif text-3xl leading-tight text-mauve md:text-4xl">
+                <a href={`/oferta/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a>
+              </h3>
+              <p class="mb-8 max-w-lg text-lg font-light leading-relaxed text-mauve/70">{product.excerpt || product.description}</p>
+              <div class="mt-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div class="font-serif text-3xl text-terracotta">{formatPrice(product.currentPrice || product.price)}</div>
+                <a href={`/oferta/${product.slug}`} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+                  <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+                    <BlobArrowIcon />
+                  </span>
+                  <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz szczegóły</span>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="oferta-cyfrowa" class="relative overflow-hidden bg-[#FDFCF8] px-6 py-20 md:px-12">
+    <div class="container-shell relative z-10">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="section-eyebrow">Biblioteka cyfrowa</span>
+        <h2 class="mt-6 font-serif text-4xl text-mauve md:text-5xl">Materiały, do których możesz wracać wtedy, kiedy tego potrzebujesz.</h2>
+        <p class="mx-auto mt-6 max-w-2xl text-xl leading-8 text-mauve/70">Webinary i medytacja pomagają Ci przygotować się do porodu, połogu i macierzyństwa bez presji czasu.</p>
+      </div>
+
+      <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {digitalProducts.map((product) => (
+          <article class="group overflow-hidden rounded-[30px] border border-white/80 bg-white/85 shadow-soft backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <a href={`/oferta/${product.slug}`} class="block">
+              <div class="relative aspect-[4/3] overflow-hidden bg-blush/30">
+                {product.thumbnail_url ? (
+                  <OptimizedImage src={product.thumbnail_url} alt={product.title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" />
+                ) : (
+                  <div class="flex h-full items-center justify-center px-6 text-center font-serif text-2xl text-mauve/35">{product.title}</div>
+                )}
+                <div class="text-fs-label absolute left-4 top-4 rounded-full border border-white/80 bg-white/80 px-3 py-1 font-bold uppercase tracking-[0.18em] text-gold backdrop-blur-sm">{getProductKindLabel(product.type)}</div>
+              </div>
+            </a>
+
+            <div class="p-6">
+              <h3 class="font-serif text-2xl text-mauve"><a href={`/oferta/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a></h3>
+              <p class="mt-3 min-h-[84px] text-base leading-7 text-mauve/68">{product.excerpt || product.description}</p>
+              <div class="mt-6 flex items-center justify-between gap-4">
+                <div>
+                  {product.promoActive && <p class="text-sm text-mauve/35 line-through">{formatPrice(product.price)}</p>}
+                  <p class="font-serif text-3xl text-terracotta">{formatPrice(product.currentPrice || product.price)}</p>
+                </div>
+                <a href={`/oferta/${product.slug}`} class="text-fs-label inline-flex h-11 items-center justify-center rounded-full border border-mauve/15 bg-white px-5 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Szczegóły</a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</div>

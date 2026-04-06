@@ -1,0 +1,22 @@
+---
+const items = (Astro.props.items || []).filter((item) => item?.name);
+---
+
+{items.length > 1 && (
+  <nav aria-label="Breadcrumb" class="container-shell relative z-20 pb-4 pt-24 text-sm text-mauve/55 md:pt-28 lg:pt-32">
+    <ol class="flex flex-wrap items-center gap-2">
+      {items.map((item, index) => (
+        <Fragment>
+          <li>
+            {item.href && index < items.length - 1 ? (
+              <a href={item.href} class="transition-colors hover:text-gold">{item.name}</a>
+            ) : (
+              <span aria-current={index === items.length - 1 ? 'page' : undefined} class={index === items.length - 1 ? 'text-mauve' : ''}>{item.name}</span>
+            )}
+          </li>
+          {index < items.length - 1 && <li aria-hidden="true" class="text-gold/60">/</li>}
+        </Fragment>
+      ))}
+    </ol>
+  </nav>
+)}

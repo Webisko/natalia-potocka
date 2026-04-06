@@ -1,0 +1,53 @@
+{
+  "name": "natalia-potocka",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node --env-file=.env app.js",
+    "dev:backend": "set PORT=4321&& node --env-file=.env app.js",
+    "dev:astro": "npm run optimize:images && astro dev --port 3000",
+    "build": "npm run build:astro",
+    "build:astro": "npm run optimize:images && astro build",
+    "deploy:production": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-production.ps1",
+    "optimize:images": "node scripts/generate-optimized-images.mjs",
+    "preview": "astro preview",
+    "preview:astro": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@astrojs/react": "^4.4.0",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.17.1",
+    "axios": "^1.13.6",
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.6.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.0.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "react": "^19.2.0",
+    "react-datepicker": "^9.1.0",
+    "react-dom": "^19.2.0",
+    "sanitize-html": "^2.17.1",
+    "stripe": "^20.4.0",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3",
+    "uuid": "^13.0.0"
+  },
+  "description": "```sh npm create astro@latest -- --template minimal ```",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

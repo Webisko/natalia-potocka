@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProductBySlug, getPublishedProducts } from '../../lib/products.js';
+import CourseProductTemplate from '../../components/product/CourseProductTemplate.astro';
+import DigitalProductTemplate from '../../components/product/DigitalProductTemplate.astro';
+import ServiceProductTemplate from '../../components/product/ServiceProductTemplate.astro';
+import { getPagePathByKey, getServiceLandingPageSettingsBySlug } from '../../lib/pageSettings.js';
+import { buildFaqSchema, buildProductSchema } from '../../lib/structuredData.js';
+import { getServiceOfferBySlug, getServiceOffers, SERVICE_CONTENT } from '../../lib/serviceContent.js';
+
+export function getStaticPaths() {
+  return [...getPublishedProducts(), ...getServiceOffers()].map((product) => ({
+    params: { slug: product.slug },
+  }));
+}
+
+const params = Astro.params as unknown as Record<string, string | undefined>;
+const slug = String(params.slug || '');
+const product = getProductBySlug(slug) || getServiceOfferBySlug(slug);
+const servicePage = product?.type === 'service' ? getServiceLandingPageSettingsBySlug(slug) : null;
+
+if (!product) {
+  return Astro.redirect('/#oferta');
+}
+
+if (product.type === 'service' && servicePage?.slug) {
+  return Astro.redirect(`/${servicePage.slug}`);
+}
+
+const offerPagePath = getPagePathByKey('offer');
+const productPath = `/oferta/${product.slug}`;
+const breadcrumbItems = [
+  { name: 'Strona główna', href: '/' },
+  { name: 'Oferta', href: offerPagePath },
+  { name: servicePage?.title || product.title, href: productPath },
+];
+const serviceFaq = product.type === 'service' ? SERVICE_CONTENT[product.slug]?.faq || [] : [];
+const digitalFaq = product.type !== 'service' && Array.isArray(product.faq_json)
+  ? product.faq_json.filter((item) => item?.q && item?.a)
+  : [];
+const productSchema = buildProductSchema({
+  product,
+  path: productPath,
+  description: servicePage?.meta_desc || product.meta_desc || product.excerpt || product.description || product.title,
+  image: servicePage?.meta_image_url || servicePage?.featured_image_url || product.meta_image_url || product.thumbnail_url || null,
+});
+const faqSchema = buildFaqSchema(product.type === 'service' ? serviceFaq : digitalFaq);
+const structuredData = faqSchema ? [productSchema, faqSchema] : [productSchema];
+---
+
+<BaseLayout
+  title={servicePage?.meta_title || product.meta_title || `${product.title} | Natalia Potocka`}
+  description={servicePage?.meta_desc || product.meta_desc || product.excerpt || product.title}
+  socialImage={servicePage?.meta_image_url || servicePage?.featured_image_url || product.meta_image_url || product.thumbnail_url || null}
+  canonicalUrl={servicePage?.canonical_url || product.canonical_url || null}
+  noindex={Boolean(servicePage?.noindex ?? product.noindex)}
+  ogType="product"
+  breadcrumbItems={breadcrumbItems}
+  structuredData={structuredData}
+  showBreadcrumbs={false}
+>
+  {product.type === 'course' ? <CourseProductTemplate product={product} /> : product.type === 'service' ? <ServiceProductTemplate product={product} /> : <DigitalProductTemplate product={product} />}
+</BaseLayout>

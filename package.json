@@ -5,10 +5,11 @@
   "scripts": {
     "start": "npm run dev:backend",
     "dev:backend": "php -S 127.0.0.1:4321 router.php",
-    "dev:astro": "astro dev --port 3000",
+    "dev:astro": "npm run optimize:images && astro dev --port 3000",
     "build": "npm run build:astro",
-    "build:astro": "astro build",
+    "build:astro": "npm run optimize:images && astro build",
     "deploy:production": "powershell -ExecutionPolicy Bypass -File ./scripts/deploy-production.ps1",
+    "optimize:images": "node scripts/generate-optimized-images.mjs",
     "preview": "astro preview",
     "preview:astro": "astro preview",
     "astro": "astro"
@@ -18,6 +19,7 @@
     "@astrojs/react": "^4.4.0",
     "@astrojs/tailwind": "^6.0.2",
     "astro": "^5.17.1",
+    "axios": "^1.14.0",
     "better-sqlite3": "^12.6.2",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
@@ -34,5 +36,8 @@
   "main": "index.js",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
 }
