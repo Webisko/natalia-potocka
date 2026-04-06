@@ -4,7 +4,7 @@ import sharp from 'sharp';
 
 const OPTIMIZED_DIR = path.join(process.cwd(), 'public', 'images', 'optimized');
 const IMAGES_DIR = path.join(process.cwd(), 'public', 'images');
-const WIDTHS = [480, 960, 1440];
+const WIDTHS = [288, 480, 960, 1440];
 
 async function ensureDir(dir) {
   try {

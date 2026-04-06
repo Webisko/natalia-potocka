@@ -1,4 +1,4 @@
-export const LOCAL_OPTIMIZED_IMAGE_WIDTHS = [480, 960, 1440];
+export const LOCAL_OPTIMIZED_IMAGE_WIDTHS = [288, 480, 960, 1440];
 
 const LOCAL_OPTIMIZABLE_IMAGE_PATTERN = /^\/images\/(?!optimized\/)(.+)\.(png|jpe?g)$/i;
 

@@ -28,7 +28,7 @@ const description = product.short_description || product.excerpt || getDigitalPr
           class="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105 group-hover:opacity-100"
           loading="lazy"
           decoding="async"
-          sizes="(min-width: 1280px) 18rem, (min-width: 1024px) 30vw, (min-width: 640px) 44vw, 86vw"
+          sizes="(min-width: 1280px) 18rem, (min-width: 1024px) 30vw, (min-width: 640px) 44vw, min(86vw, 288px)"
         />
       ) : (
         <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-blush/35 to-white px-6 text-center font-serif text-2xl text-mauve/25">{product.title}</div>
