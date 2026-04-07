@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import { CheckCircle2, Copy, KeyRound, Package, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, Copy, KeyRound, Package, ScrollText, ShieldPlus, ShoppingBag } from 'lucide-react';
 import AdminCheckbox from './AdminCheckbox';
 import AdminModalShell from './AdminModalShell';
 
@@ -84,6 +84,14 @@ function formatCurrency(value) {
   }).format(numericValue);
 }
 
+function formatEventType(value) {
+  return `${value || 'event'}`
+    .split('_')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
 export default function AdminUserModal({
   initialUser,
   products,
@@ -94,18 +102,49 @@ export default function AdminUserModal({
   const [formData, setFormData] = useState(() => buildInitialState(initialUser));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [detailsError, setDetailsError] = useState('');
   const [detailsLoading, setDetailsLoading] = useState(Boolean(isEditing));
   const [userDetails, setUserDetails] = useState(null);
   const [resetLinkData, setResetLinkData] = useState({ url: '', expiresAt: '', copied: false });
   const [secondaryActionLoading, setSecondaryActionLoading] = useState(false);
+  const [manualAccessProductId, setManualAccessProductId] = useState('');
+
+  const grantableProducts = products.filter((product) => product.type !== 'service');
+
+  const fetchDetails = useCallback(async (userId) => {
+    if (!userId) {
+      setUserDetails(null);
+      setDetailsLoading(false);
+      return;
+    }
+
+    setDetailsLoading(true);
+    setDetailsError('');
+
+    try {
+      const response = await axios.get(`/api/admin/users/${userId}`);
+      setUserDetails(response.data || null);
+    } catch (requestError) {
+      setDetailsError(requestError.response?.data?.error || 'Nie udało się pobrać szczegółów użytkownika.');
+    } finally {
+      setDetailsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setFormData(buildInitialState(initialUser));
     setError('');
+    setNotice('');
     setDetailsError('');
     setResetLinkData({ url: '', expiresAt: '', copied: false });
   }, [initialUser]);
+
+  useEffect(() => {
+    if (!manualAccessProductId && grantableProducts[0]?.id) {
+      setManualAccessProductId(grantableProducts[0].id);
+    }
+  }, [grantableProducts, manualAccessProductId]);
 
   useEffect(() => {
     if (!isEditing || !initialUser?.id) {
@@ -114,31 +153,8 @@ export default function AdminUserModal({
       return;
     }
 
-    let cancelled = false;
-
-    setDetailsLoading(true);
-    setDetailsError('');
-    axios.get(`/api/admin/users/${initialUser.id}`)
-      .then((response) => {
-        if (!cancelled) {
-          setUserDetails(response.data || null);
-        }
-      })
-      .catch((requestError) => {
-        if (!cancelled) {
-          setDetailsError(requestError.response?.data?.error || 'Nie udało się pobrać szczegółów użytkownika.');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setDetailsLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [initialUser, isEditing]);
+    void fetchDetails(initialUser.id);
+  }, [fetchDetails, initialUser, isEditing]);
 
   const togglePurchasedItem = (productId) => {
     setFormData((prev) => {
@@ -157,6 +173,7 @@ export default function AdminUserModal({
     event.preventDefault();
     setSubmitting(true);
     setError('');
+    setNotice('');
 
     try {
       const payload = {
@@ -189,6 +206,7 @@ export default function AdminUserModal({
 
     setSecondaryActionLoading(true);
     setError('');
+    setNotice('');
 
     try {
       const response = await axios.post(`/api/admin/users/${initialUser.id}/reset-password-link`);
@@ -197,6 +215,8 @@ export default function AdminUserModal({
         expiresAt: response.data?.expires_at || '',
         copied: false,
       });
+      setNotice('Link resetu hasła został wygenerowany.');
+      await fetchDetails(initialUser.id);
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się wygenerować linku resetu hasła.');
     } finally {
@@ -212,14 +232,46 @@ export default function AdminUserModal({
     try {
       await navigator.clipboard.writeText(resetLinkData.url);
       setResetLinkData((prev) => ({ ...prev, copied: true }));
+      setNotice('Link resetu został skopiowany do schowka.');
     } catch {
       setError('Nie udało się skopiować linku do schowka.');
+    }
+  };
+
+  const handleGrantAccess = async () => {
+    if (!isEditing || !detailUser?.email || !manualAccessProductId) {
+      return;
+    }
+
+    setSecondaryActionLoading(true);
+    setError('');
+    setNotice('');
+
+    try {
+      const response = await axios.post('/api/admin/grant-access', {
+        email: detailUser.email,
+        product_id: manualAccessProductId,
+      });
+
+      setNotice(response.data?.message || 'Dostęp został nadany.');
+      setFormData((prev) => ({
+        ...prev,
+        purchased_items: prev.purchased_items.includes(manualAccessProductId)
+          ? prev.purchased_items
+          : [...prev.purchased_items, manualAccessProductId],
+      }));
+      await fetchDetails(initialUser.id);
+    } catch (requestError) {
+      setError(requestError.response?.data?.error || 'Nie udało się nadać dostępu ręcznie.');
+    } finally {
+      setSecondaryActionLoading(false);
     }
   };
 
   const detailUser = userDetails?.user || initialUser;
   const detailOrders = userDetails?.orders || [];
   const detailProducts = userDetails?.purchased_products || [];
+  const detailEvents = userDetails?.events || [];
   const accountRoleLabel = isEditing
     ? (detailUser?.is_admin ? 'Administrator' : 'Użytkownik')
     : (formData.is_admin ? 'Administrator' : 'Użytkownik');
@@ -356,6 +408,12 @@ export default function AdminUserModal({
         {error ? (
           <div className="rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body text-rose">
             {error}
+          </div>
+        ) : null}
+
+        {notice ? (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-fs-body text-emerald-800">
+            {notice}
           </div>
         ) : null}
 
@@ -518,6 +576,51 @@ export default function AdminUserModal({
           )}
         </section>
 
+        {isEditing ? (
+          <section className="space-y-5 border-t border-gold/10 pt-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold">Akcje</p>
+                <h3 className="mt-2 font-serif text-fs-title-sm text-mauve">Ręczne nadanie dostępu</h3>
+                <p className="mt-2 text-fs-body leading-7 text-mauve/60">Dodaj produkt do konta i zapisz to działanie jako osobne zamówienie manualne z numerem i logiem zdarzeń.</p>
+              </div>
+              <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70">
+                <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Adres konta</p>
+                <p className="mt-2 break-all font-medium text-mauve">{detailUser?.email || 'Brak danych'}</p>
+              </div>
+            </div>
+
+            {grantableProducts.length > 0 ? (
+              <div className="rounded-[28px] border border-gold/10 bg-white px-5 py-5">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                  <div>
+                    <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Produkt do nadania</label>
+                    <select
+                      value={manualAccessProductId}
+                      onChange={(event) => setManualAccessProductId(event.target.value)}
+                      className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    >
+                      {grantableProducts.map((product) => (
+                        <option key={product.id} value={product.id}>{product.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGrantAccess}
+                    disabled={secondaryActionLoading || !manualAccessProductId}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <ShieldPlus size={16} /> {secondaryActionLoading ? 'Zapisywanie...' : 'Nadaj dostęp'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="rounded-2xl border border-mauve/10 bg-mauve/5 px-4 py-4 text-fs-body text-mauve/50">Brak produktów cyfrowych, które można nadać ręcznie.</p>
+            )}
+          </section>
+        ) : null}
+
         <section className="space-y-5 border-t border-gold/10 pt-8">
           <div>
             <div>
@@ -530,6 +633,38 @@ export default function AdminUserModal({
           </div>
 
           {historySectionContent}
+
+          {isEditing && !detailsLoading && !detailsError ? (
+            <div className="rounded-[28px] border border-mauve/10 bg-white px-5 py-5">
+              <div className="mb-4 flex items-center gap-2 text-mauve/55">
+                <ScrollText size={15} className="text-gold" />
+                <p className="text-fs-label font-bold uppercase tracking-[0.16em]">Oś zdarzeń konta</p>
+              </div>
+
+              {detailEvents.length > 0 ? (
+                <ul className="space-y-3">
+                  {detailEvents.map((eventItem) => (
+                    <li key={eventItem.id} className="rounded-2xl border border-gold/10 bg-nude/60 px-4 py-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-fs-body font-medium text-mauve">{eventItem.message || formatEventType(eventItem.event_type)}</p>
+                          <p className="mt-1 text-fs-ui text-mauve/50">{formatEventType(eventItem.event_type)}</p>
+                        </div>
+                        <p className="text-fs-ui text-mauve/45">{formatDateTime(eventItem.created_at)}</p>
+                      </div>
+                      {eventItem.context?.order_number || eventItem.context?.product_title || eventItem.context?.customer_email ? (
+                        <p className="mt-3 text-fs-ui text-mauve/55">
+                          {[eventItem.context?.order_number, eventItem.context?.product_title, eventItem.context?.customer_email].filter(Boolean).join(' • ')}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="rounded-2xl border border-mauve/10 bg-mauve/5 px-4 py-4 text-fs-body text-mauve/50">Brak zapisanych zdarzeń dla tego konta.</p>
+              )}
+            </div>
+          ) : null}
         </section>
       </form>
     </AdminModalShell>

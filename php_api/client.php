@@ -40,6 +40,14 @@ if ($action === 'library') {
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
+} elseif ($action === 'orders') {
+    try {
+        $stmt = $db->prepare('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug FROM orders LEFT JOIN products ON products.id = orders.product_id WHERE lower(orders.customer_email) = lower(?) ORDER BY orders.created_at DESC');
+        $stmt->execute([$user['email']]);
+        sendJson($stmt->fetchAll());
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
 } else {
     sendJson(['error' => 'Unknown action'], 400);
 }

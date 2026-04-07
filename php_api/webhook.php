@@ -68,7 +68,7 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
     $stmtConsent->execute([$session['id']]);
     $consent = $stmtConsent->fetch() ?: null;
 
-    $stmtUser = $db->prepare('SELECT id, first_name, email, password_hash, email_confirmed, confirm_token, reset_token, purchased_items FROM users WHERE email = ?');
+    $stmtUser = $db->prepare('SELECT id, first_name, last_name, email, password_hash, email_confirmed, confirm_token, reset_token, purchased_items FROM users WHERE email = ?');
     $stmtUser->execute([$customerEmail]);
     $user = $stmtUser->fetch();
 
@@ -96,6 +96,7 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
         $user = [
             'id' => $newUserId,
             'first_name' => null,
+            'last_name' => null,
             'email' => $customerEmail,
             'password_hash' => null,
             'email_confirmed' => 0,
@@ -114,8 +115,8 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
     }
 
     $amountTotal = ((float) ($session['amount_total'] ?? 0)) / 100;
-    $stmtOrder = $db->prepare('INSERT INTO orders (id, customer_email, product_id, amount_total, applied_coupon_code, status) VALUES (?, ?, ?, ?, ?, ?)');
-    $stmtOrder->execute([$orderId, $customerEmail, $productId, $amountTotal, $couponCode !== '' ? $couponCode : null, 'completed']);
+    $orderNumber = generateOrderNumber($session['created'] ?? null);
+    $stmtOrder = $db->prepare('INSERT INTO orders (id, order_number, customer_email, customer_first_name, customer_last_name, product_id, product_title, product_slug, amount_total, applied_coupon_code, payment_method, status, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)');
 
     if ($couponCode !== '') {
         $stmtCoupon = $db->prepare('UPDATE coupons SET times_used = times_used + 1, updated_at = CURRENT_TIMESTAMP WHERE code = ?');
@@ -125,10 +126,12 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
     $stmtProductInfo = $db->prepare('SELECT title, slug FROM products WHERE id = ?');
     $stmtProductInfo->execute([$productId]);
     $product = $stmtProductInfo->fetch() ?: ['title' => $productId, 'slug' => null];
+    $stmtOrder->execute([$orderId, $orderNumber, $customerEmail, $user['first_name'] ?? null, $user['last_name'] ?? null, $productId, $product['title'] ?? $productId, $product['slug'] ?? null, $amountTotal, $couponCode !== '' ? $couponCode : null, 'stripe', 'completed']);
 
     $urls = webhook_urls_from_user($user ?: null);
     $mailPayload = [
         'orderId' => $orderId,
+        'orderNumber' => $orderNumber,
         'productTitle' => (string) ($product['title'] ?? $productId),
         'amountTotal' => $amountTotal,
         'customerEmail' => $customerEmail,
@@ -141,6 +144,17 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
 
     mailer_send_order_success_customer($mailPayload);
     mailer_send_order_success_admin($mailPayload);
+
+    logEvent('stripe_order_completed', 'Płatność Stripe została zaksięgowana i zamówienie zapisane.', [
+        'user_id' => $user['id'] ?? null,
+        'order_id' => $orderId,
+        'customer_email' => $customerEmail,
+        'order_number' => $orderNumber,
+        'product_id' => $productId,
+        'product_title' => $product['title'] ?? $productId,
+        'stripe_session_id' => $session['id'] ?? null,
+        'amount_total' => $amountTotal,
+    ]);
 
     logWebhook("Recorded order $orderId for $amountTotal PLN");
 }
@@ -237,6 +251,14 @@ try {
             mailer_send_order_failed_customer($mailPayload);
             mailer_send_order_failed_admin($mailPayload);
         }
+
+        logEvent('stripe_payment_failed', 'Płatność Stripe zakończyła się niepowodzeniem.', [
+            'customer_email' => $customerEmail,
+            'product_id' => $productId,
+            'product_title' => $productTitle,
+            'stripe_session_id' => $session['id'] ?? null,
+            'amount_total' => $amountTotal,
+        ]);
 
         logWebhook('Async payment failed for session ' . ($session['id'] ?? 'unknown') . '.');
     }

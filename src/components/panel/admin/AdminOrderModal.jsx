@@ -43,15 +43,84 @@ function getCustomerName(order) {
   return fullName || 'Klientka bez uzupełnionego profilu';
 }
 
+function formatPaymentMethod(value) {
+  if (value === 'stripe') {
+    return 'Stripe';
+  }
+
+  if (value === 'bank_transfer') {
+    return 'Przelew tradycyjny';
+  }
+
+  if (value === 'manual') {
+    return 'Nadane ręcznie';
+  }
+
+  return value || 'Brak danych';
+}
+
+function formatEventType(value) {
+  return `${value || 'event'}`
+    .split('_')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
 export default function AdminOrderModal({ initialOrder, products, onClose, onSaved }) {
   const [formData, setFormData] = useState(() => buildInitialState(initialOrder));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [detailsLoading, setDetailsLoading] = useState(true);
+  const [detailsError, setDetailsError] = useState('');
+  const [orderDetails, setOrderDetails] = useState(null);
 
   useEffect(() => {
     setFormData(buildInitialState(initialOrder));
     setError('');
+    setDetailsError('');
+    setOrderDetails(null);
   }, [initialOrder]);
+
+  useEffect(() => {
+    if (!initialOrder?.id) {
+      setDetailsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setDetailsLoading(true);
+    setDetailsError('');
+
+    axios.get(`/api/admin/orders/${initialOrder.id}`)
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
+
+        setOrderDetails(response.data || null);
+        if (response.data?.order) {
+          setFormData(buildInitialState(response.data.order));
+        }
+      })
+      .catch((requestError) => {
+        if (!cancelled) {
+          setDetailsError(requestError.response?.data?.error || 'Nie udało się pobrać szczegółów zamówienia.');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setDetailsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialOrder]);
+
+  const detailOrder = orderDetails?.order || initialOrder;
+  const detailEvents = orderDetails?.events || [];
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,7 +128,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
     setError('');
 
     try {
-      await axios.put(`/api/admin/orders/${initialOrder.id}`, {
+      await axios.put(`/api/admin/orders/${detailOrder.id}`, {
         customer_email: formData.customer_email,
         product_id: formData.product_id,
         amount_total: Number(formData.amount_total),
@@ -110,17 +179,38 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Numer zamówienia</p>
-                <p className="mt-2 text-fs-body text-mauve/75">{initialOrder.order_number || 'Brak numeru'}</p>
+                <p className="mt-2 text-fs-body text-mauve/75">{detailOrder.order_number || 'Brak numeru'}</p>
               </div>
               <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Utworzono</p>
-                <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(initialOrder.created_at)}</p>
+                <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(detailOrder.created_at)}</p>
               </div>
               <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4 md:col-span-2">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Klientka</p>
-                <p className="mt-2 text-fs-body text-mauve">{getCustomerName(initialOrder)}</p>
-                <p className="mt-1 text-fs-ui text-mauve/55">{initialOrder.customer_email}</p>
-                <p className="mt-3 break-all text-fs-ui text-mauve/45">ID techniczne: {initialOrder.id}</p>
+                <p className="mt-2 text-fs-body text-mauve">{getCustomerName(detailOrder)}</p>
+                <p className="mt-1 text-fs-ui text-mauve/55">{detailOrder.customer_email}</p>
+                <p className="mt-3 break-all text-fs-ui text-mauve/45">ID techniczne: {detailOrder.id}</p>
+              </div>
+            </div>
+
+            {detailsError ? (
+              <div className="rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body text-rose">
+                {detailsError}
+              </div>
+            ) : null}
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+                <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Metoda płatności</p>
+                <p className="mt-2 text-fs-body text-mauve/75">{formatPaymentMethod(detailOrder.payment_method)}</p>
+              </div>
+              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+                <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Produkt</p>
+                <p className="mt-2 text-fs-body text-mauve/75">{detailOrder.product_title || 'Brak danych'}</p>
+              </div>
+              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+                <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Ostatnia zmiana</p>
+                <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(detailOrder.updated_at)}</p>
               </div>
             </div>
 
@@ -171,6 +261,39 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
                 </select>
               </div>
             </div>
+
+            <section className="rounded-[28px] border border-mauve/10 bg-white/85 p-5">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Log zdarzeń</p>
+                  <p className="mt-1 text-fs-ui text-mauve/50">Tu widać przebieg płatności i ręczne działania administracyjne związane z tym zamówieniem.</p>
+                </div>
+                {detailsLoading ? <span className="text-fs-ui text-mauve/45">Ładowanie...</span> : null}
+              </div>
+
+              {detailEvents.length > 0 ? (
+                <ul className="space-y-3">
+                  {detailEvents.map((eventItem) => (
+                    <li key={eventItem.id} className="rounded-2xl border border-gold/10 bg-nude/60 px-4 py-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-fs-body font-medium text-mauve">{eventItem.message || formatEventType(eventItem.event_type)}</p>
+                          <p className="mt-1 text-fs-ui text-mauve/50">{formatEventType(eventItem.event_type)}</p>
+                        </div>
+                        <p className="text-fs-ui text-mauve/45">{formatDateTime(eventItem.created_at)}</p>
+                      </div>
+                      {eventItem.context?.customer_email || eventItem.context?.order_number ? (
+                        <p className="mt-3 text-fs-ui text-mauve/55">
+                          {[eventItem.context?.order_number, eventItem.context?.customer_email].filter(Boolean).join(' • ')}
+                        </p>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="rounded-2xl border border-mauve/10 bg-mauve/5 px-4 py-4 text-fs-body text-mauve/50">Brak zdarzeń przypisanych do tego zamówienia.</p>
+              )}
+            </section>
       </form>
     </AdminModalShell>
   );

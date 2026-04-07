@@ -316,6 +316,30 @@ function resolveCheckoutIdentity(array $customer, string $baseUrl): array {
     return prepareGuestCheckoutUser($customer, $baseUrl);
 }
 
+function resolveCheckoutCustomerSnapshot(array $customer, array $checkoutIdentity): array {
+    global $db;
+
+    $firstName = trim((string) ($customer['firstName'] ?? $customer['first_name'] ?? ''));
+    $lastName = trim((string) ($customer['lastName'] ?? $customer['last_name'] ?? ''));
+
+    if (($firstName === '' || $lastName === '') && !empty($checkoutIdentity['id'])) {
+        $stmt = $db->prepare('SELECT first_name, last_name FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([(string) $checkoutIdentity['id']]);
+        $user = $stmt->fetch() ?: [];
+        if ($firstName === '') {
+            $firstName = trim((string) ($user['first_name'] ?? ''));
+        }
+        if ($lastName === '') {
+            $lastName = trim((string) ($user['last_name'] ?? ''));
+        }
+    }
+
+    return [
+        'first_name' => $firstName !== '' ? $firstName : null,
+        'last_name' => $lastName !== '' ? $lastName : null,
+    ];
+}
+
 if ($method === 'POST' && $action === 'create-session') {
     try {
         $data = json_decode(file_get_contents('php://input'), true) ?: [];
@@ -374,11 +398,13 @@ if ($method === 'POST' && $action === 'create-session') {
             }
 
             $orderId = 'bank_' . bin2hex(random_bytes(8));
+            $orderNumber = generateOrderNumber();
             $transferTitle = 'Zamówienie ' . $product['title'] . ' [' . strtoupper(substr($orderId, -6)) . ']';
             $acceptedAt = gmdate('c');
+            $customerSnapshot = resolveCheckoutCustomerSnapshot($customer, $checkoutIdentity);
 
-            $stmtOrder = $db->prepare('INSERT INTO orders (id, customer_email, product_id, amount_total, applied_coupon_code, status) VALUES (?, ?, ?, ?, ?, ?)');
-            $stmtOrder->execute([$orderId, $customerEmail, $product['id'], $discountedPrice, $coupon['code'] ?? null, 'pending_bank_transfer']);
+            $stmtOrder = $db->prepare('INSERT INTO orders (id, order_number, customer_email, customer_first_name, customer_last_name, product_id, product_title, product_slug, amount_total, applied_coupon_code, payment_method, status, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)');
+            $stmtOrder->execute([$orderId, $orderNumber, $customerEmail, $customerSnapshot['first_name'], $customerSnapshot['last_name'], $product['id'], $product['title'], $product['slug'] ?? null, $discountedPrice, $coupon['code'] ?? null, 'bank_transfer', 'pending_bank_transfer']);
 
             $stmtConsent = $db->prepare('INSERT INTO purchase_consents (id, user_id, email, product_id, stripe_session_id, terms_accepted_at, digital_content_consent_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
             $stmtConsent->execute([
@@ -392,9 +418,19 @@ if ($method === 'POST' && $action === 'create-session') {
             ]);
 
             incrementCouponUsage($coupon);
+            logEvent('bank_transfer_order_created', 'Utworzono zamówienie z przelewem tradycyjnym.', [
+                'user_id' => $checkoutIdentity['id'] ?? null,
+                'order_id' => $orderId,
+                'customer_email' => $customerEmail,
+                'order_number' => $orderNumber,
+                'product_id' => $product['id'],
+                'product_title' => $product['title'],
+                'amount_total' => $discountedPrice,
+            ]);
 
             $mailPayload = [
                 'orderId' => $orderId,
+                'orderNumber' => $orderNumber,
                 'productTitle' => (string) $product['title'],
                 'amountTotal' => $discountedPrice,
                 'customerEmail' => $customerEmail,
@@ -488,6 +524,17 @@ if ($method === 'POST' && $action === 'create-session') {
                 $resData['id'],
                 $acceptedAt,
                 $acceptedAt,
+            ]);
+
+            logEvent('checkout_session_created', 'Utworzono sesję Stripe dla zakupu produktu.', [
+                'user_id' => $checkoutIdentity['id'] ?? null,
+                'customer_email' => $customerEmail,
+                'product_id' => $product['id'],
+                'product_title' => $product['title'],
+                'payment_method' => 'stripe',
+                'stripe_session_id' => $resData['id'],
+                'amount_total' => $discountedPrice,
+                'requires_email_confirmation' => !empty($checkoutIdentity['requiresEmailConfirmation']),
             ]);
 
             sendJson([

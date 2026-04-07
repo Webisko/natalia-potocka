@@ -251,6 +251,11 @@ if (preg_match('#^/api/client/library$#', $path)) {
     require __DIR__ . '/php_api/client.php';
     exit;
 }
+if (preg_match('#^/api/client/orders$#', $path)) {
+    $_GET['action'] = 'orders';
+    require __DIR__ . '/php_api/client.php';
+    exit;
+}
 if (preg_match('#^/api/auth/confirm/([^/]+)$#', $path, $matches)) {
     $_GET['action'] = 'confirm';
     $_GET['token'] = $matches[1];

@@ -22,6 +22,80 @@ function getUserDisplayName(user) {
   return emailPrefix || 'nieznajoma';
 }
 
+function formatDateTime(value) {
+  if (!value) {
+    return 'Brak danych';
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return 'Brak danych';
+  }
+
+  return parsed.toLocaleString('pl-PL');
+}
+
+function formatCurrency(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return 'Brak danych';
+  }
+
+  return new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency: 'PLN',
+    minimumFractionDigits: 2,
+  }).format(numericValue);
+}
+
+function renderOrderStatus(status) {
+  if (status === 'completed') {
+    return 'Opłacone';
+  }
+
+  if (status === 'pending_bank_transfer') {
+    return 'Czeka na przelew';
+  }
+
+  if (status === 'manual') {
+    return 'Dostęp ręczny';
+  }
+
+  if (status === 'pending') {
+    return 'W trakcie';
+  }
+
+  if (status === 'failed') {
+    return 'Nieopłacone';
+  }
+
+  if (status === 'refunded') {
+    return 'Zwrócone';
+  }
+
+  if (status === 'cancelled') {
+    return 'Anulowane';
+  }
+
+  return status || 'Brak danych';
+}
+
+function renderPaymentMethod(method) {
+  if (method === 'stripe') {
+    return 'Stripe';
+  }
+
+  if (method === 'bank_transfer') {
+    return 'Przelew tradycyjny';
+  }
+
+  if (method === 'manual') {
+    return 'Dostęp ręczny';
+  }
+
+  return method || 'Brak danych';
+}
+
 // ─── LMS Course Player ────────────────────────────────────────────────────────
 function CourseLMS({ product, onBack }) {
   const [course, setCourse] = useState(null);
@@ -476,8 +550,10 @@ function DigitalProductCard({ item, onOpen }) {
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function ClientDashboard() {
   const [library, setLibrary] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [libraryError, setLibraryError] = useState('');
+  const [ordersError, setOrdersError] = useState('');
   const [activeCourse, setActiveCourse] = useState(null);
   const [activeDigital, setActiveDigital] = useState(null);
   const { user } = useAuth();
@@ -487,14 +563,27 @@ export default function ClientDashboard() {
     if (urlParams.get('success')) {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-    axios.get('/api/client/library')
-      .then((res) => {
-        setLibrary(res.data);
-        setLibraryError('');
-      })
-      .catch((error) => {
-        console.error(error);
-        setLibraryError('Nie udało się wczytać biblioteki materiałów. Odśwież stronę albo spróbuj ponownie za chwilę.');
+
+    Promise.allSettled([
+      axios.get('/api/client/library'),
+      axios.get('/api/client/orders'),
+    ])
+      .then(([libraryResult, ordersResult]) => {
+        if (libraryResult.status === 'fulfilled') {
+          setLibrary(libraryResult.value.data || []);
+          setLibraryError('');
+        } else {
+          console.error(libraryResult.reason);
+          setLibraryError('Nie udało się wczytać biblioteki materiałów. Odśwież stronę albo spróbuj ponownie za chwilę.');
+        }
+
+        if (ordersResult.status === 'fulfilled') {
+          setOrders(ordersResult.value.data || []);
+          setOrdersError('');
+        } else {
+          console.error(ordersResult.reason);
+          setOrdersError('Nie udało się pobrać historii zakupów. Spróbuj ponownie za chwilę.');
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -526,6 +615,68 @@ export default function ClientDashboard() {
         <h1 className="font-serif text-fs-title-md text-mauve">Hej, {getUserDisplayName(user)}!</h1>
 
         <div className="mt-10">
+          {ordersError ? (
+            <div className="mb-8 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body leading-relaxed text-mauve/80">
+              {ordersError}
+            </div>
+          ) : null}
+
+          <section className="mb-16">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="flex items-center gap-3 font-serif text-fs-title-sm text-mauve">
+                  <ShoppingBag size={20} className="text-gold" /> Historia zakupów
+                </h2>
+                <p className="mt-2 max-w-2xl text-fs-body leading-relaxed text-mauve/60">W tym miejscu widać wszystkie zamówienia przypisane do Twojego adresu e-mail, razem ze statusem płatności i numerem zamówienia.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
+                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zamówienia</p>
+                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{orders.length}</p>
+                </div>
+                <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
+                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Dostępne materiały</p>
+                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{library.length}</p>
+                </div>
+              </div>
+            </div>
+
+            {orders.length > 0 ? (
+              <div className="grid gap-5 lg:grid-cols-2">
+                {orders.map((order) => (
+                  <article key={order.id} className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[0_18px_55px_rgba(67,56,70,0.06)]">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">{order.order_number || 'Zamówienie'}</p>
+                        <h3 className="mt-3 font-serif text-fs-body-lg text-mauve">{order.product_title || 'Produkt'}</h3>
+                        <p className="mt-2 text-fs-body text-mauve/60">{formatDateTime(order.created_at)}</p>
+                        {order.product_slug ? (
+                          <a href={`/oferta/${order.product_slug}`} className="mt-3 inline-flex text-fs-ui font-medium text-terracotta transition hover:text-gold">
+                            Zobacz stronę produktu
+                          </a>
+                        ) : null}
+                      </div>
+
+                      <div className="flex flex-col gap-2 md:items-end">
+                        <span className="inline-flex items-center rounded-full bg-nude px-3 py-1.5 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55">
+                          {renderOrderStatus(order.status)}
+                        </span>
+                        <p className="text-fs-body font-medium text-mauve">{formatCurrency(order.amount_total)}</p>
+                        <p className="text-fs-ui text-mauve/50">{renderPaymentMethod(order.payment_method)}</p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/80 bg-white/40 py-16 text-center">
+                <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />
+                <h3 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Historia zakupów jest jeszcze pusta</h3>
+                <p className="text-fs-body text-mauve/55">Po pierwszym zakupie numer i status zamówienia pojawią się właśnie tutaj.</p>
+            </div>
+            )}
+          </section>
+
           {library.length === 0 ? (
             <div className="rounded-3xl border border-white/80 bg-white/40 py-20 text-center">
               <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />

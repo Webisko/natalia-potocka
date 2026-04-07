@@ -176,6 +176,17 @@ function serializeDelimitedText($value, bool $lowercase = false): ?string
     return $items ? implode(',', $items) : null;
 }
 
+function stripFileExtension(string $value): string
+{
+    return preg_replace('/\.[^.]+$/u', '', $value) ?? $value;
+}
+
+function buildDefaultMediaTitle(?string $value): string
+{
+    $normalized = trim(str_replace(['_', '-'], ' ', stripFileExtension((string) $value)));
+    return $normalized !== '' ? $normalized : 'Medium';
+}
+
 function mapUser(array $user): array
 {
     $user['is_admin'] = !empty($user['is_admin']);
@@ -230,13 +241,35 @@ function requireUserRecord(string $userId): array
 function requireProductRecord(string $productId): array
 {
     global $db;
-    $stmt = $db->prepare("SELECT id, title FROM products WHERE id = ? AND type != 'service'");
+    $stmt = $db->prepare("SELECT id, title, slug FROM products WHERE id = ? AND type != 'service'");
     $stmt->execute([$productId]);
     $product = $stmt->fetch();
     if (!$product) {
         sendJson(['error' => 'Produkt nie istnieje.'], 404);
     }
     return $product;
+}
+
+function buildOrderSnapshot(string $customerEmail, string $productId, array $existingOrder = []): array
+{
+    global $db;
+
+    $product = requireProductRecord($productId);
+    $stmtUser = $db->prepare('SELECT first_name, last_name FROM users WHERE lower(email) = lower(?) LIMIT 1');
+    $stmtUser->execute([$customerEmail]);
+    $user = $stmtUser->fetch() ?: [];
+
+    $currentFirstName = trim((string) ($existingOrder['customer_first_name'] ?? ''));
+    $currentLastName = trim((string) ($existingOrder['customer_last_name'] ?? ''));
+    $currentProductTitle = trim((string) ($existingOrder['product_title'] ?? ''));
+    $currentProductSlug = trim((string) ($existingOrder['product_slug'] ?? ''));
+
+    return [
+        'customer_first_name' => $currentFirstName !== '' ? $currentFirstName : (($user['first_name'] ?? null) ?: null),
+        'customer_last_name' => $currentLastName !== '' ? $currentLastName : (($user['last_name'] ?? null) ?: null),
+        'product_title' => $currentProductTitle !== '' ? $currentProductTitle : ($product['title'] ?? null),
+        'product_slug' => $currentProductSlug !== '' ? $currentProductSlug : ($product['slug'] ?? null),
+    ];
 }
 
 function validateCouponPayload(array $payload, bool $partial = false): ?string
@@ -443,16 +476,19 @@ if ($method === 'GET' && $action === 'orders') {
     try {
         $orderId = (string) ($_GET['id'] ?? '');
         if ($orderId !== '') {
-            $stmt = $db->prepare('SELECT orders.*, products.title AS product_title FROM orders LEFT JOIN products ON products.id = orders.product_id WHERE orders.id = ?');
+            $stmt = $db->prepare('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) WHERE orders.id = ?');
             $stmt->execute([$orderId]);
             $order = $stmt->fetch();
             if (!$order) {
                 sendJson(['error' => 'Nie znaleziono zamówienia.'], 404);
             }
-            sendJson($order);
+            sendJson([
+                'order' => $order,
+                'events' => getEventLog(['order_id' => $orderId], 40),
+            ]);
         }
 
-        $stmt = $db->query('SELECT orders.*, products.title AS product_title FROM orders LEFT JOIN products ON products.id = orders.product_id ORDER BY orders.created_at DESC');
+        $stmt = $db->query('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) ORDER BY orders.created_at DESC');
         sendJson($stmt->fetchAll());
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -490,12 +526,28 @@ if ($method === 'PUT' && $action === 'orders') {
     }
 
     requireProductRecord($productId);
+    $snapshot = buildOrderSnapshot($customerEmail, $productId, $existingOrder);
+    $orderNumber = trim((string) ($existingOrder['order_number'] ?? '')) !== ''
+        ? $existingOrder['order_number']
+        : generateOrderNumber($existingOrder['created_at'] ?? null);
+    $paymentMethod = trim((string) ($existingOrder['payment_method'] ?? '')) !== ''
+        ? $existingOrder['payment_method']
+        : inferOrderPaymentMethod($existingOrder);
 
     try {
-        $stmtUpdate = $db->prepare('UPDATE orders SET customer_email = ?, product_id = ?, amount_total = ?, status = ? WHERE id = ?');
-        $stmtUpdate->execute([$customerEmail, $productId, (float) $amountTotal, $status, $orderId]);
+        $stmtUpdate = $db->prepare('UPDATE orders SET order_number = ?, customer_email = ?, customer_first_name = ?, customer_last_name = ?, product_id = ?, product_title = ?, product_slug = ?, amount_total = ?, payment_method = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmtUpdate->execute([$orderNumber, $customerEmail, $snapshot['customer_first_name'], $snapshot['customer_last_name'], $productId, $snapshot['product_title'], $snapshot['product_slug'], (float) $amountTotal, $paymentMethod, $status, $orderId]);
 
-        $stmtOrder = $db->prepare('SELECT orders.*, products.title AS product_title FROM orders LEFT JOIN products ON products.id = orders.product_id WHERE orders.id = ?');
+        logEvent('order_updated_by_admin', 'Administratorka zaktualizowała zamówienie.', [
+            'user_id' => $currentUser['id'] ?? null,
+            'order_id' => $orderId,
+            'customer_email' => $customerEmail,
+            'status' => $status,
+            'product_id' => $productId,
+            'amount_total' => (float) $amountTotal,
+        ]);
+
+        $stmtOrder = $db->prepare('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) WHERE orders.id = ?');
         $stmtOrder->execute([$orderId]);
         sendJson(['message' => 'Zamówienie zostało zaktualizowane.', 'order' => $stmtOrder->fetch()]);
     } catch (Exception $e) {
@@ -539,6 +591,7 @@ if ($method === 'GET' && $action === 'users') {
                 'user' => $user,
                 'purchased_products' => $purchasedProducts,
                 'orders' => $stmtOrders->fetchAll(),
+                'events' => getEventLog(['user_id' => $user['id'], 'customer_email' => $user['email']], 40),
             ]);
         }
 
@@ -562,6 +615,13 @@ if ($method === 'POST' && $action === 'user-reset-password-link') {
 
         $stmt = $db->prepare('UPDATE users SET reset_token = ?, reset_expires = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmt->execute([$resetToken, $expiresAt, $userId]);
+
+        logEvent('admin_reset_link_generated', 'Administratorka wygenerowała link resetu hasła.', [
+            'user_id' => $userId,
+            'customer_email' => $user['email'] ?? null,
+            'generated_by' => $currentUser['id'] ?? null,
+            'reset_expires' => $expiresAt,
+        ]);
 
         sendJson([
             'message' => 'Link resetu hasła został wygenerowany.',
@@ -687,8 +747,20 @@ if ($method === 'POST' && $action === 'grant-access') {
         }
 
         $orderId = 'man_' . bin2hex(random_bytes(8));
-        $stmtOrder = $db->prepare('INSERT INTO orders (id, customer_email, product_id, amount_total, status) VALUES (?, ?, ?, ?, ?)');
-        $stmtOrder->execute([$orderId, $email, $productId, 0, 'manual']);
+        $orderNumber = generateOrderNumber();
+        $snapshot = buildOrderSnapshot($email, $productId);
+        $stmtOrder = $db->prepare('INSERT INTO orders (id, order_number, customer_email, customer_first_name, customer_last_name, product_id, product_title, product_slug, amount_total, payment_method, status, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)');
+        $stmtOrder->execute([$orderId, $orderNumber, $email, $snapshot['customer_first_name'], $snapshot['customer_last_name'], $productId, $snapshot['product_title'], $snapshot['product_slug'], 0, 'manual', 'manual']);
+
+        logEvent('manual_access_granted', 'Administratorka nadała ręczny dostęp do produktu.', [
+            'user_id' => $user['id'] ?? $userId,
+            'order_id' => $orderId,
+            'customer_email' => $email,
+            'order_number' => $orderNumber,
+            'product_id' => $productId,
+            'product_title' => $snapshot['product_title'],
+            'granted_by' => $currentUser['id'] ?? null,
+        ]);
 
         sendJson(['message' => 'Dostęp został nadany.', 'user' => mapUser(requireUserRecord($user['id'] ?? $userId))]);
     } catch (Exception $e) {
@@ -879,8 +951,9 @@ if ($method === 'POST' && $action === 'media-upload') {
     try {
         $mediaId = bin2hex(random_bytes(16));
         $publicUrl = '/uploads/media/' . $fileName;
-        $stmt = $db->prepare('INSERT INTO media_assets (id, file_name, original_name, mime_type, size_bytes, width, height, alt_text, public_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
-        $stmt->execute([$mediaId, $fileName, $_FILES['file']['name'], $mimeType, (int) ($_FILES['file']['size'] ?? 0), null, null, emptyToNull($_POST['alt_text'] ?? null), $publicUrl]);
+        $imageSize = @getimagesize($destination) ?: [null, null];
+        $stmt = $db->prepare('INSERT INTO media_assets (id, file_name, original_name, title, mime_type, size_bytes, width, height, alt_text, public_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
+        $stmt->execute([$mediaId, $fileName, $_FILES['file']['name'], buildDefaultMediaTitle((string) $_FILES['file']['name']), $mimeType, (int) ($_FILES['file']['size'] ?? 0), $imageSize[0] ?? null, $imageSize[1] ?? null, emptyToNull($_POST['alt_text'] ?? null), $publicUrl]);
         $stmtMedia = $db->prepare('SELECT * FROM media_assets WHERE id = ?');
         $stmtMedia->execute([$mediaId]);
         sendJson(['message' => 'Plik został dodany do biblioteki mediów.', 'media' => $stmtMedia->fetch()], 201);
@@ -890,20 +963,60 @@ if ($method === 'POST' && $action === 'media-upload') {
     }
 }
 
-if ($method === 'DELETE' && $action === 'media') {
+if ($method === 'PUT' && $action === 'media') {
     $mediaId = (string) ($_GET['id'] ?? '');
+    $data = json_decode(file_get_contents('php://input'), true) ?: [];
+    $relatedIds = array_values(array_unique(array_filter(array_map('strval', (array) ($data['related_ids'] ?? [])))));
+    if (empty($relatedIds)) {
+        $relatedIds = [$mediaId];
+    }
+
     try {
-        $stmt = $db->prepare('SELECT * FROM media_assets WHERE id = ?');
-        $stmt->execute([$mediaId]);
-        $media = $stmt->fetch();
-        if (!$media) {
+        $placeholders = implode(',', array_fill(0, count($relatedIds), '?'));
+        $stmt = $db->prepare("SELECT id FROM media_assets WHERE id IN ($placeholders)");
+        $stmt->execute($relatedIds);
+        $existingIds = array_column($stmt->fetchAll(), 'id');
+        if (empty($existingIds)) {
             sendJson(['error' => 'Nie znaleziono medium.'], 404);
         }
 
-        $stmtDelete = $db->prepare('DELETE FROM media_assets WHERE id = ?');
-        $stmtDelete->execute([$mediaId]);
-        @unlink(getMediaAssetPath((string) $media['file_name']));
-        sendJson(['message' => 'Medium zostało usunięte.']);
+        $stmtUpdate = $db->prepare("UPDATE media_assets SET title = ?, alt_text = ?, updated_at = CURRENT_TIMESTAMP WHERE id IN ($placeholders)");
+        $params = [emptyToNull($data['title'] ?? null), emptyToNull($data['alt_text'] ?? null)];
+        $params = array_merge($params, $existingIds);
+        $stmtUpdate->execute($params);
+
+        $stmtMedia = $db->prepare("SELECT * FROM media_assets WHERE id IN ($placeholders) ORDER BY created_at DESC");
+        $stmtMedia->execute($existingIds);
+        sendJson(['message' => 'Szczegóły medium zostały zapisane.', 'media' => $stmtMedia->fetchAll()]);
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
+}
+
+if ($method === 'DELETE' && $action === 'media') {
+    $mediaId = (string) ($_GET['id'] ?? '');
+    try {
+        $data = json_decode(file_get_contents('php://input'), true) ?: [];
+        $relatedIds = array_values(array_unique(array_filter(array_map('strval', (array) ($data['related_ids'] ?? [])))));
+        if (empty($relatedIds)) {
+            $relatedIds = [$mediaId];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($relatedIds), '?'));
+        $stmt = $db->prepare("SELECT * FROM media_assets WHERE id IN ($placeholders)");
+        $stmt->execute($relatedIds);
+        $mediaRows = $stmt->fetchAll();
+        if (!$mediaRows) {
+            sendJson(['error' => 'Nie znaleziono medium.'], 404);
+        }
+
+        $existingIds = array_column($mediaRows, 'id');
+        $stmtDelete = $db->prepare("DELETE FROM media_assets WHERE id IN ($placeholders)");
+        $stmtDelete->execute($existingIds);
+        foreach ($mediaRows as $media) {
+            @unlink(getMediaAssetPath((string) $media['file_name']));
+        }
+        sendJson(['message' => count($mediaRows) > 1 ? 'Całe medium zostało usunięte.' : 'Medium zostało usunięte.']);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
