@@ -355,6 +355,10 @@ if (preg_match('#^/api/products/([^/]+)$#', \$path, \$matches)) {
     \$_GET['action'] = 'library';
     require __DIR__ . '/client.php';
     exit;
+} elseif (preg_match('#^/api/client/orders$#', \$path)) {
+    \$_GET['action'] = 'orders';
+    require __DIR__ . '/client.php';
+    exit;
 } elseif (preg_match('#^/api/auth/confirm/([^/]+)$#', \$path, \$matches)) {
     \$_GET['action'] = 'confirm';
     \$_GET['token'] = \$matches[1];
