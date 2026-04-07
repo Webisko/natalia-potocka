@@ -437,27 +437,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
           </nav>
         </div>
 
-        {isAdmin ? (
-          <div className="mb-10 grid gap-4 grid-cols-2 md:grid-cols-4">
-               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
-                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Suma zamówień (zakończone)</p>
-                 <p className="mt-2 text-xl font-serif text-mauve">{formatCurrency(orders.filter(o => o.status === 'completed' || o.status === 'manual').reduce((sum, o) => sum + o.amount_total, 0))}</p>
-               </div>
-               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
-                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Wszystkie zamówienia</p>
-                 <p className="mt-2 text-xl font-serif text-mauve">{orders.length}</p>
-               </div>
-               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
-                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Zarejestrowane konta</p>
-                 <p className="mt-2 text-xl font-serif text-mauve">{users.length}</p>
-               </div>
-               <div className="rounded-[24px] border border-white/60 bg-white/40 px-5 py-4 shadow-sm">
-                 <p className="text-fs-ui font-bold uppercase tracking-[0.18em] text-mauve/55">Dostępne produkty</p>
-                 <p className="mt-2 text-xl font-serif text-mauve">{products.length}</p>
-               </div>
-          </div>
-        ) : null}
-
         <div className="animate-in fade-in duration-500 space-y-8">
           {activeTab === 'products' ? (
             <AdminListCard

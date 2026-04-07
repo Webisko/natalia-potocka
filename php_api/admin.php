@@ -15,7 +15,8 @@ const PAGE_RESERVED_SLUGS = [
     'resetowanie-hasla',
 ];
 
-function getPageDefaults(): array {
+function getPageDefaults(): array
+{
     return [
         'home' => ['page_key' => 'home', 'page_name' => 'Strona główna', 'slug' => '', 'title' => 'Natalia Potocka', 'featured_image_url' => '/images/hero_doula.png', 'meta_title' => 'Natalia Potocka', 'meta_desc' => 'Wsparcie okołoporodowe, konsultacje, szkolenia i produkty cyfrowe Natalii Potockiej.', 'meta_image_url' => '/images/hero_doula.png', 'canonical_url' => '', 'noindex' => 0],
         'about' => ['page_key' => 'about', 'page_name' => 'O mnie', 'slug' => 'o-mnie', 'title' => 'O mnie', 'featured_image_url' => '/images/about_doula.png', 'meta_title' => 'O mnie | Natalia Potocka', 'meta_desc' => 'Poznaj podejście i doświadczenie Natalii Potockiej.', 'meta_image_url' => '/images/about_doula.png', 'canonical_url' => '', 'noindex' => 0],
@@ -26,7 +27,8 @@ function getPageDefaults(): array {
     ];
 }
 
-function emptyToNull($value) {
+function emptyToNull($value)
+{
     if ($value === null) {
         return null;
     }
@@ -37,22 +39,26 @@ function emptyToNull($value) {
     return $value;
 }
 
-function parseBooleanFlag($value): int {
+function parseBooleanFlag($value): int
+{
     return ($value === true || $value === 1 || $value === '1' || $value === 'true') ? 1 : 0;
 }
 
-function parseNullableInteger($value): ?int {
+function parseNullableInteger($value): ?int
+{
     if ($value === '' || $value === null) {
         return null;
     }
     return is_numeric($value) ? (int) $value : null;
 }
 
-function normalizeSlug(string $value): string {
+function normalizeSlug(string $value): string
+{
     return trim(strtolower(trim($value)), '/');
 }
 
-function normalizeBenefitCards($value): array {
+function normalizeBenefitCards($value): array
+{
     if (is_string($value)) {
         $trimmed = trim($value);
         if ($trimmed === '') {
@@ -81,7 +87,8 @@ function normalizeBenefitCards($value): array {
     return array_slice($cards, 0, 3);
 }
 
-function normalizeFaqItems($value): array {
+function normalizeFaqItems($value): array
+{
     if (is_string($value)) {
         $trimmed = trim($value);
         if ($trimmed === '') {
@@ -110,17 +117,20 @@ function normalizeFaqItems($value): array {
     return array_slice($items, 0, 5);
 }
 
-function serializeBenefitCards($value): ?string {
+function serializeBenefitCards($value): ?string
+{
     $cards = normalizeBenefitCards($value);
     return $cards ? json_encode($cards, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
 }
 
-function serializeFaqItems($value): ?string {
+function serializeFaqItems($value): ?string
+{
     $items = normalizeFaqItems($value);
     return $items ? json_encode($items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
 }
 
-function normalizePurchasedItems($value): array {
+function normalizePurchasedItems($value): array
+{
     if (is_array($value)) {
         return array_values(array_unique(array_filter(array_map(static function ($item) {
             return trim((string) $item);
@@ -134,12 +144,14 @@ function normalizePurchasedItems($value): array {
     return array_values(array_unique(array_filter(array_map('trim', explode(',', $value)))));
 }
 
-function serializePurchasedItems($value): ?string {
+function serializePurchasedItems($value): ?string
+{
     $items = normalizePurchasedItems($value);
     return $items ? implode(',', $items) : null;
 }
 
-function normalizeDelimitedText($value, bool $lowercase = false): array {
+function normalizeDelimitedText($value, bool $lowercase = false): array
+{
     if (is_array($value)) {
         $items = $value;
     } else {
@@ -158,12 +170,14 @@ function normalizeDelimitedText($value, bool $lowercase = false): array {
     return array_values(array_unique($normalized));
 }
 
-function serializeDelimitedText($value, bool $lowercase = false): ?string {
+function serializeDelimitedText($value, bool $lowercase = false): ?string
+{
     $items = normalizeDelimitedText($value, $lowercase);
     return $items ? implode(',', $items) : null;
 }
 
-function mapUser(array $user): array {
+function mapUser(array $user): array
+{
     $user['is_admin'] = !empty($user['is_admin']);
     $user['email_confirmed'] = !empty($user['email_confirmed']);
     $user['purchased_items'] = normalizePurchasedItems($user['purchased_items'] ?? null);
@@ -171,7 +185,8 @@ function mapUser(array $user): array {
     return $user;
 }
 
-function mapCoupon(array $coupon): array {
+function mapCoupon(array $coupon): array
+{
     $coupon['code'] = strtoupper(trim((string) ($coupon['code'] ?? '')));
     $coupon['discount_type'] = strtolower(trim((string) ($coupon['discount_type'] ?? '')));
     $coupon['is_active'] = !empty($coupon['is_active']);
@@ -188,7 +203,8 @@ function mapCoupon(array $coupon): array {
     return $coupon;
 }
 
-function mapProduct(array $product): array {
+function mapProduct(array $product): array
+{
     $product['benefits_json'] = normalizeBenefitCards($product['benefits_json'] ?? null);
     $product['faq_json'] = normalizeFaqItems($product['faq_json'] ?? null);
     $product['noindex'] = !empty($product['noindex']);
@@ -199,7 +215,8 @@ function mapProduct(array $product): array {
     return $product;
 }
 
-function requireUserRecord(string $userId): array {
+function requireUserRecord(string $userId): array
+{
     global $db;
     $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
     $stmt->execute([$userId]);
@@ -210,7 +227,8 @@ function requireUserRecord(string $userId): array {
     return $user;
 }
 
-function requireProductRecord(string $productId): array {
+function requireProductRecord(string $productId): array
+{
     global $db;
     $stmt = $db->prepare("SELECT id, title FROM products WHERE id = ? AND type != 'service'");
     $stmt->execute([$productId]);
@@ -221,7 +239,8 @@ function requireProductRecord(string $productId): array {
     return $product;
 }
 
-function validateCouponPayload(array $payload, bool $partial = false): ?string {
+function validateCouponPayload(array $payload, bool $partial = false): ?string
+{
     $code = strtoupper(trim((string) ($payload['code'] ?? '')));
     $discountType = strtolower(trim((string) ($payload['discount_type'] ?? '')));
     $value = $payload['value'] ?? null;
@@ -292,12 +311,14 @@ function validateCouponPayload(array $payload, bool $partial = false): ?string {
     return null;
 }
 
-function buildBaseUrl(): string {
+function buildBaseUrl(): string
+{
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
     return ($isHttps ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 }
 
-function validateUserPayload(array $payload, bool $partial = false): ?string {
+function validateUserPayload(array $payload, bool $partial = false): ?string
+{
     $email = strtolower(trim((string) ($payload['email'] ?? '')));
     $password = (string) ($payload['password'] ?? '');
 
@@ -315,7 +336,8 @@ function validateUserPayload(array $payload, bool $partial = false): ?string {
     return null;
 }
 
-function validatePageSettingsInput(string $pageKey, array $payload): ?string {
+function validatePageSettingsInput(string $pageKey, array $payload): ?string
+{
     $defaults = getPageDefaults();
     if (!isset($defaults[$pageKey])) {
         return 'Nieznany klucz strony.';
@@ -339,7 +361,8 @@ function validatePageSettingsInput(string $pageKey, array $payload): ?string {
     return null;
 }
 
-function getPageSettings(): array {
+function getPageSettings(): array
+{
     global $db;
     $defaults = getPageDefaults();
     $rows = $db->query('SELECT * FROM page_settings ORDER BY page_name ASC')->fetchAll();
@@ -356,7 +379,8 @@ function getPageSettings(): array {
     return $pages;
 }
 
-function resolveMediaUploadDir(): string {
+function resolveMediaUploadDir(): string
+{
     $publicDir = realpath(__DIR__ . '/../public');
     $baseDir = $publicDir ?: dirname(__DIR__);
     $uploadDir = $baseDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'media';
@@ -366,7 +390,8 @@ function resolveMediaUploadDir(): string {
     return $uploadDir;
 }
 
-function getMediaAssetPath(string $fileName): string {
+function getMediaAssetPath(string $fileName): string
+{
     return resolveMediaUploadDir() . DIRECTORY_SEPARATOR . $fileName;
 }
 
@@ -902,7 +927,8 @@ if ($method === 'POST' && $action === 'sync-media') {
 
     $added = 0;
     foreach ($images as $path) {
-        if (!file_exists($path)) continue;
+        if (!file_exists($path))
+            continue;
 
         $filename = basename($path);
         // build correct public url
@@ -919,17 +945,25 @@ if ($method === 'POST' && $action === 'sync-media') {
         $stmt = $db->prepare("SELECT id FROM media_assets WHERE public_url = ?");
         $stmt->execute([$public_url]);
         if ($stmt->fetch()) {
-            continue; 
+            continue;
         }
-        
+
         $mediaId = bin2hex(random_bytes(16));
         $mimeType = mime_content_type($path);
         $size = filesize($path);
         $alt = 'Zdjęcie ' . str_replace(['_', '.png', '.ico', '.webp'], [' ', '', '', ''], $filename);
-        
+
         $stmtIns = $db->prepare('INSERT INTO media_assets (id, file_name, original_name, mime_type, size_bytes, width, height, alt_text, public_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
         $stmtIns->execute([
-            $mediaId, $filename, $filename, $mimeType ?: 'image/png', $size, null, null, $alt, $public_url
+            $mediaId,
+            $filename,
+            $filename,
+            $mimeType ?: 'image/png',
+            $size,
+            null,
+            null,
+            $alt,
+            $public_url
         ]);
         $added++;
     }
