@@ -58,6 +58,7 @@
     
     # /api/client
     RewriteRule ^api/client/library$ /php_api/client.php?action=library [L,QSA]
+    RewriteRule ^api/client/orders$ /php_api/client.php?action=orders [L,QSA]
     
     # /api/auth
     RewriteRule ^api/auth/confirm/([^/]+)$ /php_api/auth.php?action=confirm&token=$1 [L,QSA]
