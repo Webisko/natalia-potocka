@@ -866,6 +866,46 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   </div>
                 </SettingsGroup>
 
+                <SettingsGroup eyebrow="Tryb serwisowy" title="Strona w trybie serwisowym" description="Gdy tryb serwisowy jest włączony, odwiedzający widzą stronę informacyjną zamiast normalnej treści. Administratorzy nadal mają pełny dostęp do serwisu.">
+                  <div className="space-y-4">
+                    <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-gold/10 bg-white px-5 py-4 transition hover:border-gold/25">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={Boolean(settings.maintenance_mode)}
+                          onChange={(event) => setSettings({ ...settings, maintenance_mode: event.target.checked })}
+                        />
+                        <div className={`h-6 w-11 rounded-full transition-colors ${settings.maintenance_mode ? 'bg-gold' : 'bg-mauve/20'}`}></div>
+                        <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${settings.maintenance_mode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+                      </div>
+                      <div>
+                        <p className="font-bold text-mauve">{settings.maintenance_mode ? 'Tryb serwisowy włączony' : 'Tryb serwisowy wyłączony'}</p>
+                        <p className="mt-0.5 text-fs-ui text-mauve/55">{settings.maintenance_mode ? 'Strona jest tymczasowo niedostępna dla odwiedzających.' : 'Strona jest publicznie dostępna.'}</p>
+                      </div>
+                    </label>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wiadomość dla odwiedzających (opcjonalnie)</p>
+                      <input value={settings.maintenance_message || ''} onChange={(event) => setSettings({ ...settings, maintenance_message: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Wkrótce wracamy. Trwają prace serwisowe." />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Dokumenty prawne" title="Polityka prywatności i Regulamin" description="Treść obu dokumentów prawnych. Możesz tu wkleić lub napisać własny tekst (HTML). Edycja zastępuje domyślną treść. Puste pole = powrót do treści wbudowanej. Zmiany aktywne po ponownej publikacji.">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Polityka prywatności (HTML)</p>
+                      <textarea value={settings.legal_privacy_content || ''} onChange={(event) => setSettings({ ...settings, legal_privacy_content: event.target.value })} className="min-h-48 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<h2>§1 ...</h2><p>Treść polityki prywatności...</p>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dostępna pod adresem <span className="font-mono">/polityka-prywatnosci</span>. Zostaw puste, by używać domyślnej treści.</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Regulamin sklepu (HTML)</p>
+                      <textarea value={settings.legal_terms_content || ''} onChange={(event) => setSettings({ ...settings, legal_terms_content: event.target.value })} className="min-h-48 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<h2>§1 ...</h2><p>Treść regulaminu sklepu...</p>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dostępny pod adresem <span className="font-mono">/regulamin-sklepu</span>. Zostaw puste, by używać domyślnej treści.</p>
+                    </div>
+                  </div>
+                </SettingsGroup>
+
                 <SettingsGroup eyebrow="Płatności" title="Stripe" description="Wszystkie klucze Stripe są zebrane w jednym bloku, aby łatwiej kontrolować konfigurację checkoutu i webhooków.">
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">

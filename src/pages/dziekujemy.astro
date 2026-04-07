@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPagePathByKey } from '../lib/pageSettings.js';
+
+const panelPath = getPagePathByKey('panel') || '/panel';
+---
+
+<BaseLayout
+  title="Dziękuję za zakup | Natalia Potocka"
+  description="Twoje zamówienie zostało przyjęte. Sprawdź skrzynkę e-mail, gdzie znajdziesz potwierdzenie i dalsze instrukcje."
+  noindex={true}
+  showBreadcrumbs={false}
+>
+  <section class="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-6 py-24">
+    <!-- Ambient blobs -->
+    <div class="pointer-events-none absolute inset-0">
+      <div class="absolute left-[-10%] top-[-5%] h-[60vw] w-[60vw] rounded-full bg-[#EADDD7]/40 blur-[130px]"></div>
+      <div class="absolute right-[-5%] top-[20%] h-[40vw] w-[40vw] rounded-full bg-rose/10 blur-[110px]"></div>
+      <div class="absolute bottom-0 left-[15%] h-[35vw] w-[35vw] rounded-full bg-gold/5 blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 mx-auto max-w-2xl text-center">
+      <!-- Checkmark icon -->
+      <div class="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-gold/20 bg-gold/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <span class="section-eyebrow">Zamówienie przyjęte</span>
+
+      <h1 class="mt-6 font-serif text-4xl leading-tight text-mauve md:text-5xl">
+        Dziękuję za&nbsp;zakup!
+      </h1>
+
+      <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-mauve/70">
+        Twoje zamówienie zostało przyjęte i zarejestrowane w systemie. Na Twój adres e-mail wysłałam potwierdzenie z dalszymi krokami dostępu do materiałów.
+      </p>
+
+      <div class="mt-6 rounded-[24px] border border-gold/15 bg-white/60 px-6 py-5 text-left text-base leading-7 text-mauve/70 shadow-sm backdrop-blur-sm">
+        <p class="font-semibold text-mauve">Co dalej?</p>
+        <ul class="mt-3 space-y-2 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
+            Sprawdź skrzynkę e-mail — przyszło potwierdzenie z dostępem do materiałów.
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
+            Jeśli kupujesz po raz pierwszy, w e-mailu znajdziesz link do ustawienia hasła.
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
+            Przejdź do panelu klienta, aby zobaczyć zakupione materiały.
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <a
+          href={panelPath}
+          class="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-gold/20 transition-all hover:scale-[1.02] hover:bg-gold/90"
+        >
+          Przejdź do panelu klienta
+        </a>
+        <a
+          href="/"
+          class="inline-flex h-14 items-center justify-center rounded-full border border-mauve/15 bg-white/60 px-8 text-sm font-bold uppercase tracking-widest text-mauve/70 transition-all hover:border-mauve/25 hover:text-mauve"
+        >
+          Wróć na stronę główną
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

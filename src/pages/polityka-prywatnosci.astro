@@ -3,6 +3,7 @@ import LegalLayout from '../layouts/LegalLayout.astro';
 import LegalPrivacyContent from '../components/pages/LegalPrivacyContent.astro';
 import { PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
 import { getPagePathByKey, getPageSettings, normalizePagePath } from '../lib/pageSettings.js';
+import { getGlobalSettings } from '../lib/globalSettings.js';
 
 const page = getPageSettings('privacy');
 const currentPath = normalizePagePath(Astro.url.pathname);
@@ -15,6 +16,9 @@ const breadcrumbItems = [
 if (configuredPath !== currentPath) {
   return Astro.redirect(configuredPath);
 }
+
+const globalSettings = getGlobalSettings();
+const customContent = globalSettings.legal_privacy_content || '';
 ---
 
 <LegalLayout
@@ -27,5 +31,5 @@ if (configuredPath !== currentPath) {
   noindex={Boolean(page?.noindex)}
   breadcrumbItems={breadcrumbItems}
 >
-  <LegalPrivacyContent />
+  {customContent ? <Fragment set:html={customContent} /> : <LegalPrivacyContent />}
 </LegalLayout>
