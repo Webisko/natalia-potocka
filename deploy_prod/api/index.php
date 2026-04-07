@@ -154,6 +154,10 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
 } elseif (preg_match('#^/api/contact/?$#', $path)) {
     require __DIR__ . '/contact.php';
     exit;
+} elseif (preg_match('#^/api/checkout/config$#', $path)) {
+    $_GET['action'] = 'config';
+    require __DIR__ . '/checkout.php';
+    exit;
 } elseif (preg_match('#^/api/checkout/create-session$#', $path)) {
     $_GET['action'] = 'create-session';
     require __DIR__ . '/checkout.php';
@@ -217,6 +221,10 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     exit;
 } elseif (preg_match('#^/api/client/library$#', $path)) {
     $_GET['action'] = 'library';
+    require __DIR__ . '/client.php';
+    exit;
+} elseif (preg_match('#^/api/client/orders$#', $path)) {
+    $_GET['action'] = 'orders';
     require __DIR__ . '/client.php';
     exit;
 } elseif (preg_match('#^/api/auth/confirm/([^/]+)$#', $path, $matches)) {

@@ -180,6 +180,11 @@ if ($method === 'POST') {
 
             $resetUrl = detectBaseUrl() . '/resetowanie-hasla?token=' . $resetToken;
             mailer_send_password_reset($email, $resetUrl);
+            logEvent('password_reset_requested', 'Wygenerowano link do resetu hasła.', [
+                'user_id' => $user['id'] ?? null,
+                'customer_email' => $email,
+                'reset_expires' => $resetExpires,
+            ]);
         }
 
         sendJson(['message' => 'Jeśli podany e-mail istnieje w bazie, wysłano na niego link do resetu hasła.']);
@@ -216,6 +221,10 @@ if ($method === 'POST') {
         $passwordHash = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => 12]);
         $stmtUpdate = $db->prepare('UPDATE users SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?');
         $stmtUpdate->execute([$passwordHash, $user['id']]);
+
+        logEvent('password_reset_completed', 'Hasło zostało ustawione z użyciem linku resetującego.', [
+            'user_id' => $user['id'],
+        ]);
 
         sendJson(['message' => 'Hasło zostało pomyślnie zmienione. Możesz się zalogować.']);
     }
@@ -275,6 +284,11 @@ if ($method === 'POST') {
         $stmtUpdate = $db->prepare('UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmtUpdate->execute([$passwordHash, $authUser['id']]);
 
+        logEvent('password_changed', 'Użytkowniczka zmieniła hasło z poziomu ustawień konta.', [
+            'user_id' => $authUser['id'],
+            'customer_email' => $authUser['email'] ?? null,
+        ]);
+
         sendJson(['message' => 'Hasło zostało zmienione.']);
     }
 
@@ -310,6 +324,12 @@ if ($method === 'POST') {
         mailer_send_email_change_confirmation($nextEmail, $confirmUrl, [
             'firstName' => $currentUser['first_name'] ?? '',
             'currentEmail' => $currentUser['email'] ?? '',
+        ]);
+
+        logEvent('email_change_requested', 'Rozpoczęto zmianę adresu e-mail.', [
+            'user_id' => $authUser['id'],
+            'customer_email' => $currentUser['email'] ?? null,
+            'next_email' => $nextEmail,
         ]);
 
         $stmtRefetch = $db->prepare('SELECT id, first_name, last_name, email, phone, is_admin, email_confirmed, pending_email, purchased_items FROM users WHERE id = ?');
@@ -390,6 +410,11 @@ if ($method === 'GET') {
         $stmtUpdate = $db->prepare('UPDATE users SET email_confirmed = 1, confirm_token = NULL WHERE id = ?');
         $stmtUpdate->execute([$user['id']]);
 
+        logEvent('email_confirmed', 'Adres e-mail konta został potwierdzony.', [
+            'user_id' => $user['id'],
+            'customer_email' => $user['email'] ?? null,
+        ]);
+
         echo '<div style="font-family: Georgia, serif; text-align: center; margin-top: 100px; color: #6B5B7B;"><h1>✓ E-mail potwierdzony!</h1><p>Twoje konto jest aktywne. Możesz się teraz zalogować.</p><a href="/" style="color: #D4AF37;">Wróć na stronę</a></div>';
         exit;
     }
@@ -416,6 +441,12 @@ if ($method === 'GET') {
 
         $stmtUpdate = $db->prepare('UPDATE users SET email = ?, pending_email = NULL, email_change_token = NULL, email_confirmed = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmtUpdate->execute([$nextEmail, $user['id']]);
+
+        logEvent('email_changed', 'Adres e-mail konta został zaktualizowany i potwierdzony.', [
+            'user_id' => $user['id'],
+            'customer_email' => $nextEmail,
+            'previous_email' => $user['email'] ?? null,
+        ]);
 
         $activeToken = $_COOKIE['auth_token'] ?? null;
         if ($activeToken) {

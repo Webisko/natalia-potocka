@@ -13,6 +13,45 @@ function readSetting(string $key): string {
     return trim((string) ($stmt->fetchColumn() ?: ''));
 }
 
+function getStripeSecretValue(): string {
+    $stripeSecret = readSetting('stripe_secret');
+    if ($stripeSecret === '') {
+        $stripeSecret = trim((string) getenv('STRIPE_SECRET_KEY'));
+    }
+
+    return $stripeSecret;
+}
+
+function buildBankTransferUnavailableReason(): string {
+    $notifyEmail = readSetting('notify_email');
+    $contactPhone = readSetting('contact_phone');
+
+    $message = 'Przelew tradycyjny jest chwilowo niedostępny. Wybierz Stripe.';
+    if ($notifyEmail !== '' || $contactPhone !== '') {
+        $message = 'Przelew tradycyjny jest chwilowo niedostępny. Wybierz Stripe albo skontaktuj się w sprawie płatności ręcznej.';
+    }
+
+    return $message;
+}
+
+function getCheckoutPaymentConfig(): array {
+    $bankTransferConfigured = readSetting('bank_account_name') !== '' && readSetting('bank_account_number') !== '';
+    $stripeConfigured = getStripeSecretValue() !== '';
+
+    return [
+        'paymentMethods' => [
+            'stripe' => [
+                'available' => $stripeConfigured,
+                'reason' => $stripeConfigured ? '' : 'Płatności Stripe są chwilowo niedostępne.',
+            ],
+            'bankTransfer' => [
+                'available' => $bankTransferConfigured,
+                'reason' => $bankTransferConfigured ? '' : buildBankTransferUnavailableReason(),
+            ],
+        ],
+    ];
+}
+
 function normalizeCouponRow(array $coupon): array {
     $coupon['code'] = strtoupper(trim((string) ($coupon['code'] ?? '')));
     $coupon['discount_type'] = strtolower(trim((string) ($coupon['discount_type'] ?? '')));
@@ -340,6 +379,10 @@ function resolveCheckoutCustomerSnapshot(array $customer, array $checkoutIdentit
     ];
 }
 
+if ($method === 'GET' && $action === 'config') {
+    sendJson(getCheckoutPaymentConfig());
+}
+
 if ($method === 'POST' && $action === 'create-session') {
     try {
         $data = json_decode(file_get_contents('php://input'), true) ?: [];
@@ -387,15 +430,17 @@ if ($method === 'POST' && $action === 'create-session') {
 
         $appliedCoupon = serializeAppliedCoupon($coupon, $effectivePrice, $discountedPrice);
 
+        $paymentConfig = getCheckoutPaymentConfig();
+
         if ($paymentMethod === 'bank_transfer') {
+            if (empty($paymentConfig['paymentMethods']['bankTransfer']['available'])) {
+                sendJson(['error' => $paymentConfig['paymentMethods']['bankTransfer']['reason']], 409);
+            }
+
             $accountName = readSetting('bank_account_name');
             $accountNumber = readSetting('bank_account_number');
             $bankName = readSetting('bank_name');
             $instructions = readSetting('bank_transfer_instructions');
-
-            if ($accountName === '' || $accountNumber === '') {
-                sendJson(['error' => 'Przelew tradycyjny nie jest jeszcze skonfigurowany. Uzupełnij dane rachunku w panelu administratora.'], 500);
-            }
 
             $orderId = 'bank_' . bin2hex(random_bytes(8));
             $orderNumber = generateOrderNumber();
@@ -464,12 +509,9 @@ if ($method === 'POST' && $action === 'create-session') {
             ]);
         }
 
-        $stripeSecret = readSetting('stripe_secret');
+        $stripeSecret = getStripeSecretValue();
         if ($stripeSecret === '') {
-            $stripeSecret = trim((string) getenv('STRIPE_SECRET_KEY'));
-        }
-        if ($stripeSecret === '') {
-            sendJson(['error' => 'Konfiguracja serwera (Stripe) jest niekompletna.'], 500);
+            sendJson(['error' => $paymentConfig['paymentMethods']['stripe']['reason']], 503);
         }
 
         $baseUrl = detectBaseUrl();

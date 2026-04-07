@@ -290,6 +290,10 @@ if (preg_match('#^/api/products/([^/]+)$#', \$path, \$matches)) {
 } elseif (preg_match('#^/api/contact/?$#', \$path)) {
     require __DIR__ . '/contact.php';
     exit;
+} elseif (preg_match('#^/api/checkout/config$#', \$path)) {
+    \$_GET['action'] = 'config';
+    require __DIR__ . '/checkout.php';
+    exit;
 } elseif (preg_match('#^/api/checkout/create-session$#', \$path)) {
     \$_GET['action'] = 'create-session';
     require __DIR__ . '/checkout.php';

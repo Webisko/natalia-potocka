@@ -264,6 +264,10 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [settings, setSettings] = useState({});
+    const bankTransferConfigured = Boolean(
+      `${settings.bank_account_name || ''}`.trim() && `${settings.bank_account_number || ''}`.trim(),
+    );
+
   const [pages, setPages] = useState([]);
   const [orders, setOrders] = useState([]);
   const [coupons, setCoupons] = useState([]);
@@ -930,6 +934,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                 </SettingsGroup>
 
                 <SettingsGroup eyebrow="Obsługa ręczna" title="Przelewy tradycyjne" description="Dane wyświetlane klientce przy wyborze przelewu manualnego. Sekcja jest podzielona na czytelne pola w układzie dwukolumnowym.">
+                  {!bankTransferConfigured ? (
+                    <div className="mb-5 rounded-[24px] border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
+                      Przelew tradycyjny jest obecnie wyłączony na stronie sprzedażowej, bo brakuje odbiorcy lub numeru rachunku. Uzupełnij oba pola poniżej i zapisz ustawienia, aby metoda znów była dostępna dla klientek.
+                    </div>
+                  ) : null}
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Odbiorca przelewu tradycyjnego</label>

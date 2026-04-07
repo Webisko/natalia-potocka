@@ -13,6 +13,45 @@ function readSetting(string $key): string {
     return trim((string) ($stmt->fetchColumn() ?: ''));
 }
 
+function getStripeSecretValue(): string {
+    $stripeSecret = readSetting('stripe_secret');
+    if ($stripeSecret === '') {
+        $stripeSecret = trim((string) getenv('STRIPE_SECRET_KEY'));
+    }
+
+    return $stripeSecret;
+}
+
+function buildBankTransferUnavailableReason(): string {
+    $notifyEmail = readSetting('notify_email');
+    $contactPhone = readSetting('contact_phone');
+
+    $message = 'Przelew tradycyjny jest chwilowo niedostępny. Wybierz Stripe.';
+    if ($notifyEmail !== '' || $contactPhone !== '') {
+        $message = 'Przelew tradycyjny jest chwilowo niedostępny. Wybierz Stripe albo skontaktuj się w sprawie płatności ręcznej.';
+    }
+
+    return $message;
+}
+
+function getCheckoutPaymentConfig(): array {
+    $bankTransferConfigured = readSetting('bank_account_name') !== '' && readSetting('bank_account_number') !== '';
+    $stripeConfigured = getStripeSecretValue() !== '';
+
+    return [
+        'paymentMethods' => [
+            'stripe' => [
+                'available' => $stripeConfigured,
+                'reason' => $stripeConfigured ? '' : 'Płatności Stripe są chwilowo niedostępne.',
+            ],
+            'bankTransfer' => [
+                'available' => $bankTransferConfigured,
+                'reason' => $bankTransferConfigured ? '' : buildBankTransferUnavailableReason(),
+            ],
+        ],
+    ];
+}
+
 function normalizeCouponRow(array $coupon): array {
     $coupon['code'] = strtoupper(trim((string) ($coupon['code'] ?? '')));
     $coupon['discount_type'] = strtolower(trim((string) ($coupon['discount_type'] ?? '')));
@@ -316,6 +355,34 @@ function resolveCheckoutIdentity(array $customer, string $baseUrl): array {
     return prepareGuestCheckoutUser($customer, $baseUrl);
 }
 
+function resolveCheckoutCustomerSnapshot(array $customer, array $checkoutIdentity): array {
+    global $db;
+
+    $firstName = trim((string) ($customer['firstName'] ?? $customer['first_name'] ?? ''));
+    $lastName = trim((string) ($customer['lastName'] ?? $customer['last_name'] ?? ''));
+
+    if (($firstName === '' || $lastName === '') && !empty($checkoutIdentity['id'])) {
+        $stmt = $db->prepare('SELECT first_name, last_name FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([(string) $checkoutIdentity['id']]);
+        $user = $stmt->fetch() ?: [];
+        if ($firstName === '') {
+            $firstName = trim((string) ($user['first_name'] ?? ''));
+        }
+        if ($lastName === '') {
+            $lastName = trim((string) ($user['last_name'] ?? ''));
+        }
+    }
+
+    return [
+        'first_name' => $firstName !== '' ? $firstName : null,
+        'last_name' => $lastName !== '' ? $lastName : null,
+    ];
+}
+
+if ($method === 'GET' && $action === 'config') {
+    sendJson(getCheckoutPaymentConfig());
+}
+
 if ($method === 'POST' && $action === 'create-session') {
     try {
         $data = json_decode(file_get_contents('php://input'), true) ?: [];
@@ -363,22 +430,26 @@ if ($method === 'POST' && $action === 'create-session') {
 
         $appliedCoupon = serializeAppliedCoupon($coupon, $effectivePrice, $discountedPrice);
 
+        $paymentConfig = getCheckoutPaymentConfig();
+
         if ($paymentMethod === 'bank_transfer') {
+            if (empty($paymentConfig['paymentMethods']['bankTransfer']['available'])) {
+                sendJson(['error' => $paymentConfig['paymentMethods']['bankTransfer']['reason']], 409);
+            }
+
             $accountName = readSetting('bank_account_name');
             $accountNumber = readSetting('bank_account_number');
             $bankName = readSetting('bank_name');
             $instructions = readSetting('bank_transfer_instructions');
 
-            if ($accountName === '' || $accountNumber === '') {
-                sendJson(['error' => 'Przelew tradycyjny nie jest jeszcze skonfigurowany. Uzupełnij dane rachunku w panelu administratora.'], 500);
-            }
-
             $orderId = 'bank_' . bin2hex(random_bytes(8));
+            $orderNumber = generateOrderNumber();
             $transferTitle = 'Zamówienie ' . $product['title'] . ' [' . strtoupper(substr($orderId, -6)) . ']';
             $acceptedAt = gmdate('c');
+            $customerSnapshot = resolveCheckoutCustomerSnapshot($customer, $checkoutIdentity);
 
-            $stmtOrder = $db->prepare('INSERT INTO orders (id, customer_email, product_id, amount_total, applied_coupon_code, status) VALUES (?, ?, ?, ?, ?, ?)');
-            $stmtOrder->execute([$orderId, $customerEmail, $product['id'], $discountedPrice, $coupon['code'] ?? null, 'pending_bank_transfer']);
+            $stmtOrder = $db->prepare('INSERT INTO orders (id, order_number, customer_email, customer_first_name, customer_last_name, product_id, product_title, product_slug, amount_total, applied_coupon_code, payment_method, status, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)');
+            $stmtOrder->execute([$orderId, $orderNumber, $customerEmail, $customerSnapshot['first_name'], $customerSnapshot['last_name'], $product['id'], $product['title'], $product['slug'] ?? null, $discountedPrice, $coupon['code'] ?? null, 'bank_transfer', 'pending_bank_transfer']);
 
             $stmtConsent = $db->prepare('INSERT INTO purchase_consents (id, user_id, email, product_id, stripe_session_id, terms_accepted_at, digital_content_consent_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
             $stmtConsent->execute([
@@ -392,9 +463,19 @@ if ($method === 'POST' && $action === 'create-session') {
             ]);
 
             incrementCouponUsage($coupon);
+            logEvent('bank_transfer_order_created', 'Utworzono zamówienie z przelewem tradycyjnym.', [
+                'user_id' => $checkoutIdentity['id'] ?? null,
+                'order_id' => $orderId,
+                'customer_email' => $customerEmail,
+                'order_number' => $orderNumber,
+                'product_id' => $product['id'],
+                'product_title' => $product['title'],
+                'amount_total' => $discountedPrice,
+            ]);
 
             $mailPayload = [
                 'orderId' => $orderId,
+                'orderNumber' => $orderNumber,
                 'productTitle' => (string) $product['title'],
                 'amountTotal' => $discountedPrice,
                 'customerEmail' => $customerEmail,
@@ -428,12 +509,9 @@ if ($method === 'POST' && $action === 'create-session') {
             ]);
         }
 
-        $stripeSecret = readSetting('stripe_secret');
+        $stripeSecret = getStripeSecretValue();
         if ($stripeSecret === '') {
-            $stripeSecret = trim((string) getenv('STRIPE_SECRET_KEY'));
-        }
-        if ($stripeSecret === '') {
-            sendJson(['error' => 'Konfiguracja serwera (Stripe) jest niekompletna.'], 500);
+            sendJson(['error' => $paymentConfig['paymentMethods']['stripe']['reason']], 503);
         }
 
         $baseUrl = detectBaseUrl();
@@ -488,6 +566,17 @@ if ($method === 'POST' && $action === 'create-session') {
                 $resData['id'],
                 $acceptedAt,
                 $acceptedAt,
+            ]);
+
+            logEvent('checkout_session_created', 'Utworzono sesję Stripe dla zakupu produktu.', [
+                'user_id' => $checkoutIdentity['id'] ?? null,
+                'customer_email' => $customerEmail,
+                'product_id' => $product['id'],
+                'product_title' => $product['title'],
+                'payment_method' => 'stripe',
+                'stripe_session_id' => $resData['id'],
+                'amount_total' => $discountedPrice,
+                'requires_email_confirmation' => !empty($checkoutIdentity['requiresEmailConfirmation']),
             ]);
 
             sendJson([

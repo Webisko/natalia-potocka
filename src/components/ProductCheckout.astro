@@ -195,21 +195,22 @@ const productPayload = {
         <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
           <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Sposób płatności</p>
           <div class="mt-4 grid gap-3">
-            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4">
-              <input type="radio" name="paymentMethod" value="stripe" checked class="mt-1 h-4 w-4 accent-gold" />
+            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="stripe">
+              <input type="radio" name="paymentMethod" value="stripe" checked class="mt-1 h-4 w-4 accent-gold" data-payment-input="stripe" />
               <span>
                 <span class="block font-semibold text-mauve">Stripe: karta, BLIK, Przelewy24</span>
                 <span class="mt-1 block text-fs-ui text-mauve/60">Po wyborze przejdziesz do bezpiecznej płatności Stripe.</span>
               </span>
             </label>
-            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4">
-              <input type="radio" name="paymentMethod" value="bank_transfer" class="mt-1 h-4 w-4 accent-gold" />
+            <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="bank_transfer">
+              <input type="radio" name="paymentMethod" value="bank_transfer" class="mt-1 h-4 w-4 accent-gold" data-payment-input="bank_transfer" />
               <span>
                 <span class="block font-semibold text-mauve">Przelew tradycyjny</span>
                 <span class="mt-1 block text-fs-ui text-mauve/60">Otrzymasz dane do przelewu i zamówienie zostanie zapisane jako oczekujące.</span>
               </span>
             </label>
           </div>
+          <p class="mt-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 text-fs-ui text-mauve/60" data-payment-method-hint hidden></p>
         </div>
 
         <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
@@ -278,6 +279,10 @@ const productPayload = {
       busy: false,
       bankTransfer: null,
       purchased: false,
+      paymentConfig: {
+        stripe: { available: true, reason: '' },
+        bankTransfer: { available: false, reason: 'Przelew tradycyjny jest chwilowo niedostępny.' },
+      },
     };
 
     const openButtons = Array.from(card.querySelectorAll(`[data-open-checkout-modal="${product.id}"]`));
@@ -302,8 +307,13 @@ const productPayload = {
     const paymentInputs = () => Array.from(sharedPanel.querySelectorAll('input[name="paymentMethod"]'));
     const couponInput = sharedPanel.querySelector('input[name="couponCode"]');
     const couponStatus = sharedPanel.querySelector('[data-coupon-status]');
+    const paymentHint = sharedPanel.querySelector('[data-payment-method-hint]');
     const termsInput = sharedPanel.querySelector('input[name="termsAccepted"]');
     const digitalInput = sharedPanel.querySelector('input[name="digitalContentAccepted"]');
+    const stripePaymentOption = sharedPanel.querySelector('[data-payment-option="stripe"]');
+    const bankTransferOption = sharedPanel.querySelector('[data-payment-option="bank_transfer"]');
+    const stripePaymentInput = sharedPanel.querySelector('[data-payment-input="stripe"]');
+    const bankTransferInput = sharedPanel.querySelector('[data-payment-input="bank_transfer"]');
     const setPasswordNowInput = guestForm?.querySelector('input[name="setPasswordNow"]');
     const passwordFields = guestForm?.querySelector('[data-password-fields]');
     const passwordInput = guestForm?.querySelector('input[name="password"]');
@@ -344,7 +354,64 @@ const productPayload = {
       couponStatus.textContent = message || 'Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.';
     };
 
+    const applyPaymentConfig = (paymentMethods = {}) => {
+      state.paymentConfig = {
+        stripe: {
+          available: paymentMethods?.stripe?.available !== false,
+          reason: paymentMethods?.stripe?.reason || '',
+        },
+        bankTransfer: {
+          available: Boolean(paymentMethods?.bankTransfer?.available),
+          reason: paymentMethods.bankTransfer?.reason || 'Przelew tradycyjny jest chwilowo niedostępny.',
+        },
+      };
+
+      if (stripePaymentInput) {
+        stripePaymentInput.disabled = !state.paymentConfig.stripe.available;
+      }
+
+      if (stripePaymentOption) {
+        stripePaymentOption.classList.toggle('opacity-50', !state.paymentConfig.stripe.available);
+      }
+
+      if (bankTransferInput) {
+        bankTransferInput.disabled = !state.paymentConfig.bankTransfer.available;
+      }
+
+      if (bankTransferOption) {
+        bankTransferOption.hidden = !state.paymentConfig.bankTransfer.available;
+      }
+
+      if ((!state.paymentConfig.bankTransfer.available || !state.paymentConfig.stripe.available) && !getSelectedPaymentMethod()) {
+        if (state.paymentConfig.stripe.available && stripePaymentInput) {
+          stripePaymentInput.checked = true;
+        }
+      }
+
+      if (bankTransferInput?.checked && !state.paymentConfig.bankTransfer.available && stripePaymentInput) {
+        stripePaymentInput.checked = true;
+      }
+
+      if (paymentHint) {
+        const message = !state.paymentConfig.bankTransfer.available ? state.paymentConfig.bankTransfer.reason : '';
+        paymentHint.textContent = message;
+        setHidden(paymentHint, message === '');
+      }
+    };
+
     const getSelectedPaymentMethod = () => paymentInputs().find((input) => input.checked)?.value || 'stripe';
+
+    const refreshPaymentConfig = async () => {
+      try {
+        const data = await apiRequest('/api/checkout/config', { headers: {} });
+        applyPaymentConfig(data.paymentMethods || {});
+      } catch (error) {
+        applyPaymentConfig({
+          stripe: { available: true, reason: '' },
+          bankTransfer: { available: false, reason: 'Przelew tradycyjny jest chwilowo niedostępny.' },
+        });
+      }
+    };
 
     const validateConsents = () => {
       if (!termsInput.checked || !digitalInput.checked) {
@@ -521,6 +588,17 @@ const productPayload = {
     };
 
     const startCheckout = async ({ customer } = {}) => {
+      const paymentMethod = getSelectedPaymentMethod();
+      if (paymentMethod === 'bank_transfer' && !state.paymentConfig.bankTransfer.available) {
+        showError(state.paymentConfig.bankTransfer.reason);
+        return;
+      }
+
+      if (paymentMethod === 'stripe' && !state.paymentConfig.stripe.available) {
+        showError(state.paymentConfig.stripe.reason || 'Płatności Stripe są chwilowo niedostępne.');
+        return;
+      }
+
       if (!validateConsents()) return;
 
       setBusy(true);
@@ -529,7 +607,7 @@ const productPayload = {
       try {
         const payload = {
           productId: product.id,
-          paymentMethod: getSelectedPaymentMethod(),
+          paymentMethod,
           termsAccepted: termsInput.checked,
           digitalContentAccepted: digitalInput.checked,
         };
@@ -571,7 +649,7 @@ const productPayload = {
       showError('');
       state.bankTransfer = null;
       setCouponStatus();
-      await refreshUser();
+      await Promise.all([refreshUser(), refreshPaymentConfig()]);
       if (state.purchased) {
         window.location.href = '/panel';
         return;
@@ -647,6 +725,7 @@ const productPayload = {
     setPasswordNowInput?.addEventListener('change', togglePasswordFields);
 
     refreshUser();
+    refreshPaymentConfig();
     togglePasswordFields();
 
     document.addEventListener('keydown', (event) => {
