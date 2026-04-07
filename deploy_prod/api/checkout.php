@@ -437,7 +437,7 @@ if ($method === 'POST' && $action === 'create-session') {
         }
 
         $baseUrl = detectBaseUrl();
-        $successUrl = $baseUrl . '/panel?success=true';
+        $successUrl = $baseUrl . '/dziekujemy?session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $baseUrl . '/oferta/' . $product['slug'] . '?canceled=true';
 
         $postParams = [

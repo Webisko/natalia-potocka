@@ -13,6 +13,50 @@ if ($path === '/api' || $path === '/api/') {
     exit;
 }
 
+// ── Maintenance mode ────────────────────────────────────────────────────────
+$isApiPath = str_starts_with($path, '/api/');
+$isMaintenancePage = ($path === '/przerwa-techniczna' || $path === '/przerwa-techniczna/');
+$isAdminPath = str_starts_with($path, '/administrator') || str_starts_with($path, '/panel');
+
+if (!$isApiPath && !$isMaintenancePage && !$isAdminPath) {
+    $dbPath = __DIR__ . '/../data/database.sqlite';
+    if (file_exists($dbPath)) {
+        try {
+            $mdb = new PDO('sqlite:' . $dbPath, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+            $mStmt = $mdb->prepare("SELECT value FROM settings WHERE key = 'maintenance_mode' LIMIT 1");
+            $mStmt->execute();
+            $maintenanceEnabled = (string) ($mStmt->fetchColumn() ?: '') === '1';
+
+            if ($maintenanceEnabled) {
+                $isAdmin = false;
+                $authToken = $_COOKIE['auth_token'] ?? '';
+                if ($authToken !== '') {
+                    try {
+                        require_once __DIR__ . '/jwt.php';
+                        $secret = trim((string) getenv('JWT_SECRET')) ?: 'natalia-potocka-secret';
+                        $decoded = decode_jwt($authToken, $secret);
+                        $isAdmin = is_array($decoded) && !empty($decoded['is_admin']);
+                    } catch (Throwable $ignored) {}
+                }
+
+                if (!$isAdmin) {
+                    $docroot = $_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__);
+                    $maintenancePage = rtrim($docroot, '/') . '/przerwa-techniczna/index.html';
+                    http_response_code(503);
+                    header('Retry-After: 3600');
+                    if (file_exists($maintenancePage)) {
+                        include $maintenancePage;
+                    } else {
+                        echo '<!doctype html><html lang="pl"><head><meta charset="UTF-8"><title>Przerwa techniczna</title></head><body style="font-family:Georgia,serif;text-align:center;padding:80px 20px;color:#433846"><h1>Wkrótce wracamy</h1><p>Trwają prace serwisowe.</p></body></html>';
+                    }
+                    exit;
+                }
+            }
+        } catch (Throwable $ignored) {}
+    }
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 // Routing endpointów
 if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     $_GET['slug'] = $matches[1];

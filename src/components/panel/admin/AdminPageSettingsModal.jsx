@@ -3,7 +3,22 @@ import axios from 'axios';
 import AdminCheckbox from './AdminCheckbox';
 import AdminImagePicker from './AdminImagePicker';
 import AdminModalShell from './AdminModalShell';
+import RichTextEditor from './RichTextEditor';
 import SeoLengthIndicator from './SeoLengthIndicator';
+
+// Pages that have an editable body content field
+const LEGAL_CONTENT_PAGES = {
+  privacy: {
+    settingKey: 'legal_privacy_content',
+    label: 'Treść polityki prywatności',
+    placeholder: 'Wklej lub wpisz treść polityki prywatności...',
+  },
+  terms: {
+    settingKey: 'legal_terms_content',
+    label: 'Treść regulaminu sklepu',
+    placeholder: 'Wklej lub wpisz treść regulaminu sklepu...',
+  },
+};
 
 function buildInitialState(page) {
   return {
@@ -27,10 +42,27 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
   const isHomePage = page?.page_key === 'home';
   const isLockedSlug = page?.page_kind === 'service-landing' || isHomePage;
 
+  const legalConfig = LEGAL_CONTENT_PAGES[page?.page_key] || null;
+  const [legalContent, setLegalContent] = useState('');
+  const [legalLoading, setLegalLoading] = useState(false);
+
   useEffect(() => {
     setFormData(buildInitialState(page));
     setError('');
   }, [page]);
+
+  // Load existing legal content from settings when modal opens for a legal page
+  useEffect(() => {
+    if (!legalConfig) return;
+    setLegalLoading(true);
+    axios.get('/api/admin/settings')
+      .then((response) => {
+        const data = response.data || {};
+        setLegalContent(data[legalConfig.settingKey] || '');
+      })
+      .catch(() => setLegalContent(''))
+      .finally(() => setLegalLoading(false));
+  }, [legalConfig?.settingKey]);
 
   const handleChange = (field, value) => {
     setFormData((previous) => ({ ...previous, [field]: value }));
@@ -42,7 +74,8 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
     setError('');
 
     try {
-      const response = await axios.put(`/api/admin/pages/${page.page_key}`, {
+      // Save page settings
+      const pageResponse = await axios.put(`/api/admin/pages/${page.page_key}`, {
         title: formData.title,
         slug: formData.slug,
         featured_image_url: formData.featured_image_url,
@@ -53,7 +86,14 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
         noindex: Boolean(formData.noindex),
       });
 
-      onSaved(response.data?.message || `Zapisano ustawienia strony: ${page.page_name}`);
+      // Save legal content alongside page settings if this is a legal page
+      if (legalConfig) {
+        await axios.post('/api/admin/settings', {
+          [legalConfig.settingKey]: legalContent,
+        });
+      }
+
+      onSaved(pageResponse.data?.message || `Zapisano ustawienia strony: ${page.page_name}`);
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać ustawień strony.');
     } finally {
@@ -221,6 +261,32 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
             </div>
           </div>
         </section>
+
+        {legalConfig ? (
+          <>
+            <div className="border-t border-gold/10" />
+            <section className="space-y-6">
+              <div>
+                <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold">Treść dokumentu</p>
+                <h3 className="mt-2 font-serif text-fs-title-sm text-mauve">{legalConfig.label}</h3>
+                <p className="mt-2 text-fs-body leading-7 text-mauve/60">
+                  Edytuj treść dokumentu prawnego bezpośrednio w panelu. Zmiany będą widoczne po ponownej publikacji serwisu.
+                  Zostaw puste, by zachować domyślną treść wbudowaną w kod.
+                </p>
+              </div>
+              {legalLoading ? (
+                <div className="py-8 text-center text-fs-body text-mauve/50">Ładowanie treści...</div>
+              ) : (
+                <RichTextEditor
+                  label={legalConfig.label}
+                  value={legalContent}
+                  onChange={setLegalContent}
+                  placeholder={legalConfig.placeholder}
+                />
+              )}
+            </section>
+          </>
+        ) : null}
       </form>
     </AdminModalShell>
   );
