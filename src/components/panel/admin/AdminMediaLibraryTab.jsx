@@ -213,7 +213,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
   );
 }
 
-export default function AdminMediaLibraryTab() {
+export default function AdminMediaLibraryTab({ onContentChanged }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -294,6 +294,7 @@ export default function AdminMediaLibraryTab() {
       if (uploadedMedia) {
         setAssets((currentAssets) => [uploadedMedia, ...currentAssets]);
         setActiveFilter('all');
+        onContentChanged?.();
       }
     } catch (error) {
       alert(error.response?.data?.error || 'Nie udało się wgrać pliku.');
@@ -311,6 +312,7 @@ export default function AdminMediaLibraryTab() {
     try {
       await axios.delete(`/api/admin/media/${asset.id}`);
       setAssets((currentAssets) => currentAssets.filter((currentAsset) => currentAsset.id !== asset.id));
+      onContentChanged?.();
     } catch (error) {
       alert(error.response?.data?.error || 'Nie udało się usunąć pliku.');
     }
@@ -343,6 +345,7 @@ export default function AdminMediaLibraryTab() {
         };
       }));
       setOpenGroupId(null);
+      onContentChanged?.();
     } catch (error) {
       alert(error.response?.data?.error || 'Nie udało się zapisać szczegółów medium.');
     } finally {
@@ -371,6 +374,7 @@ export default function AdminMediaLibraryTab() {
 
       setAssets((currentAssets) => currentAssets.filter((asset) => !relatedIds.includes(asset.id)));
       setOpenGroupId(null);
+      onContentChanged?.();
     } catch (error) {
       alert(error.response?.data?.error || 'Nie udało się usunąć całego medium.');
     } finally {

@@ -141,6 +141,16 @@ if (preg_match('#^/api/admin/media/?$#', $path)) {
     require __DIR__ . '/php_api/admin.php';
     exit;
 }
+if (preg_match('#^/api/admin/publish-status$#', $path)) {
+    $_GET['action'] = 'publish-status';
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
+if (preg_match('#^/api/admin/publish$#', $path)) {
+    $_GET['action'] = 'publish';
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
 if (preg_match('#^/api/admin/grant-access$#', $path)) {
     $_GET['action'] = 'grant-access';
     require __DIR__ . '/php_api/admin.php';

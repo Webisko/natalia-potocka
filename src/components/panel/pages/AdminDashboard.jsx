@@ -191,6 +191,54 @@ function getPageSeoMeta(page) {
   return { title: 'SEO kompletne i optymalne', tone: 'success', icon: CheckCircle2 };
 }
 
+function getPublishStatusMeta(publishStatus) {
+  if (!publishStatus?.github_token_configured) {
+    return {
+      title: 'Publikacja nie jest jeszcze skonfigurowana na serwerze.',
+      tone: 'warning',
+      icon: AlertTriangle,
+    };
+  }
+
+  if (publishStatus?.status === 'requested') {
+    return {
+      title: 'Publikacja została zlecona i czeka w kolejce GitHub Actions.',
+      tone: 'warning',
+      icon: Clock3,
+    };
+  }
+
+  if (publishStatus?.status === 'running') {
+    return {
+      title: 'Trwa publikacja strony na podstawie aktualnej bazy produkcyjnej.',
+      tone: 'warning',
+      icon: Clock3,
+    };
+  }
+
+  if (publishStatus?.status === 'failed') {
+    return {
+      title: 'Ostatnia publikacja zakończyła się błędem.',
+      tone: 'danger',
+      icon: AlertTriangle,
+    };
+  }
+
+  if (publishStatus?.has_pending_changes) {
+    return {
+      title: 'Są publiczne zmiany oczekujące na publikację.',
+      tone: 'warning',
+      icon: AlertTriangle,
+    };
+  }
+
+  return {
+    title: 'Wersja publiczna jest zgodna z ostatnio opublikowaną treścią.',
+    tone: 'success',
+    icon: CheckCircle2,
+  };
+}
+
 function isPromoActive(product) {
   return Boolean(
     product?.promotional_price
@@ -289,6 +337,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [orderExportMonth, setOrderExportMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [secondaryTask, setSecondaryTask] = useState('');
   const [settingsEmailFeedback, setSettingsEmailFeedback] = useState({ tone: '', message: '' });
+  const [publishStatus, setPublishStatus] = useState(null);
+  const [publishStatusLoading, setPublishStatusLoading] = useState(false);
+  const [publishFeedback, setPublishFeedback] = useState({ tone: '', message: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -339,9 +390,60 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
     fetchData();
   }, [fetchData]);
 
+  const fetchPublishStatus = useCallback(async (options = {}) => {
+    if (!isAdmin) {
+      return null;
+    }
+
+    const { silent = false } = options;
+    if (!silent) {
+      setPublishStatusLoading(true);
+    }
+
+    try {
+      const response = await axios.get('/api/admin/publish-status');
+      const nextStatus = response.data || null;
+      setPublishStatus(nextStatus);
+      return nextStatus;
+    } catch (error) {
+      const message = error.response?.data?.error || 'Nie udało się pobrać statusu publikacji.';
+      setPublishFeedback({ tone: 'error', message });
+      return null;
+    } finally {
+      if (!silent) {
+        setPublishStatusLoading(false);
+      }
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      return undefined;
+    }
+
+    fetchPublishStatus();
+    return undefined;
+  }, [fetchPublishStatus, isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin || !publishStatus || !['requested', 'running'].includes(publishStatus.status)) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      fetchPublishStatus({ silent: true });
+    }, 10000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fetchPublishStatus, isAdmin, publishStatus]);
+
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
+
+  const handlePublicContentChanged = useCallback(async () => {
+    await fetchPublishStatus({ silent: true });
+  }, [fetchPublishStatus]);
 
   const handleDeleteProduct = async (productId) => {
     if (!isAdmin || !window.confirm('Na pewno usunąć ten produkt?')) {
@@ -350,6 +452,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
     try {
       await axios.delete(`/api/admin/products/${productId}`);
+      await handlePublicContentChanged();
       fetchData();
     } catch (error) {
       alert(`Błąd usuwania: ${error.message}`);
@@ -422,9 +525,33 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
     try {
       await axios.post('/api/admin/settings', settings);
+      await handlePublicContentChanged();
       alert('Ustawienia zapisane');
     } catch (error) {
       alert(`Błąd: ${error.message}`);
+    }
+  };
+
+  const handlePublishSite = async () => {
+    setSecondaryTask('publish-site');
+    setPublishFeedback({ tone: '', message: '' });
+
+    try {
+      const response = await axios.post('/api/admin/publish');
+      const nextStatus = response.data?.status || null;
+      setPublishStatus(nextStatus);
+      setPublishFeedback({
+        tone: 'success',
+        message: response.data?.message || nextStatus?.last_message || 'Publikacja została uruchomiona.',
+      });
+    } catch (error) {
+      setPublishFeedback({
+        tone: 'error',
+        message: error.response?.data?.error || 'Nie udało się uruchomić publikacji.',
+      });
+    } finally {
+      setSecondaryTask('');
+      fetchPublishStatus({ silent: true });
     }
   };
 
@@ -526,6 +653,13 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
       || productTitle.includes(normalizedOrderSearch);
   });
 
+  const publishMeta = getPublishStatusMeta(publishStatus);
+  const PublishStatusIcon = publishMeta.icon;
+  const publishActionDisabled = secondaryTask === 'publish-site'
+    || publishStatusLoading
+    || !publishStatus?.github_token_configured
+    || ['requested', 'running'].includes(publishStatus?.status);
+
   return (
     <div className="bg-nude">
       <div className="mx-auto max-w-[1200px] px-6 py-10">
@@ -552,6 +686,74 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
         </div>
 
         <div className="animate-in fade-in duration-500 space-y-8">
+          {isAdmin ? (
+            <section className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-sm md:p-8">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border ${publishMeta.tone === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : publishMeta.tone === 'danger' ? 'border-rose/20 bg-rose/10 text-rose' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
+                      <PublishStatusIcon size={20} />
+                    </span>
+                    <div>
+                      <p className="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Publikacja strony</p>
+                      <h2 className="font-serif text-fs-title-sm text-mauve">Status wersji publicznej</h2>
+                    </div>
+                  </div>
+                  <p className="max-w-3xl text-fs-body leading-7 text-mauve/70">{publishMeta.title}</p>
+                  {publishStatus ? (
+                    <div className="flex flex-wrap gap-3 text-fs-ui text-mauve/55">
+                      <span>Treść: v{publishStatus.content_version || 0}</span>
+                      <span>Opublikowane: v{publishStatus.published_version || 0}</span>
+                      {publishStatus.last_change_source_label ? <span>Ostatnia zmiana: {publishStatus.last_change_source_label}</span> : null}
+                      {publishStatus.last_change_at ? <span>{formatDateTime(publishStatus.last_change_at)}</span> : null}
+                    </div>
+                  ) : null}
+                  {publishStatus?.last_message ? (
+                    <div className={`rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${publishMeta.tone === 'danger' ? 'border-rose/20 bg-rose/10 text-mauve/80' : publishMeta.tone === 'success' ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
+                      {publishStatus.last_message}
+                    </div>
+                  ) : null}
+                  {publishFeedback.message ? (
+                    <div className={`rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${publishFeedback.tone === 'error' ? 'border-rose/20 bg-rose/10 text-mauve/80' : 'border-emerald-200 bg-emerald-50/90 text-emerald-800'}`}>
+                      {publishFeedback.message}
+                    </div>
+                  ) : null}
+                  {!publishStatus?.github_token_configured ? (
+                    <p className="text-fs-ui text-mauve/55">Aby publikować z panelu, ustaw na serwerze zmienną środowiskową GITHUB_PUBLISH_TOKEN.</p>
+                  ) : null}
+                  {publishStatus?.last_run_url ? (
+                    <a href={publishStatus.last_run_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:text-gold/80">
+                      Zobacz przebieg publikacji w GitHub Actions
+                    </a>
+                  ) : null}
+                </div>
+
+                <div className="flex shrink-0 flex-col gap-3 lg:items-end">
+                  <button
+                    type="button"
+                    onClick={handlePublishSite}
+                    disabled={publishActionDisabled}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gold px-6 text-fs-label font-bold uppercase tracking-[0.18em] text-white transition hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {secondaryTask === 'publish-site'
+                      ? 'Uruchamianie publikacji...'
+                      : ['requested', 'running'].includes(publishStatus?.status)
+                        ? 'Publikacja w toku'
+                        : 'Publikuj stronę'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fetchPublishStatus()}
+                    disabled={publishStatusLoading}
+                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {publishStatusLoading ? 'Odświeżanie...' : 'Odśwież status'}
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : null}
+
           {activeTab === 'products' ? (
             <AdminListCard
               title="Lista produktów"
@@ -986,7 +1188,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
             </AdminListCard>
           ) : null}
 
-          {activeTab === 'media' && isAdmin ? <AdminMediaLibraryTab /> : null}
+          {activeTab === 'media' && isAdmin ? <AdminMediaLibraryTab onContentChanged={handlePublicContentChanged} /> : null}
 
           {activeTab === 'settings' && isAdmin ? (
             <div className="animate-in slide-in-from-right-4 duration-500 space-y-6">
@@ -1175,6 +1377,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
             onSaved={(message) => {
               setProductModalState({ isOpen: false, productId: 'new' });
               alert(message);
+              handlePublicContentChanged();
               fetchData();
             }}
           />
@@ -1219,6 +1422,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
           onSaved={(message) => {
             setPageModalState({ isOpen: false, page: null });
             alert(message);
+            handlePublicContentChanged();
             fetchData();
           }}
         />

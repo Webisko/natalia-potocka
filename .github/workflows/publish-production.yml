@@ -1,0 +1,92 @@
+name: Publish Production Content
+
+on:
+  repository_dispatch:
+    types: [content_publish]
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: Optional publish request id
+        required: false
+        type: string
+      target_version:
+        description: Optional target content version
+        required: false
+        type: string
+
+run-name: Publish content #${{ github.event.client_payload.request_id || inputs.request_id || github.run_number }}
+
+concurrency:
+  group: natalia-potocka-production-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Prepare SSH access
+        shell: bash
+        env:
+          PROD_DEPLOY_SSH_HOST: ${{ secrets.PROD_DEPLOY_SSH_HOST }}
+          PROD_DEPLOY_SSH_PORT: ${{ secrets.PROD_DEPLOY_SSH_PORT }}
+          PROD_DEPLOY_SSH_KEY: ${{ secrets.PROD_DEPLOY_SSH_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PROD_DEPLOY_SSH_HOST:-}" ] || [ -z "${PROD_DEPLOY_SSH_PORT:-}" ] || [ -z "${PROD_DEPLOY_SSH_KEY:-}" ]; then
+            echo "Missing production SSH secrets." >&2
+            exit 1
+          fi
+
+          mkdir -p deployment_keys ~/.ssh
+          printf '%s\n' "$PROD_DEPLOY_SSH_KEY" > deployment_keys/id_rsa
+          chmod 600 deployment_keys/id_rsa
+          ssh-keyscan -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Download live production database
+        shell: bash
+        env:
+          PROD_DEPLOY_SSH_HOST: ${{ secrets.PROD_DEPLOY_SSH_HOST }}
+          PROD_DEPLOY_SSH_PORT: ${{ secrets.PROD_DEPLOY_SSH_PORT }}
+          PROD_DEPLOY_SSH_USER: ${{ secrets.PROD_DEPLOY_SSH_USER }}
+          PROD_REMOTE_ROOT: ${{ secrets.PROD_REMOTE_ROOT }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${PROD_DEPLOY_SSH_USER:-}" ]; then
+            echo "Missing PROD_DEPLOY_SSH_USER secret." >&2
+            exit 1
+          fi
+
+          REMOTE_ROOT="${PROD_REMOTE_ROOT:-domains/nataliapotocka.pl/public_html}"
+          mkdir -p data
+
+          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite" data/database.sqlite
+          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite-wal" data/database.sqlite-wal || true
+          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite-shm" data/database.sqlite-shm || true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and deploy production package
+        shell: pwsh
+        run: ./scripts/deploy-production.ps1

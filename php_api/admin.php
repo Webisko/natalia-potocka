@@ -16,6 +16,352 @@ const PAGE_RESERVED_SLUGS = [
     'resetowanie-hasla',
 ];
 
+const PUBLIC_CONTENT_SETTING_KEYS = [
+    'favicon_url',
+    'seo_default_title',
+    'seo_default_desc',
+    'seo_default_social_image',
+    'marketing_head_scripts',
+    'marketing_body_scripts',
+    'legal_privacy_content',
+    'legal_terms_content',
+];
+
+const INTERNAL_PUBLISH_SETTING_PREFIX = 'site_publish_';
+const GITHUB_PUBLISH_REPO_OWNER = 'Webisko';
+const GITHUB_PUBLISH_REPO_NAME = 'natalia-potocka';
+const GITHUB_PUBLISH_WORKFLOW_FILE = 'publish-production.yml';
+const GITHUB_PUBLISH_BRANCH = 'main';
+const GITHUB_PUBLISH_EVENT_TYPE = 'content_publish';
+
+function getEnvironmentValue(string $key, string $default = ''): string
+{
+    $value = getenv($key);
+    if ($value !== false && $value !== null && trim((string) $value) !== '') {
+        return trim((string) $value);
+    }
+
+    $serverValue = $_SERVER[$key] ?? $_ENV[$key] ?? null;
+    if ($serverValue !== null && trim((string) $serverValue) !== '') {
+        return trim((string) $serverValue);
+    }
+
+    return $default;
+}
+
+function getGithubPublishToken(): string
+{
+    $environmentToken = getEnvironmentValue('GITHUB_PUBLISH_TOKEN');
+    if ($environmentToken !== '') {
+        return $environmentToken;
+    }
+
+    return trim((string) getSettingValue('github_publish_token'));
+}
+
+function normalizeSettingStoredValue($value): string
+{
+    return $value == null ? '' : (string) $value;
+}
+
+function shouldExposeSettingKey(string $key): bool
+{
+    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX);
+}
+
+function canWriteSettingKey(string $key): bool
+{
+    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX);
+}
+
+function getSettingValue(string $key, string $default = ''): string
+{
+    global $db;
+
+    $stmt = $db->prepare('SELECT value FROM settings WHERE key = ? LIMIT 1');
+    $stmt->execute([$key]);
+    $value = $stmt->fetchColumn();
+
+    return $value === false || $value === null ? $default : (string) $value;
+}
+
+function getSettingsMap(array $keys = []): array
+{
+    global $db;
+
+    if (!$keys) {
+        $rows = $db->query('SELECT key, value FROM settings ORDER BY key ASC')->fetchAll();
+    } else {
+        $placeholders = implode(',', array_fill(0, count($keys), '?'));
+        $stmt = $db->prepare("SELECT key, value FROM settings WHERE key IN ($placeholders)");
+        $stmt->execute(array_values($keys));
+        $rows = $stmt->fetchAll();
+    }
+
+    $settings = [];
+    foreach ($rows as $row) {
+        $settings[(string) $row['key']] = (string) ($row['value'] ?? '');
+    }
+
+    return $settings;
+}
+
+function saveSettingsMap(array $settings): void
+{
+    global $db;
+
+    if (!$settings) {
+        return;
+    }
+
+    $stmt = $db->prepare('INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP');
+    foreach ($settings as $key => $value) {
+        $stmt->execute([(string) $key, normalizeSettingStoredValue($value)]);
+    }
+}
+
+function translatePublishSource(string $source): string
+{
+    return match ($source) {
+        'products' => 'produkty',
+        'pages' => 'strony',
+        'media' => 'media',
+        'settings' => 'ustawienia globalne',
+        default => 'panel administracyjny',
+    };
+}
+
+function markPublicContentDirty(string $source, ?string $changedBy = null): array
+{
+    $current = getSettingsMap([
+        'site_publish_content_version',
+        'site_publish_status',
+        'site_publish_requested_version',
+    ]);
+
+    $nextVersion = ((int) ($current['site_publish_content_version'] ?? 0)) + 1;
+    $currentStatus = trim((string) ($current['site_publish_status'] ?? ''));
+    $status = in_array($currentStatus, ['requested', 'running'], true) ? $currentStatus : 'pending';
+    $timestamp = gmdate('c');
+    $message = in_array($currentStatus, ['requested', 'running'], true)
+        ? 'Trwa publikacja wcześniejszej wersji. Po jej zakończeniu pozostaną jeszcze nowsze zmiany do publikacji.'
+        : 'Są publiczne zmiany oczekujące na publikację.';
+
+    saveSettingsMap([
+        'site_publish_content_version' => (string) $nextVersion,
+        'site_publish_status' => $status,
+        'site_publish_last_change_at' => $timestamp,
+        'site_publish_last_change_source' => $source,
+        'site_publish_last_change_by' => trim((string) ($changedBy ?? '')),
+        'site_publish_last_message' => $message,
+    ]);
+
+    return [
+        'content_version' => $nextVersion,
+        'status' => $status,
+    ];
+}
+
+function publicSettingsChanged(array $incomingSettings): bool
+{
+    $relevantKeys = array_values(array_intersect(array_keys($incomingSettings), PUBLIC_CONTENT_SETTING_KEYS));
+    if (!$relevantKeys) {
+        return false;
+    }
+
+    $current = getSettingsMap($relevantKeys);
+    foreach ($relevantKeys as $key) {
+        if (normalizeSettingStoredValue($incomingSettings[$key] ?? '') !== (string) ($current[$key] ?? '')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isStorefrontProduct(array $product): bool
+{
+    $type = trim((string) ($product['type'] ?? ''));
+    $isPublished = parseBooleanFlag($product['is_published'] ?? false) === 1;
+
+    return $isPublished && in_array($type, ['video', 'audio', 'course'], true);
+}
+
+function shouldMarkPublicContentDirtyForProductChange(?array $beforeProduct, ?array $afterProduct = null): bool
+{
+    return ($beforeProduct !== null && isStorefrontProduct($beforeProduct))
+        || ($afterProduct !== null && isStorefrontProduct($afterProduct));
+}
+
+function githubApiRequest(string $method, string $url, string $token, ?array $payload = null): array
+{
+    $headers = [
+        'Accept: application/vnd.github+json',
+        'Authorization: Bearer ' . $token,
+        'User-Agent: natalia-potocka-admin-publisher',
+        'X-GitHub-Api-Version: 2022-11-28',
+    ];
+
+    $options = [
+        'http' => [
+            'method' => strtoupper($method),
+            'header' => implode("\r\n", array_merge($headers, ['Content-Type: application/json'])),
+            'ignore_errors' => true,
+            'timeout' => 20,
+        ],
+    ];
+
+    if ($payload !== null) {
+        $options['http']['content'] = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    $context = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
+    $responseHeaders = $http_response_header ?? [];
+    $statusLine = $responseHeaders[0] ?? '';
+    preg_match('/HTTP\/\S+\s+(\d{3})/', $statusLine, $matches);
+    $statusCode = (int) ($matches[1] ?? 0);
+
+    $decoded = null;
+    if ($result !== false && trim($result) !== '') {
+        $decoded = json_decode($result, true);
+    }
+
+    if ($statusCode < 200 || $statusCode >= 300) {
+        $message = is_array($decoded) ? trim((string) ($decoded['message'] ?? '')) : '';
+        if ($message === '') {
+            $message = 'GitHub API zwróciło kod ' . ($statusCode ?: 'nieznany') . '.';
+        }
+        throw new RuntimeException($message, $statusCode ?: 500);
+    }
+
+    return is_array($decoded) ? $decoded : [];
+}
+
+function findGithubPublishRun(string $token, string $requestId): ?array
+{
+    if ($requestId === '') {
+        return null;
+    }
+
+    $url = sprintf(
+        'https://api.github.com/repos/%s/%s/actions/workflows/%s/runs?branch=%s&per_page=20',
+        rawurlencode(GITHUB_PUBLISH_REPO_OWNER),
+        rawurlencode(GITHUB_PUBLISH_REPO_NAME),
+        rawurlencode(GITHUB_PUBLISH_WORKFLOW_FILE),
+        rawurlencode(GITHUB_PUBLISH_BRANCH)
+    );
+
+    $response = githubApiRequest('GET', $url, $token);
+    foreach ((array) ($response['workflow_runs'] ?? []) as $run) {
+        $displayTitle = (string) ($run['display_title'] ?? '');
+        $name = (string) ($run['name'] ?? '');
+        if (str_contains($displayTitle, $requestId) || str_contains($name, $requestId)) {
+            return $run;
+        }
+    }
+
+    return null;
+}
+
+function buildPublishStatusPayload(bool $syncWithGithub = true): array
+{
+    $settings = getSettingsMap([
+        'site_publish_content_version',
+        'site_publish_published_version',
+        'site_publish_requested_version',
+        'site_publish_status',
+        'site_publish_request_id',
+        'site_publish_requested_at',
+        'site_publish_finished_at',
+        'site_publish_last_change_at',
+        'site_publish_last_change_source',
+        'site_publish_last_change_by',
+        'site_publish_last_message',
+        'site_publish_last_triggered_by',
+        'site_publish_last_run_url',
+    ]);
+
+    $status = trim((string) ($settings['site_publish_status'] ?? '')) ?: 'idle';
+    $contentVersion = (int) ($settings['site_publish_content_version'] ?? 0);
+    $publishedVersion = (int) ($settings['site_publish_published_version'] ?? 0);
+    $requestedVersion = (int) ($settings['site_publish_requested_version'] ?? 0);
+    $requestId = trim((string) ($settings['site_publish_request_id'] ?? ''));
+    $githubToken = getGithubPublishToken();
+    $lastMessage = trim((string) ($settings['site_publish_last_message'] ?? ''));
+    $lastRunUrl = trim((string) ($settings['site_publish_last_run_url'] ?? ''));
+    $finishedAt = trim((string) ($settings['site_publish_finished_at'] ?? ''));
+
+    if ($syncWithGithub && $githubToken !== '' && $requestId !== '' && in_array($status, ['requested', 'running'], true)) {
+        try {
+            $run = findGithubPublishRun($githubToken, $requestId);
+            if ($run) {
+                $runStatus = trim((string) ($run['status'] ?? ''));
+                $runConclusion = trim((string) ($run['conclusion'] ?? ''));
+                $runUrl = trim((string) ($run['html_url'] ?? ''));
+                $runUpdatedAt = trim((string) ($run['updated_at'] ?? '')) ?: gmdate('c');
+                $lastRunUrl = $runUrl !== '' ? $runUrl : $lastRunUrl;
+
+                if ($runStatus === 'completed') {
+                    if ($runConclusion === 'success') {
+                        $publishedVersion = max($publishedVersion, $requestedVersion);
+                        $status = $contentVersion > $publishedVersion ? 'pending' : 'succeeded';
+                        $lastMessage = $contentVersion > $publishedVersion
+                            ? 'Publikacja zakończyła się poprawnie, ale od tego czasu pojawiły się już nowsze zmiany.'
+                            : 'Publikacja zakończyła się powodzeniem.';
+                    } else {
+                        $status = 'failed';
+                        $lastMessage = 'Publikacja zakończyła się błędem w GitHub Actions.';
+                    }
+
+                    $finishedAt = $runUpdatedAt;
+                    saveSettingsMap([
+                        'site_publish_status' => $status,
+                        'site_publish_published_version' => (string) $publishedVersion,
+                        'site_publish_finished_at' => $finishedAt,
+                        'site_publish_last_message' => $lastMessage,
+                        'site_publish_last_run_url' => $lastRunUrl,
+                    ]);
+                } else {
+                    $status = $runStatus === 'queued' ? 'requested' : 'running';
+                    saveSettingsMap([
+                        'site_publish_status' => $status,
+                        'site_publish_last_run_url' => $lastRunUrl,
+                    ]);
+                }
+            }
+        } catch (Throwable $exception) {
+            $lastMessage = 'Nie udało się odczytać statusu publikacji z GitHub Actions: ' . $exception->getMessage();
+        }
+    }
+
+    $hasPendingChanges = $contentVersion > $publishedVersion;
+    if (!$hasPendingChanges && $status === 'pending') {
+        $status = 'succeeded';
+    }
+
+    return [
+        'status' => $status,
+        'has_pending_changes' => $hasPendingChanges,
+        'content_version' => $contentVersion,
+        'published_version' => $publishedVersion,
+        'requested_version' => $requestedVersion,
+        'request_id' => $requestId,
+        'requested_at' => trim((string) ($settings['site_publish_requested_at'] ?? '')),
+        'finished_at' => $finishedAt,
+        'last_change_at' => trim((string) ($settings['site_publish_last_change_at'] ?? '')),
+        'last_change_source' => trim((string) ($settings['site_publish_last_change_source'] ?? '')),
+        'last_change_source_label' => translatePublishSource(trim((string) ($settings['site_publish_last_change_source'] ?? ''))),
+        'last_change_by' => trim((string) ($settings['site_publish_last_change_by'] ?? '')),
+        'last_message' => $lastMessage,
+        'last_triggered_by' => trim((string) ($settings['site_publish_last_triggered_by'] ?? '')),
+        'last_run_url' => $lastRunUrl,
+        'github_token_configured' => $githubToken !== '',
+        'repository' => GITHUB_PUBLISH_REPO_OWNER . '/' . GITHUB_PUBLISH_REPO_NAME,
+        'workflow' => GITHUB_PUBLISH_WORKFLOW_FILE,
+    ];
+}
+
 function getPageDefaults(): array
 {
     return [
@@ -619,6 +965,79 @@ function getMediaAssetPath(string $fileName): string
     return resolveMediaUploadDir() . DIRECTORY_SEPARATOR . $fileName;
 }
 
+if ($method === 'GET' && $action === 'publish-status') {
+    try {
+        sendJson(buildPublishStatusPayload(true));
+    } catch (Throwable $exception) {
+        sendJson(['error' => $exception->getMessage()], 500);
+    }
+}
+
+if ($method === 'POST' && $action === 'publish') {
+    try {
+        $status = buildPublishStatusPayload(true);
+        if (!$status['github_token_configured']) {
+            sendJson(['error' => 'Brakuje tokenu GitHub do uruchamiania publikacji. Uzupełnij go w ustawieniach panelu.'], 400);
+        }
+
+        if (in_array($status['status'], ['requested', 'running'], true)) {
+            sendJson(['error' => 'Publikacja już trwa albo czeka w kolejce GitHub Actions.'], 409);
+        }
+
+        if (!$status['has_pending_changes']) {
+            sendJson([
+                'message' => 'Brak nowych zmian do publikacji.',
+                'status' => $status,
+            ]);
+        }
+
+        $requestId = bin2hex(random_bytes(12));
+        $requestedAt = gmdate('c');
+        $triggeredBy = trim((string) (($currentUser['email'] ?? '') ?: ($currentUser['id'] ?? 'administrator')));
+        $targetVersion = (int) $status['content_version'];
+        $token = getGithubPublishToken();
+
+        githubApiRequest(
+            'POST',
+            sprintf('https://api.github.com/repos/%s/%s/dispatches', rawurlencode(GITHUB_PUBLISH_REPO_OWNER), rawurlencode(GITHUB_PUBLISH_REPO_NAME)),
+            $token,
+            [
+                'event_type' => GITHUB_PUBLISH_EVENT_TYPE,
+                'client_payload' => [
+                    'request_id' => $requestId,
+                    'target_version' => $targetVersion,
+                    'triggered_by' => $triggeredBy,
+                    'requested_at' => $requestedAt,
+                ],
+            ]
+        );
+
+        saveSettingsMap([
+            'site_publish_status' => 'requested',
+            'site_publish_request_id' => $requestId,
+            'site_publish_requested_version' => (string) $targetVersion,
+            'site_publish_requested_at' => $requestedAt,
+            'site_publish_last_triggered_by' => $triggeredBy,
+            'site_publish_last_message' => 'Publikacja została zlecona do GitHub Actions.',
+            'site_publish_last_run_url' => '',
+        ]);
+
+        logEvent('site_publish_requested', 'Administratorka uruchomiła publikację publicznych treści.', [
+            'user_id' => $currentUser['id'] ?? null,
+            'customer_email' => $currentUser['email'] ?? null,
+            'target_version' => $targetVersion,
+            'request_id' => $requestId,
+        ]);
+
+        sendJson([
+            'message' => 'Publikacja została przekazana do GitHub Actions.',
+            'status' => buildPublishStatusPayload(false),
+        ]);
+    } catch (Throwable $exception) {
+        sendJson(['error' => $exception->getMessage()], 500);
+    }
+}
+
 if ($method === 'GET' && $action === 'products') {
     try {
         $stmt = $db->query("SELECT p.*, CASE WHEN p.type = 'course' AND EXISTS (SELECT 1 FROM courses c JOIN modules m ON m.course_id = c.id JOIN lessons l ON l.module_id = m.id WHERE c.product_id = p.id) THEN 'ready' WHEN p.type = 'course' AND EXISTS (SELECT 1 FROM courses c WHERE c.product_id = p.id) THEN 'needs-lessons' WHEN p.type = 'course' THEN 'missing-course' WHEN COALESCE(TRIM(p.content_url), '') <> '' THEN 'ready' ELSE 'missing-content-url' END AS delivery_status, (SELECT COUNT(*) FROM courses c WHERE c.product_id = p.id) AS course_count, (SELECT COUNT(*) FROM modules m JOIN courses c ON c.id = m.course_id WHERE c.product_id = p.id) AS module_count, (SELECT COUNT(*) FROM lessons l JOIN modules m ON m.id = l.module_id JOIN courses c ON c.id = m.course_id WHERE c.product_id = p.id) AS lesson_count FROM products p WHERE p.type != 'service' ORDER BY p.created_at DESC");
@@ -634,6 +1053,9 @@ if ($method === 'POST' && $action === 'products') {
         $id = bin2hex(random_bytes(16));
         $stmt = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([$id, $data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true)]);
+        if (shouldMarkPublicContentDirtyForProductChange(null, $data)) {
+            markPublicContentDirty('products', (string) ($currentUser['email'] ?? ''));
+        }
         sendJson(['id' => $id, 'message' => 'Produkt utworzony'], 201);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -704,8 +1126,17 @@ if ($method === 'PUT' && $action === 'products') {
     $data = json_decode(file_get_contents('php://input'), true) ?: [];
     $id = (string) ($_GET['id'] ?? '');
     try {
+        $stmtCurrentProduct = $db->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');
+        $stmtCurrentProduct->execute([$id]);
+        $currentProduct = $stmtCurrentProduct->fetch();
+
         $stmt = $db->prepare('UPDATE products SET title = ?, slug = ?, description = ?, short_description = ?, price = ?, promotional_price = ?, promotional_price_until = ?, lowest_price_30_days = ?, stripe_price_id = ?, type = ?, content_url = ?, thumbnail_url = ?, secondary_image_url = ?, duration_label = ?, long_description = ?, benefits_json = ?, faq_json = ?, meta_title = ?, meta_desc = ?, meta_image_url = ?, canonical_url = ?, noindex = ?, is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
         $stmt->execute([$data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true), $id]);
+
+        if (shouldMarkPublicContentDirtyForProductChange(is_array($currentProduct) ? $currentProduct : null, $data)) {
+            markPublicContentDirty('products', (string) ($currentUser['email'] ?? ''));
+        }
+
         sendJson(['message' => 'Produkt zaktualizowany']);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -715,8 +1146,17 @@ if ($method === 'PUT' && $action === 'products') {
 if ($method === 'DELETE' && $action === 'products') {
     $id = (string) ($_GET['id'] ?? '');
     try {
+        $stmtCurrentProduct = $db->prepare('SELECT * FROM products WHERE id = ? LIMIT 1');
+        $stmtCurrentProduct->execute([$id]);
+        $currentProduct = $stmtCurrentProduct->fetch();
+
         $stmt = $db->prepare('DELETE FROM products WHERE id = ?');
         $stmt->execute([$id]);
+
+        if ($stmt->rowCount() > 0 && shouldMarkPublicContentDirtyForProductChange(is_array($currentProduct) ? $currentProduct : null, null)) {
+            markPublicContentDirty('products', (string) ($currentUser['email'] ?? ''));
+        }
+
         sendJson(['message' => 'Produkt usunięty']);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -733,6 +1173,7 @@ if ($method === 'GET' && $action === 'orders') {
             if (!$order) {
                 sendJson(['error' => 'Nie znaleziono zamówienia.'], 404);
             }
+
             sendJson([
                 'order' => $order,
                 'events' => getEventLog(['order_id' => $orderId], 40),
@@ -1082,7 +1523,11 @@ if ($method === 'GET' && $action === 'settings') {
         $rows = $db->query('SELECT key, value FROM settings ORDER BY key ASC')->fetchAll();
         $settings = [];
         foreach ($rows as $row) {
-            $settings[$row['key']] = $row['value'] ?? '';
+            $key = (string) ($row['key'] ?? '');
+            if (!shouldExposeSettingKey($key)) {
+                continue;
+            }
+            $settings[$key] = $row['value'] ?? '';
         }
         sendJson($settings);
     } catch (Exception $e) {
@@ -1093,9 +1538,16 @@ if ($method === 'GET' && $action === 'settings') {
 if ($method === 'POST' && $action === 'settings') {
     $data = json_decode(file_get_contents('php://input'), true) ?: [];
     try {
+        $dirtyPublicContent = publicSettingsChanged($data);
         $stmt = $db->prepare('INSERT INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP');
         foreach ($data as $key => $value) {
-            $stmt->execute([(string) $key, $value == null ? '' : (string) $value]);
+            if (!canWriteSettingKey((string) $key)) {
+                continue;
+            }
+            $stmt->execute([(string) $key, normalizeSettingStoredValue($value)]);
+        }
+        if ($dirtyPublicContent) {
+            markPublicContentDirty('settings', (string) ($currentUser['email'] ?? ''));
         }
         sendJson(['message' => 'Ustawienia zapisane']);
     } catch (Exception $e) {
@@ -1163,6 +1615,7 @@ if ($method === 'PUT' && $action === 'pages') {
         $stmt = $db->prepare('INSERT INTO page_settings (page_key, page_name, slug, title, featured_image_url, meta_title, meta_desc, meta_image_url, canonical_url, noindex, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(page_key) DO UPDATE SET page_name = excluded.page_name, slug = excluded.slug, title = excluded.title, featured_image_url = excluded.featured_image_url, meta_title = excluded.meta_title, meta_desc = excluded.meta_desc, meta_image_url = excluded.meta_image_url, canonical_url = excluded.canonical_url, noindex = excluded.noindex, updated_at = CURRENT_TIMESTAMP');
         $default = $defaults[$pageKey];
         $stmt->execute([$pageKey, $default['page_name'], $pageKey === 'home' ? '' : normalizeSlug((string) ($data['slug'] ?? '')), emptyToNull($data['title'] ?? null) ?: $default['title'], emptyToNull($data['featured_image_url'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false)]);
+        markPublicContentDirty('pages', (string) ($currentUser['email'] ?? ''));
         sendJson(['message' => 'Ustawienia strony zapisane']);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -1355,6 +1808,7 @@ if ($method === 'POST' && $action === 'media-upload') {
         $stmt->execute([$mediaId, $fileName, $_FILES['file']['name'], buildDefaultMediaTitle((string) $_FILES['file']['name']), $mimeType, (int) ($_FILES['file']['size'] ?? 0), $imageSize[0] ?? null, $imageSize[1] ?? null, emptyToNull($_POST['alt_text'] ?? null), $publicUrl]);
         $stmtMedia = $db->prepare('SELECT * FROM media_assets WHERE id = ?');
         $stmtMedia->execute([$mediaId]);
+        markPublicContentDirty('media', (string) ($currentUser['email'] ?? ''));
         sendJson(['message' => 'Plik został dodany do biblioteki mediów.', 'media' => $stmtMedia->fetch()], 201);
     } catch (Exception $e) {
         @unlink($destination);
@@ -1386,6 +1840,7 @@ if ($method === 'PUT' && $action === 'media') {
 
         $stmtMedia = $db->prepare("SELECT * FROM media_assets WHERE id IN ($placeholders) ORDER BY created_at DESC");
         $stmtMedia->execute($existingIds);
+        markPublicContentDirty('media', (string) ($currentUser['email'] ?? ''));
         sendJson(['message' => 'Szczegóły medium zostały zapisane.', 'media' => $stmtMedia->fetchAll()]);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -1415,6 +1870,7 @@ if ($method === 'DELETE' && $action === 'media') {
         foreach ($mediaRows as $media) {
             @unlink(getMediaAssetPath((string) $media['file_name']));
         }
+        markPublicContentDirty('media', (string) ($currentUser['email'] ?? ''));
         sendJson(['message' => count($mediaRows) > 1 ? 'Całe medium zostało usunięte.' : 'Medium zostało usunięte.']);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
