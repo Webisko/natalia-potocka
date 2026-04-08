@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { FileText, Film, Image, Link2, Upload, Volume2, X } from 'lucide-react';
-import { getMediaKind, isDirectAudioUrl, isDirectVideoUrl, isEmbeddableVideoUrl, matchesAllowedMediaKinds } from '../utils/media';
+import { buildMediaAssetGroups, getMediaKind, isDirectAudioUrl, isDirectVideoUrl, isEmbeddableVideoUrl, matchesAllowedMediaKinds } from '../utils/media';
 
 function MediaPreview({ source, title }) {
   const mediaKind = getMediaKind(source);
@@ -103,8 +103,8 @@ export default function AdminMediaPicker({
     }
   }, [value]);
 
-  const filteredAssets = useMemo(
-    () => mediaAssets.filter((asset) => matchesAllowedMediaKinds(asset, allowedKinds)),
+  const filteredGroups = useMemo(
+    () => buildMediaAssetGroups(mediaAssets).filter((group) => matchesAllowedMediaKinds(group.primaryAsset, allowedKinds)),
     [allowedKinds, mediaAssets],
   );
 
@@ -222,9 +222,9 @@ export default function AdminMediaPicker({
       </div>
 
       {isLibraryOpen ? (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-mauve/45 px-4 py-8 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[120] flex items-start justify-center overflow-y-auto bg-mauve/45 px-4 py-6 backdrop-blur-sm md:py-8">
           <div className="absolute inset-0" onClick={() => setIsLibraryOpen(false)} />
-          <div className="relative z-10 max-h-[88vh] w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
+          <div className="relative z-10 my-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
             <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
               <div>
                 <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">Biblioteka</p>
@@ -240,25 +240,27 @@ export default function AdminMediaPicker({
                 <X size={18} />
               </button>
             </div>
-            <div className="max-h-[calc(88vh-92px)] overflow-y-auto px-6 py-6 md:px-8 md:py-8">
+            <div className="max-h-[calc(100vh-152px)] overflow-y-auto px-6 pt-6 pb-10 md:px-8 md:pt-8 md:pb-12">
               {loading ? (
                 <div className="py-8 text-center text-fs-body text-mauve/50">Ładowanie biblioteki mediów...</div>
-              ) : filteredAssets.length === 0 ? (
+              ) : filteredGroups.length === 0 ? (
                 <div className="py-8 text-center text-fs-body text-mauve/50">Brak pasujących plików w bibliotece mediów.</div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {filteredAssets.map((asset) => {
+                <div className="grid gap-4 pb-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredGroups.map((group) => {
+                    const asset = group.primaryAsset;
                     const assetKind = getMediaKind(asset);
+                    const isSelected = group.assets.some((groupAsset) => groupAsset.public_url === value);
 
                     return (
                       <button
-                        key={asset.id}
+                        key={group.id}
                         type="button"
                         onClick={() => {
                           onChange(asset.public_url);
                           setIsLibraryOpen(false);
                         }}
-                        className={`overflow-hidden rounded-2xl border text-left transition ${value === asset.public_url ? 'border-gold shadow-lg shadow-gold/10' : 'border-mauve/10 hover:border-gold/30'}`}
+                        className={`overflow-hidden rounded-2xl border text-left transition ${isSelected ? 'border-gold shadow-lg shadow-gold/10' : 'border-mauve/10 hover:border-gold/30'}`}
                       >
                         <div className="aspect-[16/10] overflow-hidden bg-nude/50">
                           <MediaPreview source={asset.public_url} title={asset.alt_text || asset.original_name} />
@@ -271,7 +273,10 @@ export default function AdminMediaPicker({
                             {assetKind === 'document' ? <FileText size={14} /> : null}
                             <span className="text-fs-label font-bold uppercase tracking-[0.14em]">{assetKind === 'image' ? 'Obraz' : assetKind === 'video' ? 'Wideo' : assetKind === 'audio' ? 'Audio' : assetKind === 'document' ? 'Dokument' : 'Plik'}</span>
                           </div>
-                          <p className="truncate text-fs-ui font-medium text-mauve">{asset.original_name}</p>
+                          <p className="truncate text-fs-ui font-medium text-mauve">{asset.title || asset.original_name}</p>
+                          {group.kind === 'image' && group.assets.length > 1 ? (
+                            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-mauve/45">Warianty: {group.assets.length}</p>
+                          ) : null}
                           <p className="truncate text-fs-ui text-mauve/50">{asset.public_url}</p>
                         </div>
                       </button>

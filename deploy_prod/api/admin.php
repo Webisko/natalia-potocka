@@ -186,6 +186,40 @@ function buildDefaultMediaTitle(?string $value): string
     $normalized = trim(str_replace(['_', '-'], ' ', stripFileExtension((string) $value)));
     return $normalized !== '' ? $normalized : 'Medium';
 }
+function getFaviconAssetCandidates(): array
+{
+    $candidates = [
+        ['path' => __DIR__ . '/../favicon.svg', 'public_url' => '/favicon.svg'],
+        ['path' => __DIR__ . '/../public/favicon.svg', 'public_url' => '/favicon.svg'],
+        ['path' => __DIR__ . '/../favicon.ico', 'public_url' => '/favicon.ico'],
+        ['path' => __DIR__ . '/../public/favicon.ico', 'public_url' => '/favicon.ico'],
+        ['path' => __DIR__ . '/../favicon.png', 'public_url' => '/favicon.png'],
+        ['path' => __DIR__ . '/../public/favicon.png', 'public_url' => '/favicon.png'],
+    ];
+
+    $results = [];
+    $seenUrls = [];
+
+    foreach ($candidates as $candidate) {
+        $resolvedPath = realpath($candidate['path']);
+        if (!$resolvedPath || !is_file($resolvedPath)) {
+            continue;
+        }
+
+        if (in_array($candidate['public_url'], $seenUrls, true)) {
+            continue;
+        }
+
+        $seenUrls[] = $candidate['public_url'];
+        $results[] = [
+            'path' => $resolvedPath,
+            'public_url' => $candidate['public_url'],
+            'file_name' => basename($resolvedPath),
+        ];
+    }
+
+    return $results;
+}
 
 function mapUser(array $user): array
 {
@@ -924,6 +958,57 @@ if ($method === 'DELETE' && $action === 'coupons') {
 if ($method === 'GET' && $action === 'media') {
     try {
         $media = $db->query('SELECT * FROM media_assets ORDER BY created_at DESC')->fetchAll();
+        $existingPublicUrls = [];
+        foreach ($media as $mediaItem) {
+            if (!empty($mediaItem['public_url'])) {
+                $existingPublicUrls[] = (string) $mediaItem['public_url'];
+            }
+        }
+
+        $fallbackMedia = [];
+        foreach (getFaviconAssetCandidates() as $faviconCandidate) {
+            if (in_array($faviconCandidate['public_url'], $existingPublicUrls, true)) {
+                continue;
+            }
+
+            $faviconId = bin2hex(random_bytes(16));
+            $imageSize = @getimagesize($faviconCandidate['path']) ?: [null, null];
+
+            $faviconMedia = null;
+            try {
+                $stmtInsert = $db->prepare('INSERT INTO media_assets (id, file_name, original_name, title, mime_type, size_bytes, width, height, alt_text, public_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
+                $stmtInsert->execute([
+                    $faviconId,
+                    $faviconCandidate['file_name'],
+                    $faviconCandidate['file_name'],
+                    'Favicon strony',
+                    mime_content_type($faviconCandidate['path']) ?: 'image/svg+xml',
+                    (int) (filesize($faviconCandidate['path']) ?: 0),
+                    $imageSize[0] ?? null,
+                    $imageSize[1] ?? null,
+                    'Favicon strony',
+                    $faviconCandidate['public_url'],
+                ]);
+
+                $stmtFavicon = $db->prepare('SELECT * FROM media_assets WHERE id = ?');
+                $stmtFavicon->execute([$faviconId]);
+                $faviconMedia = $stmtFavicon->fetch();
+            } catch (Exception $exception) {
+                $stmtFavicon = $db->prepare('SELECT * FROM media_assets WHERE public_url = ? LIMIT 1');
+                $stmtFavicon->execute([$faviconCandidate['public_url']]);
+                $faviconMedia = $stmtFavicon->fetch();
+            }
+
+            if ($faviconMedia) {
+                $fallbackMedia[] = $faviconMedia;
+                $existingPublicUrls[] = $faviconCandidate['public_url'];
+            }
+        }
+
+        if ($fallbackMedia) {
+            $media = array_merge($fallbackMedia, $media);
+        }
+
         sendJson($media);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -1033,9 +1118,8 @@ if ($method === 'POST' && $action === 'sync-media') {
     }
 
     $images = array_merge(glob($publicImagesDir . '/*.png') ?: [], glob($publicImagesDir . '/*/*.webp') ?: []);
-    $favicon = realpath(__DIR__ . '/../favicon.ico') ?: realpath(__DIR__ . '/../public/favicon.ico');
-    if ($favicon) {
-        $images[] = $favicon;
+    foreach (getFaviconAssetCandidates() as $faviconCandidate) {
+        $images[] = $faviconCandidate['path'];
     }
 
     $added = 0;
@@ -1047,8 +1131,8 @@ if ($method === 'POST' && $action === 'sync-media') {
         // build correct public url
         // Jeśli plik jest w /images/optimized to public_url ma być /images/optimized/nazwa
         $isOptimized = strpos($path, 'optimized') !== false;
-        if ($filename === 'favicon.ico') {
-            $public_url = '/favicon.ico';
+        if (preg_match('/^favicon\.(svg|ico|png)$/i', $filename) === 1) {
+            $public_url = '/' . $filename;
         } elseif ($isOptimized) {
             $public_url = '/images/optimized/' . $filename;
         } else {

@@ -1,46 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { FileText, Film, Image, PlusCircle, Trash2, Volume2 } from 'lucide-react';
-import { getMediaKind, isDirectAudioUrl, isDirectVideoUrl, isEmbeddableVideoUrl } from '../utils/media';
+import { buildMediaAssetGroups, getImageVariantWidth, getMediaKind, isDirectAudioUrl, isDirectVideoUrl, isEmbeddableVideoUrl } from '../utils/media';
 import AdminListCard from './AdminListCard';
 import AdminModalShell from './AdminModalShell';
 
 const FILTER_KINDS = ['image', 'video', 'audio', 'document'];
-
-function getPathname(value) {
-  if (!value) {
-    return '';
-  }
-
-  try {
-    return new URL(value, 'http://localhost').pathname;
-  } catch {
-    return `${value}`.split('?')[0].split('#')[0];
-  }
-}
-
-function stripExtension(value) {
-  return `${value || ''}`.replace(/\.[^.]+$/u, '');
-}
-
-function getImageGroupKey(asset) {
-  const pathname = getPathname(asset?.public_url || asset?.original_name).toLowerCase();
-  const fileName = pathname.split('/').pop() || `${asset?.original_name || asset?.id || 'image'}`.toLowerCase();
-  const baseName = stripExtension(fileName);
-
-  if (pathname.includes('/images/optimized/')) {
-    return baseName.replace(/-\d+$/u, '');
-  }
-
-  return baseName;
-}
-
-function getImageVariantWidth(asset) {
-  const pathname = getPathname(asset?.public_url || asset?.original_name).toLowerCase();
-  const fileName = pathname.split('/').pop() || `${asset?.original_name || ''}`.toLowerCase();
-  const match = stripExtension(fileName).match(/-(\d+)$/u);
-  return match ? Number.parseInt(match[1], 10) : 0;
-}
 
 function formatBytes(value) {
   const size = Number(value || 0);
@@ -57,69 +22,6 @@ function formatBytes(value) {
   }
 
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function buildAssetGroups(assets) {
-  const groupedImages = new Map();
-  const groups = [];
-
-  assets.forEach((asset) => {
-    const kind = getMediaKind(asset);
-
-    if (kind !== 'image') {
-      groups.push({
-        id: `${kind}-${asset.id}`,
-        kind,
-        title: asset.title || asset.original_name,
-        previewAsset: asset,
-        primaryAsset: asset,
-        assets: [asset],
-      });
-      return;
-    }
-
-    const key = getImageGroupKey(asset);
-    const existingGroup = groupedImages.get(key);
-
-    if (existingGroup) {
-      existingGroup.assets.push(asset);
-      return;
-    }
-
-    groupedImages.set(key, {
-      id: `image-${key}`,
-      kind,
-      title: stripExtension(asset.original_name || key),
-      assets: [asset],
-    });
-  });
-
-  groupedImages.forEach((group) => {
-    const sortedAssets = [...group.assets].sort((left, right) => {
-      const leftPath = getPathname(left.public_url).toLowerCase();
-      const rightPath = getPathname(right.public_url).toLowerCase();
-      const leftIsOriginal = !leftPath.includes('/images/optimized/');
-      const rightIsOriginal = !rightPath.includes('/images/optimized/');
-
-      if (leftIsOriginal !== rightIsOriginal) {
-        return leftIsOriginal ? -1 : 1;
-      }
-
-      return getImageVariantWidth(right) - getImageVariantWidth(left);
-    });
-
-    const primaryAsset = sortedAssets[0];
-
-    groups.push({
-      ...group,
-      title: primaryAsset?.title || stripExtension(primaryAsset?.original_name || group.title),
-      previewAsset: primaryAsset,
-      primaryAsset,
-      assets: sortedAssets,
-    });
-  });
-
-  return groups.sort((left, right) => left.title.localeCompare(right.title, 'pl', { sensitivity: 'base' }));
 }
 
 function MediaCardPreview({ asset }) {
@@ -338,7 +240,7 @@ export default function AdminMediaLibraryTab() {
     loadAssets();
   }, []);
 
-  const assetGroups = useMemo(() => buildAssetGroups(assets), [assets]);
+  const assetGroups = useMemo(() => buildMediaAssetGroups(assets), [assets]);
 
   const groupedCounts = useMemo(() => {
     return assetGroups.reduce((accumulator, group) => {
