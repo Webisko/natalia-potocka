@@ -74,6 +74,11 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     $_GET['action'] = 'products';
     require __DIR__ . '/admin.php';
     exit;
+} elseif (preg_match('#^/api/admin/products/([^/]+)/duplicate$#', $path, $matches)) {
+    $_GET['action'] = 'duplicate-product';
+    $_GET['id'] = $matches[1];
+    require __DIR__ . '/admin.php';
+    exit;
 } elseif (preg_match('#^/api/admin/users/([^/]+)$#', $path, $matches)) {
     $_GET['action'] = 'users';
     $_GET['id'] = $matches[1];
@@ -81,6 +86,10 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     exit;
 } elseif (preg_match('#^/api/admin/users/([^/]+)/reset-password-link$#', $path, $matches)) {
     $_GET['action'] = 'user-reset-password-link';
+    $_GET['id'] = $matches[1];
+    require __DIR__ . '/admin.php';
+} elseif (preg_match('#^/api/admin/users/([^/]+)/send-reset-password-email$#', $path, $matches)) {
+    $_GET['action'] = 'user-send-reset-password-email';
     $_GET['id'] = $matches[1];
     require __DIR__ . '/admin.php';
     exit;
@@ -119,6 +128,14 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     $_GET['action'] = 'media';
     require __DIR__ . '/admin.php';
     exit;
+} elseif (preg_match('#^/api/admin/publish-status$#', $path)) {
+    $_GET['action'] = 'publish-status';
+    require __DIR__ . '/admin.php';
+    exit;
+} elseif (preg_match('#^/api/admin/publish$#', $path)) {
+    $_GET['action'] = 'publish';
+    require __DIR__ . '/admin.php';
+    exit;
 } elseif (preg_match('#^/api/admin/sync-media$#', $path)) {
     $_GET['action'] = 'sync-media';
     require __DIR__ . '/admin.php';
@@ -129,6 +146,14 @@ if (preg_match('#^/api/products/([^/]+)$#', $path, $matches)) {
     exit;
 } elseif (preg_match('#^/api/admin/settings$#', $path)) {
     $_GET['action'] = 'settings';
+    require __DIR__ . '/admin.php';
+    exit;
+} elseif (preg_match('#^/api/admin/settings/send-test-email$#', $path)) {
+    $_GET['action'] = 'settings-send-test-email';
+    require __DIR__ . '/admin.php';
+    exit;
+} elseif (preg_match('#^/api/admin/orders-export$#', $path)) {
+    $_GET['action'] = 'orders-export';
     require __DIR__ . '/admin.php';
     exit;
 } elseif (preg_match('#^/api/admin/orders/([^/]+)$#', $path, $matches)) {
