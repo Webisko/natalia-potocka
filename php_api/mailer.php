@@ -1,5 +1,14 @@
 <?php
 
+function mailer_set_last_delivery(array $delivery): void {
+    $GLOBALS['mailer_last_delivery'] = $delivery;
+}
+
+function mailer_get_last_delivery(): array {
+    $delivery = $GLOBALS['mailer_last_delivery'] ?? [];
+    return is_array($delivery) ? $delivery : [];
+}
+
 function mailer_read_setting(string $key): string {
     global $db;
 
@@ -21,6 +30,99 @@ function mailer_detect_host(): string {
     $host = strtolower(trim((string) ($_SERVER['HTTP_HOST'] ?? 'localhost')));
     $host = preg_replace('/:\d+$/', '', $host) ?: 'localhost';
     return $host;
+}
+
+function mailer_is_local_environment(): bool {
+    $host = mailer_detect_host();
+    return in_array($host, ['localhost', '127.0.0.1'], true);
+}
+
+function mailer_can_reach_configured_smtp(): bool {
+    static $result = null;
+
+    if ($result !== null) {
+        return $result;
+    }
+
+    $smtpHost = trim((string) ini_get('SMTP'));
+    $smtpPort = (int) ini_get('smtp_port');
+
+    if ($smtpHost === '' || $smtpPort < 1) {
+        $result = false;
+        return $result;
+    }
+
+    $connection = @fsockopen($smtpHost, $smtpPort, $errorNumber, $errorString, 0.35);
+    if (is_resource($connection)) {
+        fclose($connection);
+        $result = true;
+        return $result;
+    }
+
+    $result = false;
+    return $result;
+}
+
+function mailer_should_use_local_preview(): bool {
+    $smtpHost = strtolower(trim((string) ini_get('SMTP')));
+    return mailer_is_local_environment() && ($smtpHost === '' || $smtpHost === 'localhost' || $smtpHost === '127.0.0.1') && !mailer_can_reach_configured_smtp();
+}
+
+function mailer_local_preview_directory(): string {
+    return dirname(__DIR__) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mail-preview';
+}
+
+function mailer_safe_preview_name(string $value): string {
+    $normalized = strtolower(trim($value));
+    $normalized = preg_replace('/[^a-z0-9]+/i', '-', $normalized) ?: 'message';
+    return trim((string) $normalized, '-') ?: 'message';
+}
+
+function mailer_write_local_preview(string $to, string $subject, string $html, string $plainText, array $headers): ?array {
+    $directory = mailer_local_preview_directory();
+    if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
+        return null;
+    }
+
+    $basename = gmdate('Ymd-His') . '-' . mailer_safe_preview_name($subject) . '-' . substr(bin2hex(random_bytes(4)), 0, 8);
+    $htmlPath = $directory . DIRECTORY_SEPARATOR . $basename . '.html';
+    $jsonPath = $directory . DIRECTORY_SEPARATOR . $basename . '.json';
+
+    $metadata = [
+        'created_at' => gmdate('c'),
+        'mode' => 'local-preview',
+        'to' => $to,
+        'subject' => $subject,
+        'headers' => $headers,
+        'html_path' => $htmlPath,
+        'plain_text' => $plainText,
+    ];
+
+    $htmlSaved = @file_put_contents($htmlPath, $html) !== false;
+    $jsonSaved = @file_put_contents($jsonPath, json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) !== false;
+
+    if (!$htmlSaved || !$jsonSaved) {
+        return null;
+    }
+
+    return [
+        'mode' => 'local-preview',
+        'success' => true,
+        'html_path' => $htmlPath,
+        'json_path' => $jsonPath,
+        'details' => 'Lokalne SMTP nie odpowiada, więc wiadomość została zapisana do podglądu w katalogu data/mail-preview.',
+    ];
+}
+
+function mailer_build_transport_details(): string {
+    $smtpHost = trim((string) ini_get('SMTP'));
+    $smtpPort = trim((string) ini_get('smtp_port'));
+
+    if ($smtpHost !== '' || $smtpPort !== '') {
+        return 'Skonfigurowany transport PHP mail() używa SMTP ' . ($smtpHost !== '' ? $smtpHost : 'brak-host') . ':' . ($smtpPort !== '' ? $smtpPort : 'brak-port') . '.';
+    }
+
+    return 'PHP mail() nie ma kompletnej konfiguracji transportu SMTP.';
 }
 
 function mailer_resolve_sender_email(): string {
@@ -81,6 +183,11 @@ function mailer_plain_text(string $html): string {
 
 function mailer_send_message(string $to, string $subject, string $html, ?string $plainText = null, array $options = []): bool {
     if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+        mailer_set_last_delivery([
+            'mode' => 'validation',
+            'success' => false,
+            'details' => 'Adres odbiorcy nie jest prawidłowym adresem e-mail.',
+        ]);
         error_log('[mailer] Invalid recipient: ' . $to);
         return false;
     }
@@ -112,13 +219,42 @@ function mailer_send_message(string $to, string $subject, string $html, ?string 
     $body[] = '';
     $body[] = '--' . $boundary . '--';
 
+    if (mailer_should_use_local_preview()) {
+        $preview = mailer_write_local_preview($to, $subject, $html, $plainText, $headers);
+        if ($preview !== null) {
+            mailer_set_last_delivery($preview);
+            return true;
+        }
+    }
+
     $sent = @mail($to, mailer_encode_header($subject), implode("\r\n", $body), implode("\r\n", $headers));
 
     if (!$sent) {
+        if (mailer_is_local_environment()) {
+            $preview = mailer_write_local_preview($to, $subject, $html, $plainText, $headers);
+            if ($preview !== null) {
+                $preview['details'] = 'Wywołanie PHP mail() nie powiodło się lokalnie, więc wiadomość została zapisana do podglądu w katalogu data/mail-preview.';
+                mailer_set_last_delivery($preview);
+                return true;
+            }
+        }
+
+        mailer_set_last_delivery([
+            'mode' => 'mail',
+            'success' => false,
+            'details' => mailer_build_transport_details(),
+        ]);
         error_log('[mailer] mail() failed for ' . $to . ' subject=' . $subject);
+        return false;
     }
 
-    return $sent;
+    mailer_set_last_delivery([
+        'mode' => 'mail',
+        'success' => true,
+        'details' => 'Wiadomość została przekazana do systemowego transportu mail().',
+    ]);
+
+    return true;
 }
 
 function mailer_render_button(string $url, string $label): string {
@@ -251,6 +387,33 @@ function mailer_send_email_change_confirmation(string $email, string $confirmUrl
             ['url' => $confirmUrl, 'label' => 'Potwierdź nowy adres'],
         ],
         'footerHtml' => 'Jeśli to nie Ty prosiłaś o zmianę, zignoruj tę wiadomość. Jeśli przycisk nie działa, skopiuj i wklej ten link do przeglądarki:<br>' . mailer_escape($confirmUrl),
+    ]);
+
+    return mailer_send_message($email, $heading, $html);
+}
+
+function mailer_send_admin_test_email(string $email, array $context = []): bool {
+    $heading = 'Testowy e-mail z panelu administratora';
+    $baseUrl = trim((string) ($context['baseUrl'] ?? mailer_detect_base_url()));
+    $notifyEmail = trim((string) ($context['notifyEmail'] ?? mailer_read_setting('notify_email')));
+    $adminEmail = trim((string) ($context['adminEmail'] ?? ''));
+
+    $details = mailer_render_kv_rows([
+        'Adres odbiorczy testu' => $email,
+        'Adres powiadomień marki' => $notifyEmail !== '' ? $notifyEmail : 'Nie ustawiono',
+        'Wywołała administratorka' => $adminEmail !== '' ? $adminEmail : 'Brak danych',
+        'Adres platformy' => $baseUrl,
+    ]);
+
+    $html = mailer_render_layout([
+        'eyebrow' => 'Powiadomienie administracyjne',
+        'preheader' => 'To jest testowa wiadomość wysłana z ustawień panelu.',
+        'heading' => $heading,
+        'intro' => 'Ta wiadomość pozwala sprawdzić aktualny wygląd i podstawową konfigurację maili wysyłanych z platformy.',
+        'bodyHtml' => '<p style="margin:0 0 16px;">Jeśli widzisz tę wiadomość poprawnie, oznacza to, że szablon HTML, nadawca i routing poczty działają w tej konfiguracji. Po zmianach w ustawieniach możesz wysłać kolejną próbkę i porównać efekt.</p>',
+        'detailsHtml' => $details,
+        'actions' => $baseUrl !== '' ? [['url' => $baseUrl, 'label' => 'Otwórz stronę']] : [],
+        'footerHtml' => 'To jest wiadomość testowa wygenerowana ręcznie z panelu administratora. Nie wymaga żadnej odpowiedzi.',
     ]);
 
     return mailer_send_message($email, $heading, $html);

@@ -132,11 +132,12 @@ export const SERVICE_CONTENT = {
         },
       ],
     },
-    benefitsHeading: '3 powody by porozmawiać',
+    benefitsHeading: '4 powody by porozmawiać',
     benefits: [
       { icon: 'heart', title: 'Zero oceniania', desc: 'Każda Twoja decyzja jest dobra, jeśli jest Twoja. Nie narzucam jednej słusznej drogi.' },
       { icon: 'book', title: 'Kompetencje', desc: 'Łączę wiedzę, doświadczenie i realne rozeznanie w tematach ciąży, porodu, połogu i wsparcia emocjonalnego.' },
       { icon: 'calendar', title: 'Pełna elastyczność', desc: 'Spotykamy się online. Jeśli karmisz, potrzebujesz przerwy albo chcesz rozmawiać bez kamery, dostosujemy formę do Ciebie.' },
+      { icon: 'shield', title: 'Pewność', desc: 'Zamiast grzęznąć w sprzecznych radach z internetu, dostajesz rzetelną wiedzę od osoby, która zna realia ciąży i porodu.' },
     ],
     process: {
       heading: 'Jak może wyglądać nasze spotkanie?',
@@ -182,6 +183,8 @@ function mapServiceOffer(slug, content, index) {
     promoActive: false,
     lowest_price_30_days: null,
     thumbnail_url: content.image ? `/${content.image}` : null,
+    meta_desc: content.description || '',
+    meta_image_url: content.image ? `/${content.image}` : null,
     noindex: false,
   };
 }

@@ -7,10 +7,14 @@ import {
   CircleSlash,
   CheckCircle2,
   Clock3,
+  Copy,
+  Download,
   Edit,
   Eye,
   FileText,
+  Mail,
   PlusCircle,
+  Search,
   Settings,
   ShoppingBag,
   Star,
@@ -279,6 +283,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [couponModalState, setCouponModalState] = useState({ isOpen: false, coupon: null });
   const [editingCourse, setEditingCourse] = useState(null);
   const [productModalState, setProductModalState] = useState({ isOpen: false, productId: 'new' });
+  const [userSearch, setUserSearch] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [orderExportMonth, setOrderExportMonth] = useState(() => new Date().toISOString().slice(0, 7));
+  const [secondaryTask, setSecondaryTask] = useState('');
+  const [settingsEmailFeedback, setSettingsEmailFeedback] = useState({ tone: '', message: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -346,6 +356,26 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
     }
   };
 
+  const handleDuplicateProduct = async (product) => {
+    if (!isAdmin || !product?.id) {
+      return;
+    }
+
+    setSecondaryTask(`duplicate:${product.id}`);
+
+    try {
+      const response = await axios.post(`/api/admin/products/${product.id}/duplicate`);
+      const duplicateId = response.data?.product?.id || 'new';
+      await fetchData();
+      setProductModalState({ isOpen: true, productId: duplicateId });
+      alert(response.data?.message || 'Produkt został zduplikowany.');
+    } catch (error) {
+      alert(error.response?.data?.error || 'Nie udało się zduplikować produktu.');
+    } finally {
+      setSecondaryTask('');
+    }
+  };
+
   const handleDeleteUser = async (userRecord) => {
     if (!isAdmin || !window.confirm(`Usunąć konto ${userRecord.email}?`)) {
       return;
@@ -398,6 +428,54 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
     }
   };
 
+  const handleExportOrders = () => {
+    const params = new URLSearchParams();
+
+    if (orderExportMonth) {
+      params.set('month', orderExportMonth);
+    }
+
+    if (orderStatusFilter && orderStatusFilter !== 'all') {
+      params.set('status', orderStatusFilter);
+    }
+
+    if (orderSearch.trim()) {
+      params.set('q', orderSearch.trim());
+    }
+
+    const exportUrl = `/api/admin/orders-export${params.toString() ? `?${params.toString()}` : ''}`;
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleSendTestEmail = async () => {
+    setSecondaryTask('test-email');
+    setSettingsEmailFeedback({ tone: '', message: '' });
+
+    try {
+      const response = await axios.post('/api/admin/settings/send-test-email', {
+        email: settings.notify_email || user?.email || '',
+      });
+      const details = response.data?.delivery?.details ? ` ${response.data.delivery.details}` : '';
+      const previewPath = response.data?.delivery?.html_path ? ` Podgląd HTML: ${response.data.delivery.html_path}` : '';
+      setSettingsEmailFeedback({
+        tone: 'success',
+        message: `${response.data?.message || 'Testowy e-mail został wysłany.'}${details}${previewPath}`.trim(),
+      });
+    } catch (error) {
+      setSettingsEmailFeedback({
+        tone: 'error',
+        message: error.response?.data?.error || 'Nie udało się wysłać testowego e-maila.',
+      });
+    } finally {
+      setSecondaryTask('');
+    }
+  };
+
   const tabs = isAdmin
     ? [
         { id: 'pages', label: 'Strony', icon: <FileText size={18} /> },
@@ -415,6 +493,38 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
         { id: 'reviews', label: 'Opinie', icon: <Star size={18} /> },
         { id: 'users', label: 'Użytkownicy', icon: <Users size={18} /> },
       ];
+
+  const normalizedUserSearch = userSearch.trim().toLowerCase();
+  const filteredUsers = normalizedUserSearch
+    ? users.filter((account) => {
+        const name = `${account.first_name || ''} ${account.last_name || ''}`.trim().toLowerCase();
+        const email = `${account.email || ''}`.trim().toLowerCase();
+        const id = `${account.id || ''}`.trim().toLowerCase();
+        return name.includes(normalizedUserSearch) || email.includes(normalizedUserSearch) || id.includes(normalizedUserSearch);
+      })
+    : users;
+
+  const normalizedOrderSearch = orderSearch.trim().toLowerCase();
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus = orderStatusFilter === 'all' ? true : order.status === orderStatusFilter;
+    if (!matchesStatus) {
+      return false;
+    }
+
+    if (!normalizedOrderSearch) {
+      return true;
+    }
+
+    const orderNumber = `${getOrderNumberLabel(order) || ''}`.toLowerCase();
+    const email = `${order.customer_email || ''}`.toLowerCase();
+    const customer = `${getOrderCustomerName(order) || ''}`.toLowerCase();
+    const productTitle = `${order.product_title || order.product_id || ''}`.toLowerCase();
+
+    return orderNumber.includes(normalizedOrderSearch)
+      || email.includes(normalizedOrderSearch)
+      || customer.includes(normalizedOrderSearch)
+      || productTitle.includes(normalizedOrderSearch);
+  });
 
   return (
     <div className="bg-nude">
@@ -512,6 +622,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                               <div className="flex justify-end gap-2">
                                 <AdminActionIconButton title="Podgląd produktu" onClick={() => openPreviewInNewTab(productPreviewPath)} icon={<Eye size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} />
                                 <AdminActionIconButton title="Edytuj produkt" onClick={() => setProductModalState({ isOpen: true, productId: product.id })} icon={<Edit size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
+                                <AdminActionIconButton title="Duplikuj produkt" onClick={() => handleDuplicateProduct(product)} icon={<Copy size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} disabled={secondaryTask === `duplicate:${product.id}`} />
                                 {product.type === 'course' ? (
                                   <AdminActionIconButton title="Edytuj lekcje" onClick={() => setEditingCourse({ productId: product.id, productTitle: product.title })} icon={<BookOpen size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} />
                                 ) : null}
@@ -542,16 +653,28 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
           {activeTab === 'users' ? (
             <AdminListCard
               title="Lista użytkowników"
-              count={users.length}
+              count={filteredUsers.length}
               description="Twórz i edytuj konta, role oraz dostępy do produktów z jednego widoku."
               action={(
-                <button
-                  type="button"
-                  onClick={() => setUserModalState({ isOpen: true, user: null })}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gold px-6 py-3 text-fs-label font-bold uppercase tracking-widest text-white transition-all hover:scale-[1.02] hover:bg-gold/90 hover:shadow-xl hover:shadow-gold/20"
-                >
-                  <PlusCircle size={18} /> Dodaj użytkownika
-                </button>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                  <label className="relative block min-w-[18rem]">
+                    <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mauve/35" />
+                    <input
+                      type="search"
+                      value={userSearch}
+                      onChange={(event) => setUserSearch(event.target.value)}
+                      placeholder="Szukaj po e-mailu, nazwie lub ID"
+                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setUserModalState({ isOpen: true, user: null })}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gold px-6 py-3 text-fs-label font-bold uppercase tracking-widest text-white transition-all hover:scale-[1.02] hover:bg-gold/90 hover:shadow-xl hover:shadow-gold/20"
+                  >
+                    <PlusCircle size={18} /> Dodaj użytkownika
+                  </button>
+                </div>
               )}
             >
               {loading ? (
@@ -569,7 +692,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
-                      {users.map((account) => {
+                      {filteredUsers.map((account) => {
                         const displayName = [account.first_name, account.last_name].filter(Boolean).join(' ');
                         const purchasedProductsCount = Array.isArray(account.purchased_items) ? account.purchased_items.length : 0;
 
@@ -612,9 +735,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                           </tr>
                         );
                       })}
-                      {users.length === 0 ? (
+                      {filteredUsers.length === 0 ? (
                         <tr>
-                          <td colSpan="5" className="px-8 py-10 text-center italic text-mauve/55">Brak użytkowników do wyświetlenia.</td>
+                          <td colSpan="5" className="px-8 py-10 text-center italic text-mauve/55">Brak użytkowniczek pasujących do wyszukiwania.</td>
                         </tr>
                       ) : null}
                     </tbody>
@@ -625,7 +748,52 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
           ) : null}
 
           {activeTab === 'orders' ? (
-            <AdminListCard title="Lista zamówień" count={orders.length} description="Rejestr transakcji ze Stripe, przelewów tradycyjnych i dostępów nadawanych ręcznie.">
+            <AdminListCard
+              title="Lista zamówień"
+              count={filteredOrders.length}
+              description="Rejestr transakcji ze Stripe, przelewów tradycyjnych i dostępów nadawanych ręcznie."
+              action={(
+                <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+                  <label className="relative block min-w-[18rem]">
+                    <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mauve/35" />
+                    <input
+                      type="search"
+                      value={orderSearch}
+                      onChange={(event) => setOrderSearch(event.target.value)}
+                      placeholder="Szukaj po e-mailu lub numerze"
+                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    />
+                  </label>
+                  <select
+                    value={orderStatusFilter}
+                    onChange={(event) => setOrderStatusFilter(event.target.value)}
+                    className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  >
+                    <option value="all">Wszystkie statusy</option>
+                    <option value="pending_bank_transfer">Oczekujące na przelew</option>
+                    <option value="pending">W trakcie</option>
+                    <option value="manual">Dostęp ręczny</option>
+                    <option value="completed">Opłacone</option>
+                    <option value="failed">Nieopłacone</option>
+                    <option value="refunded">Zwrócone</option>
+                    <option value="cancelled">Anulowane</option>
+                  </select>
+                  <input
+                    type="month"
+                    value={orderExportMonth}
+                    onChange={(event) => setOrderExportMonth(event.target.value)}
+                    className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleExportOrders}
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10"
+                  >
+                    <Download size={16} /> Eksportuj CSV
+                  </button>
+                </div>
+              )}
+            >
               {loading ? (
                 <div className="p-20 text-center text-fs-body text-mauve/50">Ładowanie zamówień...</div>
               ) : (
@@ -642,7 +810,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
-                      {orders.map((order) => {
+                      {filteredOrders.map((order) => {
                         const statusMeta = getOrderStatusMeta(order.status);
 
                         return (
@@ -682,9 +850,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                           </tr>
                         );
                       })}
-                      {orders.length === 0 ? (
+                      {filteredOrders.length === 0 ? (
                         <tr>
-                          <td colSpan="6" className="px-8 py-10 text-center italic text-mauve/55">Brak zamówień do wyświetlenia.</td>
+                          <td colSpan="6" className="px-8 py-10 text-center italic text-mauve/55">Brak zamówień pasujących do wybranych filtrów.</td>
                         </tr>
                       ) : null}
                     </tbody>
@@ -929,6 +1097,28 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Facebook</label>
                       <input value={settings.facebook_url || ''} onChange={(event) => setSettings({ ...settings, facebook_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="https://facebook.com/..." />
+                    </div>
+                    <div className="space-y-3 xl:col-span-2">
+                      <p className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Test szablonów e-mail</p>
+                      <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4">
+                        <p className="text-fs-body leading-7 text-mauve/65">Wyślij testowy e-mail na adres powiadomień, aby sprawdzić aktualny wygląd wiadomości po zmianach w kolorach lub ustawieniach marki.</p>
+                        {settingsEmailFeedback.message ? (
+                          <div className={`mt-4 rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${settingsEmailFeedback.tone === 'error' ? 'border-rose/20 bg-rose/10 text-mauve/80' : 'border-emerald-200 bg-emerald-50/90 text-emerald-800'}`}>
+                            {settingsEmailFeedback.message}
+                          </div>
+                        ) : null}
+                        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <p className="text-fs-ui text-mauve/50">Odbiorca testu: {settings.notify_email || user?.email || 'brak ustawionego adresu'}</p>
+                          <button
+                            type="button"
+                            onClick={handleSendTestEmail}
+                            disabled={secondaryTask === 'test-email'}
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Mail size={16} /> {secondaryTask === 'test-email' ? 'Wysyłanie...' : 'Wyślij testowy e-mail'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </SettingsGroup>

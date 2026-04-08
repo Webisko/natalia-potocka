@@ -6,6 +6,16 @@ const {
   ariaLabel = 'Produkty cyfrowe',
 } = Astro.props;
 
+type CarouselProduct = {
+  slug?: string | null;
+  title?: string | null;
+};
+
+type CarouselItem = {
+  product: CarouselProduct;
+  shape: string;
+};
+
 const blobShapes = [
   '46% 54% 39% 61% / 55% 38% 62% 45%',
   '35% 65% 60% 40% / 37% 65% 35% 63%',
@@ -17,7 +27,7 @@ const blobShapes = [
   '57% 43% 62% 38% / 49% 35% 65% 51%',
 ];
 
-function hashString(value = '') {
+function hashString(value: string = '') {
   let hash = 0;
 
   for (let index = 0; index < value.length; index += 1) {
@@ -27,7 +37,7 @@ function hashString(value = '') {
   return Math.abs(hash);
 }
 
-function resolveShape(key, index, usedIndexes) {
+function resolveShape(key: string, index: number, usedIndexes: Set<number>) {
   const length = blobShapes.length;
   const startIndex = (hashString(key) + index) % length;
 
@@ -44,8 +54,8 @@ function resolveShape(key, index, usedIndexes) {
   return blobShapes[fallbackIndex];
 }
 
-const usedShapeIndexes = new Set();
-const items = products.map((product, index) => ({
+const usedShapeIndexes = new Set<number>();
+const items: CarouselItem[] = (products as CarouselProduct[]).map((product: CarouselProduct, index: number) => ({
   product,
   shape: resolveShape(product.slug || `${product.title || 'product'}-${index}`, index, usedShapeIndexes),
 }));
@@ -67,7 +77,7 @@ const items = products.map((product, index) => ({
       </button>
 
       <div class="product-carousel__track hide-scrollbar" data-carousel-track>
-        {items.map(({ product, shape }) => (
+        {items.map(({ product, shape }: CarouselItem) => (
           <div class="product-carousel__item" data-carousel-item>
             <ProductTeaserCard product={product} shape={shape} />
           </div>

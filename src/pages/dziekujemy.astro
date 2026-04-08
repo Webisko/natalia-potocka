@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BlobArrowIcon from '../components/icons/BlobArrowIcon.astro';
 import { getPagePathByKey } from '../lib/pageSettings.js';
 
 const panelPath = getPagePathByKey('panel') || '/panel';
@@ -56,17 +57,21 @@ const panelPath = getPagePathByKey('panel') || '/panel';
       </div>
 
       <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-        <a
-          href={panelPath}
-          class="inline-flex h-14 items-center justify-center rounded-full bg-gold px-8 text-sm font-bold uppercase tracking-widest text-white shadow-lg shadow-gold/20 transition-all hover:scale-[1.02] hover:bg-gold/90"
-        >
-          Przejdź do panelu klienta
+        <a href={panelPath} class="group relative inline-flex h-[50px] min-w-[16rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">
+            Przejdź do panelu klienta
+          </span>
         </a>
-        <a
-          href="/"
-          class="inline-flex h-14 items-center justify-center rounded-full border border-mauve/15 bg-white/60 px-8 text-sm font-bold uppercase tracking-widest text-mauve/70 transition-all hover:border-mauve/25 hover:text-mauve"
-        >
-          Wróć na stronę główną
+        <a href="/" class="group relative inline-flex h-[50px] min-w-[16rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">
+            Wróć na stronę główną
+          </span>
         </a>
       </div>
     </div>

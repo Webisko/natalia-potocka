@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import { CheckCircle2, Copy, KeyRound, Package, ScrollText, ShieldPlus, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, Copy, KeyRound, Mail, Package, ScrollText, ShieldPlus, ShoppingBag } from 'lucide-react';
 import AdminCheckbox from './AdminCheckbox';
 import AdminModalShell from './AdminModalShell';
 
@@ -107,7 +107,7 @@ export default function AdminUserModal({
   const [detailsLoading, setDetailsLoading] = useState(Boolean(isEditing));
   const [userDetails, setUserDetails] = useState(null);
   const [resetLinkData, setResetLinkData] = useState({ url: '', expiresAt: '', copied: false });
-  const [secondaryActionLoading, setSecondaryActionLoading] = useState(false);
+  const [secondaryActionType, setSecondaryActionType] = useState('');
   const [manualAccessProductId, setManualAccessProductId] = useState('');
 
   const grantableProducts = products.filter((product) => product.type !== 'service');
@@ -204,7 +204,7 @@ export default function AdminUserModal({
       return;
     }
 
-    setSecondaryActionLoading(true);
+    setSecondaryActionType('reset-link');
     setError('');
     setNotice('');
 
@@ -220,7 +220,33 @@ export default function AdminUserModal({
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się wygenerować linku resetu hasła.');
     } finally {
-      setSecondaryActionLoading(false);
+      setSecondaryActionType('');
+    }
+  };
+
+  const handleSendResetEmail = async () => {
+    if (!isEditing || !initialUser?.id) {
+      return;
+    }
+
+    setSecondaryActionType('reset-email');
+    setError('');
+    setNotice('');
+
+    try {
+      const response = await axios.post(`/api/admin/users/${initialUser.id}/send-reset-password-email`);
+      const details = response.data?.delivery?.details ? ` ${response.data.delivery.details}` : '';
+      const previewPath = response.data?.delivery?.html_path ? ` Podgląd HTML: ${response.data.delivery.html_path}` : '';
+      setNotice(`${response.data?.message || 'Wiadomość resetująca została wysłana.'}${details}${previewPath}`.trim());
+      setResetLinkData((prev) => ({
+        ...prev,
+        expiresAt: response.data?.expires_at || prev.expiresAt,
+      }));
+      await fetchDetails(initialUser.id);
+    } catch (requestError) {
+      setError(requestError.response?.data?.error || 'Nie udało się wysłać wiadomości resetującej.');
+    } finally {
+      setSecondaryActionType('');
     }
   };
 
@@ -243,7 +269,7 @@ export default function AdminUserModal({
       return;
     }
 
-    setSecondaryActionLoading(true);
+    setSecondaryActionType('grant-access');
     setError('');
     setNotice('');
 
@@ -264,7 +290,7 @@ export default function AdminUserModal({
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się nadać dostępu ręcznie.');
     } finally {
-      setSecondaryActionLoading(false);
+      setSecondaryActionType('');
     }
   };
 
@@ -501,16 +527,26 @@ export default function AdminUserModal({
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">Reset hasła</p>
-                      <p className="mt-1 text-fs-ui leading-6 text-mauve/55">Wygeneruj link, który możesz od razu przekazać użytkownikowi ręcznie.</p>
+                      <p className="mt-1 text-fs-ui leading-6 text-mauve/55">Wyślij gotowy link resetu hasła na skrzynkę użytkowniczki albo wygeneruj go do ręcznego przekazania.</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleGenerateResetLink}
-                      disabled={secondaryActionLoading}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <KeyRound size={16} /> {secondaryActionLoading ? 'Generowanie...' : 'Link resetu hasła'}
-                    </button>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={handleSendResetEmail}
+                        disabled={Boolean(secondaryActionType)}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-white transition hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Mail size={16} /> {secondaryActionType === 'reset-email' ? 'Wysyłanie...' : 'Wyślij link do resetu'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGenerateResetLink}
+                        disabled={Boolean(secondaryActionType)}
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <KeyRound size={16} /> {secondaryActionType === 'reset-link' ? 'Generowanie...' : 'Wygeneruj link'}
+                      </button>
+                    </div>
                   </div>
 
                   {resetLinkData.url ? (
@@ -608,10 +644,10 @@ export default function AdminUserModal({
                   <button
                     type="button"
                     onClick={handleGrantAccess}
-                    disabled={secondaryActionLoading || !manualAccessProductId}
+                    disabled={Boolean(secondaryActionType) || !manualAccessProductId}
                     className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <ShieldPlus size={16} /> {secondaryActionLoading ? 'Zapisywanie...' : 'Nadaj dostęp'}
+                    <ShieldPlus size={16} /> {secondaryActionType === 'grant-access' ? 'Zapisywanie...' : 'Nadaj dostęp'}
                   </button>
                 </div>
               </div>

@@ -1,0 +1,18 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*",
+    "shared/**/*",
+    "astro.config.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "deploy_prod",
+    "panel-spa",
+    "frontend",
+    "google-ai-studio",
+    "kopa-zapasowa"
+  ]
+}

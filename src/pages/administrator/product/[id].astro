@@ -4,7 +4,7 @@ import AdminProductEditIsland from '../../../components/panel/AdminProductEditIs
 import { getAdminProductIds } from '../../../lib/products.js';
 
 export function getStaticPaths() {
-  return getAdminProductIds().map((id) => ({
+  return getAdminProductIds().map((id: string) => ({
     params: { id },
   }));
 }

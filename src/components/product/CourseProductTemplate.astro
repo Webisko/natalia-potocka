@@ -5,10 +5,21 @@ import RichTextContent from '../RichTextContent.astro';
 import { extractRichTextLead, extractRichTextListItems } from '../../../shared/richText.js';
 import OptimizedImage from '../OptimizedImage.astro';
 
+type CourseLesson = {
+  title?: string;
+  lesson_type?: string | null;
+  duration_minutes?: number | null;
+};
+
+type CourseModule = {
+  title?: string;
+  lessons?: CourseLesson[];
+};
+
 const { product } = Astro.props;
 const course = getCourseByProductId(product.id);
-const modules = course?.modules || [];
-const totalLessons = modules.reduce((sum, module) => sum + (module.lessons?.length || 0), 0);
+const modules: CourseModule[] = Array.isArray(course?.modules) ? course.modules : [];
+const totalLessons = modules.reduce((sum: number, module: CourseModule) => sum + (module.lessons?.length || 0), 0);
 const learningPoints = extractRichTextListItems(product.description);
 const leadText = extractRichTextLead(product.description) || 'Kompleksowy program, który poprowadzi Cię krok po kroku.';
 const secondaryImage = product.secondary_image_url || null;
@@ -87,7 +98,7 @@ const secondaryImage = product.secondary_image_url || null;
           <div class="mb-16">
             <h2 class="mb-8 font-serif text-2xl text-mauve md:text-3xl">Program kursu</h2>
             <div class="space-y-3">
-              {modules.map((module) => (
+              {modules.map((module: CourseModule) => (
                 <details class="overflow-hidden rounded-2xl border border-mauve/10 bg-white/60">
                   <summary class="flex cursor-pointer list-none items-center justify-between p-5 text-left hover:bg-white/80">
                     <div class="flex items-center gap-4">
@@ -100,7 +111,7 @@ const secondaryImage = product.secondary_image_url || null;
                     <span class="text-mauve/40">⌄</span>
                   </summary>
                   <div class="divide-y divide-mauve/5">
-                    {(module.lessons || []).map((lesson) => (
+                    {(module.lessons || []).map((lesson: CourseLesson) => (
                       <div class="flex items-center gap-4 bg-white/30 px-5 py-3">
                         <span class="text-sm text-gold">{lesson.lesson_type === 'audio' ? '♪' : lesson.lesson_type === 'text' ? '≡' : '▶'}</span>
                         <span class="flex-1 text-base leading-7 text-mauve/70">{lesson.title}</span>

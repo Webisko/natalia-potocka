@@ -69,6 +69,12 @@ if (preg_match('#^/api/admin/products/([^/]+)$#', $path, $matches)) {
     require __DIR__ . '/php_api/admin.php';
     exit;
 }
+if (preg_match('#^/api/admin/products/([^/]+)/duplicate$#', $path, $matches)) {
+    $_GET['action'] = 'duplicate-product';
+    $_GET['id'] = $matches[1];
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
 if (preg_match('#^/api/admin/products/?$#', $path)) {
     $_GET['action'] = 'products';
     require __DIR__ . '/php_api/admin.php';
@@ -82,6 +88,12 @@ if (preg_match('#^/api/admin/users/([^/]+)$#', $path, $matches)) {
 }
 if (preg_match('#^/api/admin/users/([^/]+)/reset-password-link$#', $path, $matches)) {
     $_GET['action'] = 'user-reset-password-link';
+    $_GET['id'] = $matches[1];
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
+if (preg_match('#^/api/admin/users/([^/]+)/send-reset-password-email$#', $path, $matches)) {
+    $_GET['action'] = 'user-send-reset-password-email';
     $_GET['id'] = $matches[1];
     require __DIR__ . '/php_api/admin.php';
     exit;
@@ -136,6 +148,16 @@ if (preg_match('#^/api/admin/grant-access$#', $path)) {
 }
 if (preg_match('#^/api/admin/settings$#', $path)) {
     $_GET['action'] = 'settings';
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
+if (preg_match('#^/api/admin/settings/send-test-email$#', $path)) {
+    $_GET['action'] = 'settings-send-test-email';
+    require __DIR__ . '/php_api/admin.php';
+    exit;
+}
+if (preg_match('#^/api/admin/orders-export$#', $path)) {
+    $_GET['action'] = 'orders-export';
     require __DIR__ . '/php_api/admin.php';
     exit;
 }

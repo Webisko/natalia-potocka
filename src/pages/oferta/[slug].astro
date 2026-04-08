@@ -8,8 +8,15 @@ import { getPagePathByKey, getServiceLandingPageSettingsBySlug } from '../../lib
 import { buildFaqSchema, buildProductSchema } from '../../lib/structuredData.js';
 import { getServiceOfferBySlug, getServiceOffers, SERVICE_CONTENT } from '../../lib/serviceContent.js';
 
+type FaqItem = {
+  q: string;
+  a: string;
+};
+
+type ServiceContentSlug = keyof typeof SERVICE_CONTENT;
+
 export function getStaticPaths() {
-  return [...getPublishedProducts(), ...getServiceOffers()].map((product) => ({
+  return [...getPublishedProducts(), ...getServiceOffers()].map((product: { slug: string }) => ({
     params: { slug: product.slug },
   }));
 }
@@ -34,9 +41,11 @@ const breadcrumbItems = [
   { name: 'Oferta', href: offerPagePath },
   { name: servicePage?.title || product.title, href: productPath },
 ];
-const serviceFaq = product.type === 'service' ? SERVICE_CONTENT[product.slug]?.faq || [] : [];
+const serviceFaq = product.type === 'service' && product.slug in SERVICE_CONTENT
+  ? SERVICE_CONTENT[product.slug as ServiceContentSlug]?.faq || []
+  : [];
 const digitalFaq = product.type !== 'service' && Array.isArray(product.faq_json)
-  ? product.faq_json.filter((item) => item?.q && item?.a)
+  ? product.faq_json.filter((item: FaqItem | null | undefined): item is FaqItem => Boolean(item?.q && item?.a))
   : [];
 const productSchema = buildProductSchema({
   product,

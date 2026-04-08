@@ -1,12 +1,11 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
 import { SITE_URL } from './shared/siteConfig.js';
 
 export default defineConfig({
   output: 'static',
   site: SITE_URL,
-  integrations: [tailwind(), react()],
+  integrations: [react()],
   vite: {
     server: {
       proxy: {

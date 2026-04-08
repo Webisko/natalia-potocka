@@ -3,8 +3,20 @@ import BlobArrowIcon from '../icons/BlobArrowIcon.astro';
 import { formatPrice, getProductKindLabel } from '../../lib/products.js';
 import OptimizedImage from '../OptimizedImage.astro';
 
-const serviceProducts = Astro.props.serviceProducts || [];
-const digitalProducts = Astro.props.digitalProducts || [];
+type OfferProduct = {
+  slug: string;
+  title: string;
+  description?: string;
+  excerpt?: string;
+  type?: string;
+  price?: number;
+  currentPrice?: number;
+  promoActive?: boolean;
+  thumbnail_url?: string;
+};
+
+const serviceProducts = (Astro.props.serviceProducts || []) as OfferProduct[];
+const digitalProducts = (Astro.props.digitalProducts || []) as OfferProduct[];
 const featuredImageSrc = Astro.props.featuredImageSrc || '/images/hero_doula.png';
 const contactPath = Astro.props.contactPath || '/kontakt';
 ---
@@ -36,7 +48,7 @@ const contactPath = Astro.props.contactPath || '/kontakt';
             <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
               <BlobArrowIcon />
             </span>
-            <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Konsultacje i terapia</span>
+            <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Konsultacje i terapia</span>
           </a>
           <a href="#oferta-cyfrowa" class="text-fs-label inline-flex h-12 items-center justify-center rounded-full border border-mauve/15 bg-white/70 px-6 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Webinary i medytacja</a>
         </div>
@@ -78,7 +90,7 @@ const contactPath = Astro.props.contactPath || '/kontakt';
       </div>
 
       <div class="mt-12 grid gap-8 lg:grid-cols-2">
-        {serviceProducts.map((product, index) => (
+        {serviceProducts.map((product: OfferProduct, index: number) => (
           <article class="offer-card group isolate relative">
             <div class="offer-blob absolute inset-0 -z-10 bg-white shadow-xl shadow-rose/10 transition-all duration-700 ease-in-out group-hover:!rounded-[30px] group-hover:scale-[1.02] group-hover:shadow-xl" style={index % 2 === 0 ? 'border-radius: 63% 37% 39% 61% / 48% 66% 34% 52%;' : 'border-radius: 36% 64% 56% 44% / 63% 47% 53% 37%;'}>
               <div class="absolute inset-0 rounded-[inherit] border-2 border-transparent transition-colors duration-500 group-hover:!rounded-[30px] group-hover:border-rose/10"></div>
@@ -97,7 +109,7 @@ const contactPath = Astro.props.contactPath || '/kontakt';
                   <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
                     <BlobArrowIcon />
                   </span>
-                  <span class="text-fs-ui relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz szczegóły</span>
+                  <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz szczegóły</span>
                 </a>
               </div>
             </div>
@@ -116,7 +128,7 @@ const contactPath = Astro.props.contactPath || '/kontakt';
       </div>
 
       <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {digitalProducts.map((product) => (
+        {digitalProducts.map((product: OfferProduct) => (
           <article class="group overflow-hidden rounded-[30px] border border-white/80 bg-white/85 shadow-soft backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             <a href={`/oferta/${product.slug}`} class="block">
               <div class="relative aspect-[4/3] overflow-hidden bg-blush/30">

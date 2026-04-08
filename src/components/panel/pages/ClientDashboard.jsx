@@ -615,77 +615,42 @@ export default function ClientDashboard() {
         <h1 className="font-serif text-fs-title-md text-mauve">Hej, {getUserDisplayName(user)}!</h1>
 
         <div className="mt-10">
-          {ordersError ? (
-            <div className="mb-8 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body leading-relaxed text-mauve/80">
-              {ordersError}
-            </div>
-          ) : null}
-
-          <section className="mb-16">
-            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <h2 className="flex items-center gap-3 font-serif text-fs-title-sm text-mauve">
-                  <ShoppingBag size={20} className="text-gold" /> Historia zakupów
-                </h2>
-                <p className="mt-2 max-w-2xl text-fs-body leading-relaxed text-mauve/60">W tym miejscu widać wszystkie zamówienia przypisane do Twojego adresu e-mail, razem ze statusem płatności i numerem zamówienia.</p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
-                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zamówienia</p>
-                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{orders.length}</p>
-                </div>
-                <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
-                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Dostępne materiały</p>
-                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{library.length}</p>
-                </div>
-              </div>
-            </div>
-
-            {orders.length > 0 ? (
-              <div className="grid gap-5 lg:grid-cols-2">
-                {orders.map((order) => (
-                  <article key={order.id} className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[0_18px_55px_rgba(67,56,70,0.06)]">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                      <div>
-                        <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">{order.order_number || 'Zamówienie'}</p>
-                        <h3 className="mt-3 font-serif text-fs-body-lg text-mauve">{order.product_title || 'Produkt'}</h3>
-                        <p className="mt-2 text-fs-body text-mauve/60">{formatDateTime(order.created_at)}</p>
-                        {order.product_slug ? (
-                          <a href={`/oferta/${order.product_slug}`} className="mt-3 inline-flex text-fs-ui font-medium text-terracotta transition hover:text-gold">
-                            Zobacz stronę produktu
-                          </a>
-                        ) : null}
-                      </div>
-
-                      <div className="flex flex-col gap-2 md:items-end">
-                        <span className="inline-flex items-center rounded-full bg-nude px-3 py-1.5 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55">
-                          {renderOrderStatus(order.status)}
-                        </span>
-                        <p className="text-fs-body font-medium text-mauve">{formatCurrency(order.amount_total)}</p>
-                        <p className="text-fs-ui text-mauve/50">{renderPaymentMethod(order.payment_method)}</p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-white/80 bg-white/40 py-16 text-center">
-                <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />
-                <h3 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Historia zakupów jest jeszcze pusta</h3>
-                <p className="text-fs-body text-mauve/55">Po pierwszym zakupie numer i status zamówienia pojawią się właśnie tutaj.</p>
-            </div>
-            )}
-          </section>
-
           {library.length === 0 ? (
-            <div className="rounded-3xl border border-white/80 bg-white/40 py-20 text-center">
-              <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />
-              <h2 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Twoja biblioteka jest pusta</h2>
-              <p className="mb-8 text-fs-body text-mauve/55">Odkryj ofertę i wróć tutaj po zakupie materiałów.</p>
-              <div className="flex justify-center">
-                <PanelBlobButton href="/" minWidthClassName="min-w-[11.5rem]">Przejrzyj ofertę</PanelBlobButton>
+            <section className="mb-16">
+              <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h2 className="flex items-center gap-3 font-serif text-fs-title-sm text-mauve">
+                    <BookOpen size={18} className="text-gold" /> Biblioteka materiałów
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-fs-body leading-relaxed text-mauve/60">Tutaj znajdziesz wszystkie kursy, webinary i materiały cyfrowe dostępne na Twoim koncie.</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
+                    <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Dostępne materiały</p>
+                    <p className="mt-2 font-serif text-fs-title-sm text-mauve">{library.length}</p>
+                  </div>
+                  <div className="rounded-[28px] border border-white/80 bg-white/60 px-5 py-4 text-fs-ui text-mauve/70">
+                    <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zamówienia</p>
+                    <p className="mt-2 font-serif text-fs-title-sm text-mauve">{orders.length}</p>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {libraryError ? (
+                <div className="mb-8 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body leading-relaxed text-mauve/80">
+                  {libraryError}
+                </div>
+              ) : null}
+
+              <div className="rounded-3xl border border-white/80 bg-white/40 py-20 text-center">
+                <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />
+                <h2 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Twoja biblioteka jest pusta</h2>
+                <p className="mb-8 text-fs-body text-mauve/55">Odkryj ofertę i wróć tutaj po zakupie materiałów.</p>
+                <div className="flex justify-center">
+                  <PanelBlobButton href="/" minWidthClassName="min-w-[11.5rem]">Przejrzyj ofertę</PanelBlobButton>
+                </div>
+              </div>
+            </section>
           ) : (
             <>
               {libraryError ? (
@@ -743,7 +708,7 @@ export default function ClientDashboard() {
               ) : null}
 
               {digitals.length > 0 ? (
-                <section>
+                <section className="mb-16">
                   <div className="mb-8">
                     <h2 className="flex items-center gap-3 font-serif text-fs-title-sm text-mauve">
                       <PlayCircle size={20} className="text-gold" /> Webinary i medytacje
@@ -758,6 +723,58 @@ export default function ClientDashboard() {
               {activeDigital ? <DigitalProductViewer item={activeDigital} onClose={() => setActiveDigital(null)} /> : null}
             </>
           )}
+
+          {ordersError ? (
+            <div className="mb-8 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-body leading-relaxed text-mauve/80">
+              {ordersError}
+            </div>
+          ) : null}
+
+          <section className="mb-16">
+            <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="flex items-center gap-3 font-serif text-fs-title-sm text-mauve">
+                  <ShoppingBag size={20} className="text-gold" /> Historia zakupów
+                </h2>
+                <p className="mt-2 max-w-2xl text-fs-body leading-relaxed text-mauve/60">W tym miejscu widać wszystkie zamówienia przypisane do Twojego adresu e-mail, razem ze statusem płatności i numerem zamówienia.</p>
+              </div>
+            </div>
+
+            {orders.length > 0 ? (
+              <div className="grid gap-5 lg:grid-cols-2">
+                {orders.map((order) => (
+                  <article key={order.id} className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[0_18px_55px_rgba(67,56,70,0.06)]">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">{order.order_number || 'Zamówienie'}</p>
+                        <h3 className="mt-3 font-serif text-fs-body-lg text-mauve">{order.product_title || 'Produkt'}</h3>
+                        <p className="mt-2 text-fs-body text-mauve/60">{formatDateTime(order.created_at)}</p>
+                        {order.product_slug ? (
+                          <a href={`/oferta/${order.product_slug}`} className="mt-3 inline-flex text-fs-ui font-medium text-terracotta transition hover:text-gold">
+                            Zobacz stronę produktu
+                          </a>
+                        ) : null}
+                      </div>
+
+                      <div className="flex flex-col gap-2 md:items-end">
+                        <span className="inline-flex items-center rounded-full bg-nude px-3 py-1.5 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55">
+                          {renderOrderStatus(order.status)}
+                        </span>
+                        <p className="text-fs-body font-medium text-mauve">{formatCurrency(order.amount_total)}</p>
+                        <p className="text-fs-ui text-mauve/50">{renderPaymentMethod(order.payment_method)}</p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/80 bg-white/40 py-16 text-center">
+                <ShoppingBag size={48} className="mx-auto mb-6 text-mauve/15" />
+                <h3 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Historia zakupów jest jeszcze pusta</h3>
+                <p className="text-fs-body text-mauve/55">Po pierwszym zakupie numer i status zamówienia pojawią się właśnie tutaj.</p>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </div>

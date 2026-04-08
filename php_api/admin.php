@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/authMiddleware.php';
+require_once __DIR__ . '/mailer.php';
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? '';
@@ -384,6 +385,162 @@ function buildBaseUrl(): string
     return ($isHttps ? 'https://' : 'http://') . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 }
 
+function buildDuplicateProductTitle(string $title): string
+{
+    $normalized = trim($title);
+    if ($normalized === '') {
+        return 'Nowy produkt (kopia)';
+    }
+
+    if (preg_match('/\(kopia(?:\s+\d+)?\)$/ui', $normalized)) {
+        return $normalized;
+    }
+
+    return $normalized . ' (kopia)';
+}
+
+function buildUniqueProductSlug(string $seedSlug): string
+{
+    global $db;
+
+    $baseSlug = normalizeSlug($seedSlug);
+    if ($baseSlug === '') {
+        $baseSlug = 'produkt-kopia';
+    }
+
+    $candidate = $baseSlug;
+    $suffix = 2;
+    $stmt = $db->prepare('SELECT 1 FROM products WHERE slug = ? LIMIT 1');
+
+    while (true) {
+        $stmt->execute([$candidate]);
+        if (!$stmt->fetchColumn()) {
+            return $candidate;
+        }
+
+        $candidate = $baseSlug . '-' . $suffix;
+        $suffix++;
+    }
+}
+
+function parseOrderSearchTerm(?string $value): string
+{
+    return mb_strtolower(trim((string) $value), 'UTF-8');
+}
+
+function translateOrderStatus(string $status): string
+{
+    if ($status === 'completed') {
+        return 'Opłacone';
+    }
+    if ($status === 'pending_bank_transfer') {
+        return 'Oczekujące na przelew';
+    }
+    if ($status === 'manual') {
+        return 'Dostęp ręczny';
+    }
+    if ($status === 'pending') {
+        return 'W trakcie';
+    }
+    if ($status === 'failed') {
+        return 'Nieopłacone';
+    }
+    if ($status === 'refunded') {
+        return 'Zwrócone';
+    }
+    if ($status === 'cancelled') {
+        return 'Anulowane';
+    }
+
+    return $status;
+}
+
+function translatePaymentMethod(?string $method): string
+{
+    if ($method === 'stripe') {
+        return 'Stripe';
+    }
+    if ($method === 'bank_transfer') {
+        return 'Przelew tradycyjny';
+    }
+    if ($method === 'manual') {
+        return 'Dostęp ręczny';
+    }
+
+    return (string) ($method ?? '');
+}
+
+function fetchOrdersForExport(?string $monthFilter, ?string $statusFilter, ?string $searchTerm): array
+{
+    global $db;
+
+    $conditions = [];
+    $params = [];
+
+    if ($monthFilter && preg_match('/^\d{4}-\d{2}$/', $monthFilter)) {
+        $conditions[] = "strftime('%Y-%m', orders.created_at) = ?";
+        $params[] = $monthFilter;
+    }
+
+    if ($statusFilter && $statusFilter !== 'all') {
+        $conditions[] = 'orders.status = ?';
+        $params[] = $statusFilter;
+    }
+
+    $normalizedSearch = parseOrderSearchTerm($searchTerm);
+    if ($normalizedSearch !== '') {
+        $conditions[] = '(lower(COALESCE(orders.order_number, \"\")) LIKE ? OR lower(COALESCE(orders.customer_email, \"\")) LIKE ? OR lower(COALESCE(orders.product_title, products.title, \"\")) LIKE ?)';
+        $likeTerm = '%' . $normalizedSearch . '%';
+        $params[] = $likeTerm;
+        $params[] = $likeTerm;
+        $params[] = $likeTerm;
+    }
+
+    $whereSql = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
+    $sql = 'SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) ' . $whereSql . ' ORDER BY orders.created_at DESC';
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll();
+}
+
+function streamOrdersCsv(array $orders, string $fileName): void
+{
+    header_remove('Content-Type');
+    http_response_code(200);
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $fileName . '"');
+
+    $output = fopen('php://output', 'wb');
+    if ($output === false) {
+        sendJson(['error' => 'Nie udało się przygotować eksportu CSV.'], 500);
+    }
+
+    fwrite($output, "\xEF\xBB\xBF");
+    fputcsv($output, ['Data', 'Numer zamówienia', 'E-mail', 'Imię', 'Nazwisko', 'Produkt', 'Slug produktu', 'Kwota', 'Status', 'Metoda płatności', 'Kupon', 'ID zamówienia'], ';');
+
+    foreach ($orders as $order) {
+        fputcsv($output, [
+            (string) ($order['created_at'] ?? ''),
+            (string) (($order['order_number'] ?? '') ?: ($order['id'] ?? '')),
+            (string) ($order['customer_email'] ?? ''),
+            (string) ($order['customer_first_name'] ?? ''),
+            (string) ($order['customer_last_name'] ?? ''),
+            (string) ($order['product_title'] ?? ''),
+            (string) ($order['product_slug'] ?? ''),
+            number_format((float) ($order['amount_total'] ?? 0), 2, '.', ''),
+            translateOrderStatus((string) ($order['status'] ?? '')),
+            translatePaymentMethod($order['payment_method'] ?? null),
+            (string) ($order['applied_coupon_code'] ?? ''),
+            (string) ($order['id'] ?? ''),
+        ], ';');
+    }
+
+    fclose($output);
+    exit;
+}
+
 function validateUserPayload(array $payload, bool $partial = false): ?string
 {
     $email = strtolower(trim((string) ($payload['email'] ?? '')));
@@ -483,6 +640,66 @@ if ($method === 'POST' && $action === 'products') {
     }
 }
 
+if ($method === 'POST' && $action === 'duplicate-product') {
+    $id = (string) ($_GET['id'] ?? '');
+
+    try {
+        $stmtProduct = $db->prepare('SELECT * FROM products WHERE id = ?');
+        $stmtProduct->execute([$id]);
+        $product = $stmtProduct->fetch();
+
+        if (!$product) {
+            sendJson(['error' => 'Nie znaleziono produktu do zduplikowania.'], 404);
+        }
+
+        $duplicateId = bin2hex(random_bytes(16));
+        $duplicateTitle = buildDuplicateProductTitle((string) ($product['title'] ?? ''));
+        $duplicateSlug = buildUniqueProductSlug(((string) ($product['slug'] ?? '')) . '-kopia');
+
+        $stmtInsert = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmtInsert->execute([
+            $duplicateId,
+            $duplicateTitle,
+            $duplicateSlug,
+            $product['description'] ?? null,
+            $product['short_description'] ?? null,
+            $product['price'] ?? 0,
+            $product['promotional_price'] ?? null,
+            $product['promotional_price_until'] ?? null,
+            $product['lowest_price_30_days'] ?? null,
+            $product['stripe_price_id'] ?? null,
+            $product['type'] ?? 'video',
+            $product['content_url'] ?? null,
+            $product['thumbnail_url'] ?? null,
+            $product['secondary_image_url'] ?? null,
+            $product['duration_label'] ?? null,
+            $product['long_description'] ?? null,
+            $product['benefits_json'] ?? null,
+            $product['faq_json'] ?? null,
+            $product['meta_title'] ?? null,
+            $product['meta_desc'] ?? null,
+            $product['meta_image_url'] ?? null,
+            $product['canonical_url'] ?? null,
+            parseBooleanFlag($product['noindex'] ?? false),
+            0,
+        ]);
+
+        logEvent('product_duplicated', 'Administratorka zduplikowała produkt.', [
+            'user_id' => $currentUser['id'] ?? null,
+            'source_product_id' => $id,
+            'duplicate_product_id' => $duplicateId,
+            'duplicate_slug' => $duplicateSlug,
+        ]);
+
+        sendJson([
+            'message' => 'Produkt został zduplikowany jako szkic nieopublikowany.',
+            'product' => mapProduct((array) $db->query("SELECT * FROM products WHERE id = '" . $duplicateId . "'")->fetch()),
+        ], 201);
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
+}
+
 if ($method === 'PUT' && $action === 'products') {
     $data = json_decode(file_get_contents('php://input'), true) ?: [];
     $id = (string) ($_GET['id'] ?? '');
@@ -524,6 +741,19 @@ if ($method === 'GET' && $action === 'orders') {
 
         $stmt = $db->query('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) ORDER BY orders.created_at DESC');
         sendJson($stmt->fetchAll());
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
+}
+
+if ($method === 'GET' && $action === 'orders-export') {
+    try {
+        $month = trim((string) ($_GET['month'] ?? ''));
+        $status = trim((string) ($_GET['status'] ?? ''));
+        $search = trim((string) ($_GET['q'] ?? ''));
+        $orders = fetchOrdersForExport($month !== '' ? $month : null, $status !== '' ? $status : null, $search !== '' ? $search : null);
+        $fileName = 'zamowienia-' . ($month !== '' ? $month : 'wszystkie') . '.csv';
+        streamOrdersCsv($orders, $fileName);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
@@ -661,6 +891,51 @@ if ($method === 'POST' && $action === 'user-reset-password-link') {
             'message' => 'Link resetu hasła został wygenerowany.',
             'reset_url' => buildBaseUrl() . '/resetowanie-hasla?token=' . $resetToken,
             'expires_at' => $expiresAt,
+        ]);
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
+}
+
+if ($method === 'POST' && $action === 'user-send-reset-password-email') {
+    $userId = (string) ($_GET['id'] ?? '');
+    $user = requireUserRecord($userId);
+    if (empty($user['email'])) {
+        sendJson(['error' => 'Użytkowniczka nie ma przypisanego adresu e-mail.'], 400);
+    }
+
+    try {
+        $resetToken = bin2hex(random_bytes(32));
+        $expiresAt = gmdate('c', time() + 3600);
+        $resetUrl = buildBaseUrl() . '/resetowanie-hasla?token=' . $resetToken;
+
+        $stmt = $db->prepare('UPDATE users SET reset_token = ?, reset_expires = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute([$resetToken, $expiresAt, $userId]);
+
+        $sent = mailer_send_password_reset((string) $user['email'], $resetUrl, [
+            'firstName' => (string) ($user['first_name'] ?? ''),
+        ]);
+        $delivery = mailer_get_last_delivery();
+
+        if (!$sent) {
+            $details = trim((string) ($delivery['details'] ?? ''));
+            $error = 'Nie udało się wysłać wiadomości resetującej.' . ($details !== '' ? ' ' . $details : '');
+            sendJson(['error' => $error, 'delivery' => $delivery], 500);
+        }
+
+        logEvent('admin_reset_email_sent', 'Administratorka wysłała wiadomość resetu hasła.', [
+            'user_id' => $userId,
+            'customer_email' => $user['email'] ?? null,
+            'generated_by' => $currentUser['id'] ?? null,
+            'reset_expires' => $expiresAt,
+        ]);
+
+        sendJson([
+            'message' => ($delivery['mode'] ?? '') === 'local-preview'
+                ? 'Wiadomość z linkiem do resetu hasła została zapisana lokalnie do podglądu.'
+                : 'Wiadomość z linkiem do resetu hasła została wysłana.',
+            'expires_at' => $expiresAt,
+            'delivery' => $delivery,
         ]);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
@@ -826,6 +1101,45 @@ if ($method === 'POST' && $action === 'settings') {
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
+}
+
+if ($method === 'POST' && $action === 'settings-send-test-email') {
+    $data = json_decode(file_get_contents('php://input'), true) ?: [];
+    $recipient = trim((string) ($data['email'] ?? ''));
+
+    if ($recipient === '') {
+        $recipient = trim((string) ($currentUser['email'] ?? ''));
+    }
+
+    if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+        sendJson(['error' => 'Brakuje prawidłowego adresu e-mail do testu.'], 400);
+    }
+
+    $sent = mailer_send_admin_test_email($recipient, [
+        'adminEmail' => (string) ($currentUser['email'] ?? ''),
+        'notifyEmail' => mailer_read_setting('notify_email'),
+        'baseUrl' => buildBaseUrl(),
+    ]);
+    $delivery = mailer_get_last_delivery();
+
+    if (!$sent) {
+        $details = trim((string) ($delivery['details'] ?? ''));
+        $error = 'Nie udało się wysłać testowego e-maila.' . ($details !== '' ? ' ' . $details : '');
+        sendJson(['error' => $error, 'delivery' => $delivery], 500);
+    }
+
+    logEvent('test_email_sent', 'Administratorka wysłała testową wiadomość e-mail.', [
+        'user_id' => $currentUser['id'] ?? null,
+        'customer_email' => $recipient,
+    ]);
+
+    sendJson([
+        'message' => ($delivery['mode'] ?? '') === 'local-preview'
+            ? 'Testowy e-mail został zapisany lokalnie do podglądu.'
+            : 'Testowy e-mail został wysłany.',
+        'recipient' => $recipient,
+        'delivery' => $delivery,
+    ]);
 }
 
 if ($method === 'GET' && $action === 'pages') {

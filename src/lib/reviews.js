@@ -1,9 +1,7 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = path.resolve(currentDir, '../../data/database.sqlite');
+const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
 
 const FALLBACK_REVIEWS = [
   {
@@ -30,13 +28,15 @@ const FALLBACK_REVIEWS = [
 ];
 
 function withDb(callback) {
-  const db = new Database(dbPath, { readonly: true, fileMustExist: true });
   try {
-    return callback(db);
+    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+    try {
+      return callback(db);
+    } finally {
+      db.close();
+    }
   } catch {
     return FALLBACK_REVIEWS;
-  } finally {
-    db.close();
   }
 }
 

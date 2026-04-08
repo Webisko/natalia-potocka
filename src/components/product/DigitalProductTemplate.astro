@@ -5,6 +5,23 @@ import ProductCarousel from './ProductCarousel.astro';
 import { getDigitalProductContent } from '../../lib/productContent.js';
 import { getPublishedStorefrontProducts } from '../../lib/products.js';
 
+type BenefitCard = {
+  title: string;
+  description: string;
+  icon?: string | null;
+};
+
+type FaqItem = {
+  q: string;
+  a: string;
+};
+
+type RelatedProduct = {
+  slug?: string | null;
+  title?: string | null;
+  type?: string | null;
+};
+
 const { product } = Astro.props;
 const offerPagePath = '/oferta';
 const content = getDigitalProductContent(product.slug) || {};
@@ -16,17 +33,17 @@ const priceAmount = Number(currentPrice || 0).toFixed(2);
 const lowestPriceAmount = Number(product.lowest_price_30_days || 0).toFixed(2);
 const leadText = product.short_description || content.lead || product.excerpt || product.description || '';
 const durationText = product.duration_label || content.duration || null;
-const benefitCards = (Array.isArray(product.benefits_json) && product.benefits_json.length > 0
+const benefitCards: BenefitCard[] = (Array.isArray(product.benefits_json) && product.benefits_json.length > 0
   ? product.benefits_json
   : Array.isArray(content.benefitCards)
     ? content.benefitCards
     : [])
   .slice(0, 3);
-const faqItems = Array.isArray(product.faq_json)
-  ? product.faq_json.filter((item) => item?.q && item?.a)
+const faqItems: FaqItem[] = Array.isArray(product.faq_json)
+  ? product.faq_json.filter((item: FaqItem | null | undefined): item is FaqItem => Boolean(item?.q && item?.a))
   : [];
-const relatedProducts = getPublishedStorefrontProducts()
-  .filter((candidate) => candidate.slug !== product.slug && candidate.type !== 'service');
+const relatedProducts: RelatedProduct[] = getPublishedStorefrontProducts()
+  .filter((candidate: RelatedProduct) => candidate.slug !== product.slug && candidate.type !== 'service');
 const benefitBlobShapes = [
   '54% 46% 42% 58% / 44% 48% 52% 56%',
   '35% 65% 63% 37% / 42% 43% 57% 58%',
@@ -155,7 +172,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
         <p class="mt-4 text-lg font-light leading-relaxed text-mauve">Trzy najważniejsze jakości, z którymi wyjdziesz po przerobieniu tego materiału.</p>
       </div>
       <div class="grid items-stretch gap-8 md:grid-cols-3">
-        {benefitCards.map((card, index) => (
+        {benefitCards.map((card: BenefitCard, index: number) => (
           <div class:list={['blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300', index === 1 && 'md:-mt-8']}>
             <div
               class:list={[
@@ -240,7 +257,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
         <div class="rounded-[30px] border border-white/80 bg-white/65 p-6 shadow-[0_22px_70px_-48px_rgba(72,43,62,0.45)] backdrop-blur-sm md:p-10">
           <h2 class="mb-8 font-serif text-3xl text-mauve md:text-4xl">Najczęstsze pytania</h2>
           <div>
-            {faqItems.map((item) => (
+            {faqItems.map((item: FaqItem) => (
               <div class="faq-accordion-item border-b border-mauve/10 py-5 last:border-0" data-faq-item data-open="false">
                 <button type="button" class="flex w-full cursor-pointer items-center justify-between gap-4 text-left font-medium text-mauve" data-faq-toggle aria-expanded="false">
                   <span>{item.q}</span>

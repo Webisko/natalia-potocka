@@ -2,7 +2,7 @@
 import BlobArrowIcon from './icons/BlobArrowIcon.astro';
 import { getPagePathByKey } from '../lib/pageSettings.js';
 
-const normalizePath = (value) => {
+const normalizePath = (value: string | null | undefined) => {
   if (!value) return '/';
   const normalized = value.endsWith('/') && value !== '/' ? value.slice(0, -1) : value;
   return normalized || '/';
@@ -289,7 +289,12 @@ const isContact = currentPath === contactPath;
       bindLoginOpenButtons();
     };
 
-    const renderLoggedIn = (user) => {
+    type HeaderSessionUser = {
+      email?: string | null;
+      is_admin?: boolean | null;
+    };
+
+    function renderLoggedIn(user: HeaderSessionUser | null) {
       const panelHref = user?.is_admin ? '/administrator' : '/panel';
       if (desktopAuthContainer) {
         desktopAuthContainer.innerHTML = `
@@ -322,7 +327,7 @@ const isContact = currentPath === contactPath;
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
         renderLoggedOut();
       });
-    };
+    }
 
     const loadAuthState = async () => {
       try {

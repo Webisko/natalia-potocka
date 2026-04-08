@@ -52,7 +52,8 @@ if (page.page_kind === 'service-landing' && !serviceProduct) {
   return Astro.redirect('/#oferta');
 }
 
-const serviceFaq = serviceProduct ? SERVICE_CONTENT[serviceProduct.slug]?.faq || [] : [];
+const serviceContentKey = serviceProduct ? (String(serviceProduct.slug) as keyof typeof SERVICE_CONTENT) : null;
+const serviceFaq = serviceContentKey ? SERVICE_CONTENT[serviceContentKey]?.faq || [] : [];
 const serviceStructuredData = serviceProduct
   ? (() => {
       const productSchema = buildProductSchema({

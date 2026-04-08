@@ -1,7 +1,14 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro';
 
-const { reviews } = Astro.props;
+type ReviewSlide = {
+  content: string;
+  author: string;
+  subtitle?: string | null;
+  thumbnail_url?: string | null;
+};
+
+const reviews: ReviewSlide[] = Array.isArray(Astro.props.reviews) ? Astro.props.reviews : [];
 ---
 
 <section id="opinie" class="relative z-0 flex min-h-screen flex-col justify-center overflow-hidden bg-transparent py-20 pb-80">
