@@ -30,12 +30,31 @@ To repozytorium jest prowadzone w modelu Astro-first.
 - Publiczny katalog produktów obejmuje tylko opublikowane produkty cyfrowe. Obecnie są to 3 webinary i 1 medytacja; kurs pozostaje testowy i niepubliczny.
 - Dwie usługi działają jako osobne landing pages w Astro i nie są produktami kupowanymi online. Wejście w usługę prowadzi do kontaktu, nie do checkoutu.
 
+## Model środowisk
+
+- Wersja lokalna jest stagingiem do developmentu, testów i przygotowania wdrożeń.
+- GitHub jest repozytorium źródłowym i dodatkową kopią zapasową kodu oraz konfiguracji workflow.
+- Serwer produkcyjny jest jedynym środowiskiem live.
+- Push do `main` nie może być traktowany jako automatyczny deploy na produkcję.
+- GitHub Pages zostało całkowicie wycofane z tego projektu i nie jest już używane ani do preview, ani do wdrożeń.
+
+## Model wdrożeń
+
+- Standardowy deploy produkcyjny idzie bezpośrednio z lokalnego repo przez SSH przy użyciu `scripts/deploy-production.ps1`.
+- Produkcja nie wymaga uruchomionego Node.js jako procesu; Astro budujemy lokalnie lub w CI do statycznych plików, a na serwer trafia gotowa paczka wraz z PHP API.
+- Panel administratora ma osobny mechanizm publikacji tylko dla zmian wpływających na publiczny frontend. Ten publish nie publikuje na GitHub Pages; używa GitHub Actions wyłącznie jako orkiestratora buildu, a finalny deploy i tak odbywa się przez SSH na produkcję.
+- Zmiany operacyjne, takie jak użytkownicy, zamówienia, auth, kupony i ustawienia maili, nie powinny wymuszać przebudowy publicznej strony.
+- Jeśli zmiana dotyczy tylko backendu PHP albo infrastruktury deployu, wdrażamy ją bezpośrednio przez SSH, bez zależności od ręcznego publish z panelu.
+- Sekrety techniczne potrzebne tylko na serwerze, takie jak token publikacji GitHub, nie powinny być przechowywane w tabeli `settings`. Dla produkcji utrzymujemy je po stronie serwera, poza repozytorium i poza panelem administracyjnym.
+- Jeśli używany jest plik `data/runtime-secrets.php`, deploy zachowuje go między wdrożeniami i nie nadpisuje tej konfiguracji.
+
 ## Komendy
 
 - `npm run dev:backend` uruchamia backend na `4321`
 - `npm run dev:astro` uruchamia aktywny frontend Astro na `3000`
 - `npm run build` buduje aktywną aplikację Astro
 - `npm run preview` uruchamia podgląd buildu Astro
+- `./scripts/deploy-production.ps1` wykonuje standardowy deploy produkcyjny przez SSH
 
 ## Kierunek dalszych prac
 

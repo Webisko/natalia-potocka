@@ -60,7 +60,7 @@ $rootHtaccess = <<<EOD
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^(product|uslugi|produkty)/(.*)$ /oferta/$2 [R=301,L,QSA]
+    RewriteRule ^(product|uslugi|produkty)/(.*)$ /$2 [R=301,L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !^/api/ [NC]

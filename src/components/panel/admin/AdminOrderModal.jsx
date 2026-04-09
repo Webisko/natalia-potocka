@@ -134,7 +134,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
         amount_total: Number(formData.amount_total),
         status: formData.status,
       });
-      onSaved('Zamówienie zostało zaktualizowane.');
+      onSaved('Zamówienie zostało zapisane.');
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać zamówienia.');
     } finally {

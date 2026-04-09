@@ -100,12 +100,12 @@ const contactPath = Astro.props.contactPath || '/kontakt';
                 <span>{getProductKindLabel(product.type)}</span>
               </div>
               <h3 class="mb-6 font-serif text-3xl leading-tight text-mauve md:text-4xl">
-                <a href={`/oferta/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a>
+                <a href={`/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a>
               </h3>
               <p class="mb-8 max-w-lg text-lg font-light leading-relaxed text-mauve/70">{product.excerpt || product.description}</p>
               <div class="mt-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="font-serif text-3xl text-terracotta">{formatPrice(product.currentPrice || product.price)}</div>
-                <a href={`/oferta/${product.slug}`} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+                <a href={`/${product.slug}`} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
                   <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
                     <BlobArrowIcon />
                   </span>
@@ -130,7 +130,7 @@ const contactPath = Astro.props.contactPath || '/kontakt';
       <div class="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {digitalProducts.map((product: OfferProduct) => (
           <article class="group overflow-hidden rounded-[30px] border border-white/80 bg-white/85 shadow-soft backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <a href={`/oferta/${product.slug}`} class="block">
+            <a href={`/${product.slug}`} class="block">
               <div class="relative aspect-[4/3] overflow-hidden bg-blush/30">
                 {product.thumbnail_url ? (
                   <OptimizedImage src={product.thumbnail_url} alt={product.title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" />
@@ -142,14 +142,14 @@ const contactPath = Astro.props.contactPath || '/kontakt';
             </a>
 
             <div class="p-6">
-              <h3 class="font-serif text-2xl text-mauve"><a href={`/oferta/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a></h3>
+              <h3 class="font-serif text-2xl text-mauve"><a href={`/${product.slug}`} class="transition-colors hover:text-terracotta">{product.title}</a></h3>
               <p class="mt-3 min-h-[84px] text-base leading-7 text-mauve/68">{product.excerpt || product.description}</p>
               <div class="mt-6 flex items-center justify-between gap-4">
                 <div>
                   {product.promoActive && <p class="text-sm text-mauve/35 line-through">{formatPrice(product.price)}</p>}
                   <p class="font-serif text-3xl text-terracotta">{formatPrice(product.currentPrice || product.price)}</p>
                 </div>
-                <a href={`/oferta/${product.slug}`} class="text-fs-label inline-flex h-11 items-center justify-center rounded-full border border-mauve/15 bg-white px-5 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Szczegóły</a>
+                <a href={`/${product.slug}`} class="text-fs-label inline-flex h-11 items-center justify-center rounded-full border border-mauve/15 bg-white px-5 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold">Szczegóły</a>
               </div>
             </div>
           </article>

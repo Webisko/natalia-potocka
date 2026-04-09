@@ -24,7 +24,7 @@ export function getSitemapEntries() {
   const productEntries = getPublishedProducts()
     .filter((product) => product.slug && !product.noindex)
     .map((product) => ({
-      loc: `/oferta/${product.slug}`,
+      loc: `/${product.slug}`,
       lastmod: product.updated_at || null,
     }));
 
@@ -35,7 +35,7 @@ export function getSitemapEntries() {
     }))
     .filter(({ service, settings }) => service.slug && !(settings?.noindex ?? service.noindex))
     .map(({ service, settings }) => ({
-      loc: settings?.slug ? `/${settings.slug}` : `/oferta/${service.slug}`,
+      loc: settings?.slug ? `/${settings.slug}` : `/${service.slug}`,
       lastmod: null,
     }));
 

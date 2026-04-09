@@ -93,7 +93,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
         });
       }
 
-      onSaved(pageResponse.data?.message || `Zapisano ustawienia strony: ${page.page_name}`);
+      onSaved('Strona została zapisana.');
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać ustawień strony.');
     } finally {
@@ -270,7 +270,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                 <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold">Treść dokumentu</p>
                 <h3 className="mt-2 font-serif text-fs-title-sm text-mauve">{legalConfig.label}</h3>
                 <p className="mt-2 text-fs-body leading-7 text-mauve/60">
-                  Edytuj treść dokumentu prawnego bezpośrednio w panelu. Zmiany będą widoczne po ponownej publikacji serwisu.
+                  Edytuj treść dokumentu prawnego bezpośrednio w panelu. Po zapisaniu zmiany powinny pojawić się na stronie po chwili.
                   Zostaw puste, by zachować domyślną treść wbudowaną w kod.
                 </p>
               </div>

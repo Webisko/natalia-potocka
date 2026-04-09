@@ -316,7 +316,7 @@ if (preg_match('#^/api/webhook/stripe$#', $path) || preg_match('#^/api/webhook/?
 }
 
 if (preg_match('#^/(product|uslugi|produkty)/([^/]+)$#', $path, $matches)) {
-    header('Location: /oferta/' . $matches[2], true, 301);
+    header('Location: /' . $matches[2], true, 301);
     exit;
 }
 

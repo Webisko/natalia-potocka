@@ -9,7 +9,7 @@ const AdminReviewModal = lazy(() => import('../admin/AdminReviewModal'));
 
 const TABLE_ACTION_BUTTON_CLASS = 'h-9 w-9 rounded-lg';
 
-export default function AdminReviews() {
+export default function AdminReviews({ onPublicContentSaved }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewModalState, setReviewModalState] = useState({ isOpen: false, review: null });
@@ -34,6 +34,10 @@ export default function AdminReviews() {
     if (!window.confirm('Na pewno usunąć tę opinię?')) return;
     try {
       await axios.delete(`/api/reviews/${id}`);
+      const nextMessage = await onPublicContentSaved?.({ baseMessage: 'Opinia została usunięta.', showAlert: true });
+      if (!nextMessage) {
+        alert('Opinia została usunięta.');
+      }
       fetchReviews();
     } catch (err) {
       alert('Błąd usuwania: ' + err.message);
@@ -52,9 +56,12 @@ export default function AdminReviews() {
     setReviewModalState({ isOpen: false, review: null });
   };
 
-  const handleSaved = (message) => {
+  const handleSaved = async (message) => {
     closeModal();
-    alert(message);
+    const nextMessage = await onPublicContentSaved?.({ baseMessage: message, showAlert: true });
+    if (!nextMessage) {
+      alert(message);
+    }
     fetchReviews();
   };
 
@@ -85,6 +92,7 @@ export default function AdminReviews() {
       await axios.post('/api/reviews/reorder', {
         orderedIds: normalized.map((review) => review.id),
       });
+      await onPublicContentSaved?.({ baseMessage: 'Kolejność opinii została zapisana.' });
     } catch (err) {
       alert(err.response?.data?.error || 'Nie udało się zapisać nowej kolejności opinii.');
       fetchReviews();

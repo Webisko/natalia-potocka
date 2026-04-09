@@ -516,7 +516,7 @@ if ($method === 'POST' && $action === 'create-session') {
 
         $baseUrl = detectBaseUrl();
         $successUrl = $baseUrl . '/dziekujemy?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = $baseUrl . '/oferta/' . $product['slug'] . '?canceled=true';
+        $cancelUrl = $baseUrl . '/' . $product['slug'] . '?canceled=true';
 
         $postParams = [
             'mode' => 'payment',

@@ -41,7 +41,7 @@ export default function AdminReviewModal({ initialReview, onClose, onSaved }) {
         await axios.post('/api/reviews', payload);
       }
 
-      onSaved(isEditing ? 'Opinia została zaktualizowana.' : 'Opinia została dodana.');
+      onSaved('Opinia została zapisana.');
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać opinii.');
     } finally {

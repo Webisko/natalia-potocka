@@ -23,7 +23,7 @@ type RelatedProduct = {
 };
 
 const { product } = Astro.props;
-const offerPagePath = '/oferta';
+const productPath = `/${product.slug}`;
 const content = getDigitalProductContent(product.slug) || {};
 const isAudio = product.type === 'audio';
 const displayImage = product.thumbnail_url || content.image || null;
@@ -81,8 +81,6 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-fs-label text-mauve/40">
           <a href="/" class="transition-colors hover:text-gold">Strona główna</a>
-          <span aria-hidden="true" class="text-gold/40">/</span>
-          <a href={offerPagePath} class="transition-colors hover:text-gold">Oferta</a>
           <span aria-hidden="true" class="text-gold/40">/</span>
           <span class="text-mauve/65">{product.title}</span>
         </nav>

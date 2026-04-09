@@ -36,18 +36,6 @@ export const PAGE_SETTINGS_DEFAULTS = [
     noindex: 0,
   },
   {
-    page_key: 'offer',
-    page_name: 'Oferta',
-    slug: 'oferta',
-    title: 'Oferta',
-    featured_image_url: '/images/hero_doula.png',
-    meta_title: 'Oferta | Natalia Potocka',
-    meta_desc: 'Poznaj ofertę konsultacji, wsparcia i produktów cyfrowych Natalii Potockiej.',
-    meta_image_url: '/images/hero_doula.png',
-    canonical_url: '',
-    noindex: 0,
-  },
-  {
     page_key: 'privacy',
     page_name: 'Polityka prywatności',
     slug: 'polityka-prywatnosci',
@@ -84,4 +72,5 @@ export const PAGE_RESERVED_SLUGS = new Set([
   'logowanie',
   'zapomnialam-hasla',
   'resetowanie-hasla',
+  'oferta',
 ]);

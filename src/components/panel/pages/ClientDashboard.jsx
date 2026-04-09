@@ -750,7 +750,7 @@ export default function ClientDashboard() {
                         <h3 className="mt-3 font-serif text-fs-body-lg text-mauve">{order.product_title || 'Produkt'}</h3>
                         <p className="mt-2 text-fs-body text-mauve/60">{formatDateTime(order.created_at)}</p>
                         {order.product_slug ? (
-                          <a href={`/oferta/${order.product_slug}`} className="mt-3 inline-flex text-fs-ui font-medium text-terracotta transition hover:text-gold">
+                          <a href={`/${order.product_slug}`} className="mt-3 inline-flex text-fs-ui font-medium text-terracotta transition hover:text-gold">
                             Zobacz stronę produktu
                           </a>
                         ) : null}

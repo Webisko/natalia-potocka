@@ -102,7 +102,7 @@ function slugifyProductTitle(value) {
 }
 
 function buildProductPath(slug) {
-  return slug ? `/oferta/${slug}` : '/oferta/twoj-slug';
+  return slug ? `/${slug}` : '/twoj-slug';
 }
 
 function AccordionSection({ title, description, open, onToggle, children }) {
@@ -294,7 +294,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
       }
 
       if (embedded && typeof onSaved === 'function') {
-        onSaved(response?.data?.message || (isNew ? 'Produkt został utworzony.' : 'Produkt został zaktualizowany.'));
+        onSaved('Produkt został zapisany.');
         return;
       }
 
@@ -697,7 +697,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
     <AdminModalShell
       eyebrow={isNew ? 'Nowy produkt' : 'Edycja produktu'}
       title={isNew ? 'Dodaj produkt' : 'Edytuj produkt'}
-      description="Zarządzasz treścią sprzedażową, SEO, cenami i publikacją z jednego modala o tym samym układzie co pozostałe sekcje panelu."
+      description="Zarządzasz treścią sprzedażową, SEO i cenami z jednego modala o tym samym układzie co pozostałe sekcje panelu."
       onClose={onClose}
       maxWidthClassName="max-w-6xl"
       bodyClassName="p-0 pt-6 md:pt-8"

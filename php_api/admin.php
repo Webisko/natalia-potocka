@@ -30,9 +30,53 @@ const PUBLIC_CONTENT_SETTING_KEYS = [
 const INTERNAL_PUBLISH_SETTING_PREFIX = 'site_publish_';
 const GITHUB_PUBLISH_REPO_OWNER = 'Webisko';
 const GITHUB_PUBLISH_REPO_NAME = 'natalia-potocka';
-const GITHUB_PUBLISH_WORKFLOW_FILE = 'publish-production.yml';
+const GITHUB_PUBLISH_WORKFLOW_FILE = 'deploy.yml';
 const GITHUB_PUBLISH_BRANCH = 'main';
 const GITHUB_PUBLISH_EVENT_TYPE = 'content_publish';
+
+function getRuntimeSecretsMap(): array
+{
+    static $loaded = false;
+    static $secrets = [];
+
+    if ($loaded) {
+        return $secrets;
+    }
+
+    $loaded = true;
+    $filePath = dirname(__DIR__) . '/data/runtime-secrets.php';
+    if (!is_file($filePath)) {
+        return $secrets;
+    }
+
+    $runtimeSecrets = require $filePath;
+    if (!is_array($runtimeSecrets)) {
+        return $secrets;
+    }
+
+    foreach ($runtimeSecrets as $key => $value) {
+        $normalizedValue = trim((string) $value);
+        if ($normalizedValue === '') {
+            continue;
+        }
+
+        $secrets[(string) $key] = $normalizedValue;
+    }
+
+    return $secrets;
+}
+
+function getRuntimeSecretValue(string $key, string $default = ''): string
+{
+    $secrets = getRuntimeSecretsMap();
+    $value = $secrets[$key] ?? null;
+
+    if ($value !== null && trim((string) $value) !== '') {
+        return trim((string) $value);
+    }
+
+    return $default;
+}
 
 function getEnvironmentValue(string $key, string $default = ''): string
 {
@@ -56,7 +100,29 @@ function getGithubPublishToken(): string
         return $environmentToken;
     }
 
+    $runtimeToken = getRuntimeSecretValue('GITHUB_PUBLISH_TOKEN');
+    if ($runtimeToken !== '') {
+        return $runtimeToken;
+    }
+
     return trim((string) getSettingValue('github_publish_token'));
+}
+
+function getGithubPublishTokenSource(): string
+{
+    if (getEnvironmentValue('GITHUB_PUBLISH_TOKEN') !== '') {
+        return 'environment';
+    }
+
+    if (getRuntimeSecretValue('GITHUB_PUBLISH_TOKEN') !== '') {
+        return 'server_secret';
+    }
+
+    if (trim((string) getSettingValue('github_publish_token')) !== '') {
+        return 'settings';
+    }
+
+    return '';
 }
 
 function normalizeSettingStoredValue($value): string
@@ -66,12 +132,14 @@ function normalizeSettingStoredValue($value): string
 
 function shouldExposeSettingKey(string $key): bool
 {
-    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX);
+    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX)
+        && $key !== 'github_publish_token';
 }
 
 function canWriteSettingKey(string $key): bool
 {
-    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX);
+    return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX)
+        && $key !== 'github_publish_token';
 }
 
 function getSettingValue(string $key, string $default = ''): string
@@ -124,6 +192,7 @@ function translatePublishSource(string $source): string
 {
     return match ($source) {
         'products' => 'produkty',
+        'reviews' => 'opinie',
         'pages' => 'strony',
         'media' => 'media',
         'settings' => 'ustawienia globalne',
@@ -238,9 +307,9 @@ function githubApiRequest(string $method, string $url, string $token, ?array $pa
     return is_array($decoded) ? $decoded : [];
 }
 
-function findGithubPublishRun(string $token, string $requestId): ?array
+function findGithubPublishRun(string $token, string $requestId, string $requestedAt = ''): ?array
 {
-    if ($requestId === '') {
+    if ($requestId === '' && $requestedAt === '') {
         return null;
     }
 
@@ -253,11 +322,33 @@ function findGithubPublishRun(string $token, string $requestId): ?array
     );
 
     $response = githubApiRequest('GET', $url, $token);
-    foreach ((array) ($response['workflow_runs'] ?? []) as $run) {
+    $workflowRuns = (array) ($response['workflow_runs'] ?? []);
+
+    foreach ($workflowRuns as $run) {
         $displayTitle = (string) ($run['display_title'] ?? '');
         $name = (string) ($run['name'] ?? '');
         if (str_contains($displayTitle, $requestId) || str_contains($name, $requestId)) {
             return $run;
+        }
+    }
+
+    if ($requestedAt !== '') {
+        $requestedTimestamp = strtotime($requestedAt);
+        if ($requestedTimestamp !== false) {
+            foreach ($workflowRuns as $run) {
+                $event = trim((string) ($run['event'] ?? ''));
+                $createdAt = trim((string) ($run['created_at'] ?? ''));
+                $createdTimestamp = $createdAt !== '' ? strtotime($createdAt) : false;
+
+                if ($event !== 'repository_dispatch' || $createdTimestamp === false) {
+                    continue;
+                }
+
+                // Fall back to the first repository_dispatch run created for this request window.
+                if ($createdTimestamp >= ($requestedTimestamp - 300)) {
+                    return $run;
+                }
+            }
         }
     }
 
@@ -294,7 +385,7 @@ function buildPublishStatusPayload(bool $syncWithGithub = true): array
 
     if ($syncWithGithub && $githubToken !== '' && $requestId !== '' && in_array($status, ['requested', 'running'], true)) {
         try {
-            $run = findGithubPublishRun($githubToken, $requestId);
+            $run = findGithubPublishRun($githubToken, $requestId, trim((string) ($settings['site_publish_requested_at'] ?? '')));
             if ($run) {
                 $runStatus = trim((string) ($run['status'] ?? ''));
                 $runConclusion = trim((string) ($run['conclusion'] ?? ''));
@@ -357,6 +448,7 @@ function buildPublishStatusPayload(bool $syncWithGithub = true): array
         'last_triggered_by' => trim((string) ($settings['site_publish_last_triggered_by'] ?? '')),
         'last_run_url' => $lastRunUrl,
         'github_token_configured' => $githubToken !== '',
+        'github_token_source' => getGithubPublishTokenSource(),
         'repository' => GITHUB_PUBLISH_REPO_OWNER . '/' . GITHUB_PUBLISH_REPO_NAME,
         'workflow' => GITHUB_PUBLISH_WORKFLOW_FILE,
     ];
@@ -368,7 +460,6 @@ function getPageDefaults(): array
         'home' => ['page_key' => 'home', 'page_name' => 'Strona główna', 'slug' => '', 'title' => 'Natalia Potocka', 'featured_image_url' => '/images/hero_doula.png', 'meta_title' => 'Natalia Potocka', 'meta_desc' => 'Wsparcie okołoporodowe, konsultacje, szkolenia i produkty cyfrowe Natalii Potockiej.', 'meta_image_url' => '/images/hero_doula.png', 'canonical_url' => '', 'noindex' => 0],
         'about' => ['page_key' => 'about', 'page_name' => 'O mnie', 'slug' => 'o-mnie', 'title' => 'O mnie', 'featured_image_url' => '/images/about_doula.png', 'meta_title' => 'O mnie | Natalia Potocka', 'meta_desc' => 'Poznaj podejście i doświadczenie Natalii Potockiej.', 'meta_image_url' => '/images/about_doula.png', 'canonical_url' => '', 'noindex' => 0],
         'contact' => ['page_key' => 'contact', 'page_name' => 'Kontakt', 'slug' => 'kontakt', 'title' => 'Kontakt', 'featured_image_url' => '/images/about_doula.png', 'meta_title' => 'Kontakt | Natalia Potocka', 'meta_desc' => 'Skontaktuj się z Natalią Potocką w sprawie konsultacji i wsparcia.', 'meta_image_url' => '/images/about_doula.png', 'canonical_url' => '', 'noindex' => 0],
-        'offer' => ['page_key' => 'offer', 'page_name' => 'Oferta', 'slug' => 'oferta', 'title' => 'Oferta', 'featured_image_url' => '/images/hero_doula.png', 'meta_title' => 'Oferta | Natalia Potocka', 'meta_desc' => 'Poznaj ofertę konsultacji, wsparcia i produktów cyfrowych Natalii Potockiej.', 'meta_image_url' => '/images/hero_doula.png', 'canonical_url' => '', 'noindex' => 0],
         'privacy' => ['page_key' => 'privacy', 'page_name' => 'Polityka prywatności', 'slug' => 'polityka-prywatnosci', 'title' => 'Polityka prywatności', 'featured_image_url' => '/images/hero_doula.png', 'meta_title' => 'Polityka prywatności | Natalia Potocka', 'meta_desc' => 'Informacje o przetwarzaniu danych osobowych i technicznych zasadach działania strony internetowej.', 'meta_image_url' => '/images/hero_doula.png', 'canonical_url' => '', 'noindex' => 0],
         'terms' => ['page_key' => 'terms', 'page_name' => 'Regulamin sklepu', 'slug' => 'regulamin-sklepu', 'title' => 'Regulamin sklepu', 'featured_image_url' => '/images/hero_doula.png', 'meta_title' => 'Regulamin sklepu | Natalia Potocka', 'meta_desc' => 'Zasady zakupu i korzystania z produktów cyfrowych dostępnych na stronie Natalii Potockiej.', 'meta_image_url' => '/images/hero_doula.png', 'canonical_url' => '', 'noindex' => 0],
     ];
@@ -1254,7 +1345,7 @@ if ($method === 'PUT' && $action === 'orders') {
 
         $stmtOrder = $db->prepare('SELECT orders.*, COALESCE(orders.product_title, products.title) AS product_title, COALESCE(orders.product_slug, products.slug) AS product_slug, COALESCE(orders.customer_first_name, users.first_name) AS customer_first_name, COALESCE(orders.customer_last_name, users.last_name) AS customer_last_name FROM orders LEFT JOIN products ON products.id = orders.product_id LEFT JOIN users ON lower(users.email) = lower(orders.customer_email) WHERE orders.id = ?');
         $stmtOrder->execute([$orderId]);
-        sendJson(['message' => 'Zamówienie zostało zaktualizowane.', 'order' => $stmtOrder->fetch()]);
+        sendJson(['message' => 'Zamówienie zostało zapisane.', 'order' => $stmtOrder->fetch()]);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
@@ -1651,7 +1742,7 @@ if ($method === 'POST' && $action === 'coupons') {
         $stmtInsert->execute([$couponId, $code, strtolower(trim((string) $data['discount_type'])), (float) $data['value'], emptyToNull($data['description'] ?? null), array_key_exists('is_active', $data) ? parseBooleanFlag($data['is_active']) : 1, emptyToNull($data['valid_from'] ?? null), emptyToNull($data['valid_until'] ?? null), parseNullableFloat($data['minimum_spend'] ?? null), parseNullableFloat($data['maximum_spend'] ?? null), parseNullableInteger($data['usage_limit'] ?? null), parseNullableInteger($data['usage_limit_per_user'] ?? null), serializeDelimitedText($data['included_product_ids'] ?? null), serializeDelimitedText($data['excluded_product_ids'] ?? null), serializeDelimitedText($data['allowed_emails'] ?? null, true), parseBooleanFlag($data['exclude_sale_items'] ?? false)]);
         $stmtCoupon = $db->prepare('SELECT * FROM coupons WHERE id = ?');
         $stmtCoupon->execute([$couponId]);
-        sendJson(['message' => 'Kupon został utworzony.', 'coupon' => mapCoupon($stmtCoupon->fetch())], 201);
+        sendJson(['message' => 'Kupon został zapisany.', 'coupon' => mapCoupon($stmtCoupon->fetch())], 201);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }
@@ -1702,7 +1793,7 @@ if ($method === 'PUT' && $action === 'coupons') {
 
         $stmtCoupon = $db->prepare('SELECT * FROM coupons WHERE id = ?');
         $stmtCoupon->execute([$couponId]);
-        sendJson(['message' => 'Kupon został zaktualizowany.', 'coupon' => mapCoupon($stmtCoupon->fetch())]);
+        sendJson(['message' => 'Kupon został zapisany.', 'coupon' => mapCoupon($stmtCoupon->fetch())]);
     } catch (Exception $e) {
         sendJson(['error' => $e->getMessage()], 500);
     }

@@ -5,7 +5,7 @@ import { getDigitalProductContent } from '../../lib/productContent.js';
 
 const { product, shape = '46% 54% 39% 61% / 55% 38% 62% 45%' } = Astro.props;
 
-const href = `/oferta/${product.slug}`;
+const href = `/${product.slug}`;
 const displayImage = product.thumbnail_url || getDigitalProductContent(product.slug)?.image || null;
 const kindLabel = getProductKindLabel(product.type);
 const iconVariant = product.type === 'audio' ? 'audio' : product.type === 'course' ? 'course' : 'video';

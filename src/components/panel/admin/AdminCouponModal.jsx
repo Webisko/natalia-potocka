@@ -147,11 +147,13 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
     };
 
     try {
-      const response = isEditing
-        ? await axios.put(`/api/admin/coupons/${initialCoupon.id}`, payload)
-        : await axios.post('/api/admin/coupons', payload);
+      if (isEditing) {
+        await axios.put(`/api/admin/coupons/${initialCoupon.id}`, payload);
+      } else {
+        await axios.post('/api/admin/coupons', payload);
+      }
 
-      onSaved(response.data?.message || (isEditing ? 'Kupon został zaktualizowany.' : 'Kupon został utworzony.'));
+      onSaved('Kupon został zapisany.');
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać kuponu.');
     } finally {

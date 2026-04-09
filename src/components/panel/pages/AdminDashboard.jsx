@@ -163,6 +163,9 @@ function getCouponStatusMeta(coupon) {
     : { title: 'Nieaktywny', tone: 'neutral', icon: CircleSlash };
 }
 
+const PUBLIC_CONTENT_SUCCESS_SUFFIX = ' Zmiany pojawią się na stronie po chwili.';
+const PUBLIC_CONTENT_DELAY_SUFFIX = ' Zmiany są zapisane. Jeśli nie zobaczysz ich od razu na stronie, sprawdź ją ponownie za chwilę.';
+
 function isSeoLengthIdeal(value, kind) {
   const length = `${value || ''}`.trim().length;
 
@@ -189,54 +192,6 @@ function getPageSeoMeta(page) {
   }
 
   return { title: 'SEO kompletne i optymalne', tone: 'success', icon: CheckCircle2 };
-}
-
-function getPublishStatusMeta(publishStatus) {
-  if (!publishStatus?.github_token_configured) {
-    return {
-      title: 'Publikacja nie jest jeszcze skonfigurowana na serwerze.',
-      tone: 'warning',
-      icon: AlertTriangle,
-    };
-  }
-
-  if (publishStatus?.status === 'requested') {
-    return {
-      title: 'Publikacja została zlecona i czeka w kolejce GitHub Actions.',
-      tone: 'warning',
-      icon: Clock3,
-    };
-  }
-
-  if (publishStatus?.status === 'running') {
-    return {
-      title: 'Trwa publikacja strony na podstawie aktualnej bazy produkcyjnej.',
-      tone: 'warning',
-      icon: Clock3,
-    };
-  }
-
-  if (publishStatus?.status === 'failed') {
-    return {
-      title: 'Ostatnia publikacja zakończyła się błędem.',
-      tone: 'danger',
-      icon: AlertTriangle,
-    };
-  }
-
-  if (publishStatus?.has_pending_changes) {
-    return {
-      title: 'Są publiczne zmiany oczekujące na publikację.',
-      tone: 'warning',
-      icon: AlertTriangle,
-    };
-  }
-
-  return {
-    title: 'Wersja publiczna jest zgodna z ostatnio opublikowaną treścią.',
-    tone: 'success',
-    icon: CheckCircle2,
-  };
 }
 
 function isPromoActive(product) {
@@ -278,7 +233,7 @@ function renderCouponRestrictions(coupon) {
 
 function getProductPreviewPath(product) {
   const slug = `${product?.slug || ''}`.trim();
-  return slug ? `/oferta/${slug}` : '/oferta';
+  return slug ? `/${slug}` : '/';
 }
 
 function getPagePreviewPath(page) {
@@ -338,8 +293,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [secondaryTask, setSecondaryTask] = useState('');
   const [settingsEmailFeedback, setSettingsEmailFeedback] = useState({ tone: '', message: '' });
   const [publishStatus, setPublishStatus] = useState(null);
-  const [publishStatusLoading, setPublishStatusLoading] = useState(false);
-  const [publishFeedback, setPublishFeedback] = useState({ tone: '', message: '' });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -395,54 +348,50 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
       return null;
     }
 
-    const { silent = false } = options;
-    if (!silent) {
-      setPublishStatusLoading(true);
-    }
-
     try {
       const response = await axios.get('/api/admin/publish-status');
       const nextStatus = response.data || null;
       setPublishStatus(nextStatus);
       return nextStatus;
     } catch (error) {
-      const message = error.response?.data?.error || 'Nie udało się pobrać statusu publikacji.';
-      setPublishFeedback({ tone: 'error', message });
       return null;
-    } finally {
-      if (!silent) {
-        setPublishStatusLoading(false);
-      }
     }
   }, [isAdmin]);
-
-  useEffect(() => {
-    if (!isAdmin) {
-      return undefined;
-    }
-
-    fetchPublishStatus();
-    return undefined;
-  }, [fetchPublishStatus, isAdmin]);
-
-  useEffect(() => {
-    if (!isAdmin || !publishStatus || !['requested', 'running'].includes(publishStatus.status)) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      fetchPublishStatus({ silent: true });
-    }, 10000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [fetchPublishStatus, isAdmin, publishStatus]);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
-  const handlePublicContentChanged = useCallback(async () => {
-    await fetchPublishStatus({ silent: true });
+  const handlePublicContentChanged = useCallback(async (options = {}) => {
+    const { baseMessage = 'Zmiany zostały zapisane.', showAlert = false } = options;
+    const status = await fetchPublishStatus({ silent: true });
+
+    let nextMessage = baseMessage;
+
+    if (status?.has_pending_changes) {
+      if (['requested', 'running'].includes(status.status)) {
+        nextMessage = `${baseMessage}${PUBLIC_CONTENT_SUCCESS_SUFFIX}`;
+      } else if (status.github_token_configured) {
+        try {
+          const response = await axios.post('/api/admin/publish');
+          const nextStatus = response.data?.status || null;
+          if (nextStatus) {
+            setPublishStatus(nextStatus);
+          }
+          nextMessage = `${baseMessage}${PUBLIC_CONTENT_SUCCESS_SUFFIX}`;
+        } catch (error) {
+          nextMessage = `${baseMessage}${PUBLIC_CONTENT_DELAY_SUFFIX}`;
+        }
+      } else {
+        nextMessage = `${baseMessage}${PUBLIC_CONTENT_DELAY_SUFFIX}`;
+      }
+    }
+
+    if (showAlert) {
+      alert(nextMessage);
+    }
+
+    return nextMessage;
   }, [fetchPublishStatus]);
 
   const handleDeleteProduct = async (productId) => {
@@ -452,7 +401,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
     try {
       await axios.delete(`/api/admin/products/${productId}`);
-      await handlePublicContentChanged();
+      await handlePublicContentChanged({ baseMessage: 'Produkt został usunięty.', showAlert: true });
       fetchData();
     } catch (error) {
       alert(`Błąd usuwania: ${error.message}`);
@@ -525,33 +474,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
     try {
       await axios.post('/api/admin/settings', settings);
-      await handlePublicContentChanged();
-      alert('Ustawienia zapisane');
+      await handlePublicContentChanged({ baseMessage: 'Ustawienia zostały zapisane.', showAlert: true });
     } catch (error) {
       alert(`Błąd: ${error.message}`);
-    }
-  };
-
-  const handlePublishSite = async () => {
-    setSecondaryTask('publish-site');
-    setPublishFeedback({ tone: '', message: '' });
-
-    try {
-      const response = await axios.post('/api/admin/publish');
-      const nextStatus = response.data?.status || null;
-      setPublishStatus(nextStatus);
-      setPublishFeedback({
-        tone: 'success',
-        message: response.data?.message || nextStatus?.last_message || 'Publikacja została uruchomiona.',
-      });
-    } catch (error) {
-      setPublishFeedback({
-        tone: 'error',
-        message: error.response?.data?.error || 'Nie udało się uruchomić publikacji.',
-      });
-    } finally {
-      setSecondaryTask('');
-      fetchPublishStatus({ silent: true });
     }
   };
 
@@ -653,13 +578,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
       || productTitle.includes(normalizedOrderSearch);
   });
 
-  const publishMeta = getPublishStatusMeta(publishStatus);
-  const PublishStatusIcon = publishMeta.icon;
-  const publishActionDisabled = secondaryTask === 'publish-site'
-    || publishStatusLoading
-    || !publishStatus?.github_token_configured
-    || ['requested', 'running'].includes(publishStatus?.status);
-
   return (
     <div className="bg-nude">
       <div className="mx-auto max-w-[1200px] px-6 py-10">
@@ -686,74 +604,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
         </div>
 
         <div className="animate-in fade-in duration-500 space-y-8">
-          {isAdmin ? (
-            <section className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-sm md:p-8">
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <span className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border ${publishMeta.tone === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : publishMeta.tone === 'danger' ? 'border-rose/20 bg-rose/10 text-rose' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
-                      <PublishStatusIcon size={20} />
-                    </span>
-                    <div>
-                      <p className="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Publikacja strony</p>
-                      <h2 className="font-serif text-fs-title-sm text-mauve">Status wersji publicznej</h2>
-                    </div>
-                  </div>
-                  <p className="max-w-3xl text-fs-body leading-7 text-mauve/70">{publishMeta.title}</p>
-                  {publishStatus ? (
-                    <div className="flex flex-wrap gap-3 text-fs-ui text-mauve/55">
-                      <span>Treść: v{publishStatus.content_version || 0}</span>
-                      <span>Opublikowane: v{publishStatus.published_version || 0}</span>
-                      {publishStatus.last_change_source_label ? <span>Ostatnia zmiana: {publishStatus.last_change_source_label}</span> : null}
-                      {publishStatus.last_change_at ? <span>{formatDateTime(publishStatus.last_change_at)}</span> : null}
-                    </div>
-                  ) : null}
-                  {publishStatus?.last_message ? (
-                    <div className={`rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${publishMeta.tone === 'danger' ? 'border-rose/20 bg-rose/10 text-mauve/80' : publishMeta.tone === 'success' ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
-                      {publishStatus.last_message}
-                    </div>
-                  ) : null}
-                  {publishFeedback.message ? (
-                    <div className={`rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${publishFeedback.tone === 'error' ? 'border-rose/20 bg-rose/10 text-mauve/80' : 'border-emerald-200 bg-emerald-50/90 text-emerald-800'}`}>
-                      {publishFeedback.message}
-                    </div>
-                  ) : null}
-                  {!publishStatus?.github_token_configured ? (
-                    <p className="text-fs-ui text-mauve/55">Aby publikować z panelu, ustaw na serwerze zmienną środowiskową GITHUB_PUBLISH_TOKEN.</p>
-                  ) : null}
-                  {publishStatus?.last_run_url ? (
-                    <a href={publishStatus.last_run_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:text-gold/80">
-                      Zobacz przebieg publikacji w GitHub Actions
-                    </a>
-                  ) : null}
-                </div>
-
-                <div className="flex shrink-0 flex-col gap-3 lg:items-end">
-                  <button
-                    type="button"
-                    onClick={handlePublishSite}
-                    disabled={publishActionDisabled}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-gold px-6 text-fs-label font-bold uppercase tracking-[0.18em] text-white transition hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {secondaryTask === 'publish-site'
-                      ? 'Uruchamianie publikacji...'
-                      : ['requested', 'running'].includes(publishStatus?.status)
-                        ? 'Publikacja w toku'
-                        : 'Publikuj stronę'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fetchPublishStatus()}
-                    disabled={publishStatusLoading}
-                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {publishStatusLoading ? 'Odświeżanie...' : 'Odśwież status'}
-                  </button>
-                </div>
-              </div>
-            </section>
-          ) : null}
-
           {activeTab === 'products' ? (
             <AdminListCard
               title="Lista produktów"
@@ -776,12 +626,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-gold/5 bg-nude/30">
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Tytuł</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Typ</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Status</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena</th>
-                        <th className="px-8 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Akcje</th>
+                        <th className="py-4 pl-8 pr-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:pr-6">Tytuł</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Typ</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Status</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Adres</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Cena</th>
+                        <th className="px-4 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -795,11 +645,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
                         return (
                           <tr key={product.id} className="transition-colors hover:bg-white/40">
-                            <td className={getClickableCellClassName('px-8 py-6')}>
+                            <td className={getClickableCellClassName('py-6 pl-6 pr-4 md:pr-6')}>
                               <button
                                 type="button"
                                 onClick={() => setProductModalState({ isOpen: true, productId: product.id })}
-                                className={getClickableCellButtonClassName('px-8 py-6')}
+                                className={getClickableCellButtonClassName('py-6 pl-2 pr-4 md:pr-6')}
                               >
                                 <div>
                                   <p className="font-serif text-fs-body-lg text-mauve transition group-hover:text-terracotta">{product.title}</p>
@@ -811,10 +661,10 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                                 </div>
                               </button>
                             </td>
-                            <td className="px-8 py-6"><AdminStatusBadge label={typeMeta.label} tone={typeMeta.tone} /></td>
-                            <td className="px-8 py-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
-                            <td className="px-8 py-6 text-fs-ui italic text-mauve/55">{productPreviewPath}</td>
-                            <td className="px-8 py-6">
+                            <td className="px-4 py-6 md:px-6"><AdminStatusBadge label={typeMeta.label} tone={typeMeta.tone} /></td>
+                            <td className="px-4 py-6 md:px-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
+                            <td className="px-4 py-6 text-fs-ui italic text-mauve/55 md:px-6">{productPreviewPath}</td>
+                            <td className="px-4 py-6 md:px-6">
                               <div className="space-y-1">
                                 <div className="font-serif text-fs-body-lg text-mauve whitespace-nowrap">{promoActive ? formatCurrency(product.promotional_price) : formatCurrency(product.price)}</div>
                                 {promoActive ? <div className="text-fs-label text-mauve/50 line-through">{formatCurrency(product.price)}</div> : null}
@@ -822,12 +672,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                             </td>
                             <td className="px-8 py-6">
                               <div className="flex justify-end gap-2">
-                                <AdminActionIconButton title="Podgląd produktu" onClick={() => openPreviewInNewTab(productPreviewPath)} icon={<Eye size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} />
+                                <AdminActionIconButton title="Podgląd produktu" onClick={() => openPreviewInNewTab(productPreviewPath)} icon={<Eye size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
                                 <AdminActionIconButton title="Edytuj produkt" onClick={() => setProductModalState({ isOpen: true, productId: product.id })} icon={<Edit size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
-                                <AdminActionIconButton title="Duplikuj produkt" onClick={() => handleDuplicateProduct(product)} icon={<Copy size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} disabled={secondaryTask === `duplicate:${product.id}`} />
                                 {product.type === 'course' ? (
-                                  <AdminActionIconButton title="Edytuj lekcje" onClick={() => setEditingCourse({ productId: product.id, productTitle: product.title })} icon={<BookOpen size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} />
+                                  <AdminActionIconButton title="Edytuj lekcje" onClick={() => setEditingCourse({ productId: product.id, productTitle: product.title })} icon={<BookOpen size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
                                 ) : null}
+                                <AdminActionIconButton title="Duplikuj produkt" onClick={() => handleDuplicateProduct(product)} icon={<Copy size={16} />} className={TABLE_ACTION_BUTTON_CLASS} disabled={secondaryTask === `duplicate:${product.id}`} />
                                 {isAdmin ? <AdminActionIconButton title="Usuń produkt" onClick={() => handleDeleteProduct(product.id)} icon={<Trash2 size={16} />} tone="danger" className={TABLE_ACTION_BUTTON_CLASS} /> : null}
                               </div>
                             </td>
@@ -848,7 +698,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
           {activeTab === 'reviews' ? (
             <Suspense fallback={<LazyPanelLoader />}>
-              <AdminReviews />
+              <AdminReviews onPublicContentSaved={handlePublicContentChanged} />
             </Suspense>
           ) : null}
 
@@ -886,7 +736,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <table className="w-full table-fixed text-left">
                     <thead>
                       <tr className="border-b border-gold/5 bg-nude/30">
-                        <th className="w-[36%] px-3 py-4 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:px-5 lg:px-6">Użytkownik</th>
+                        <th className="w-[36%] py-4 pl-8 pr-3 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:pr-5 lg:pr-6">Użytkownik</th>
                         <th className="w-[34%] px-3 py-4 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:px-5 lg:px-6">E-mail</th>
                         <th className="w-[74px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[98px] md:px-3">Zakupione produkty</th>
                         <th className="w-[56px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[72px] md:px-4">Status</th>
@@ -900,11 +750,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
                         return (
                           <tr key={account.id} className={`transition-colors hover:bg-white/40 ${account.is_admin ? 'bg-rose/5' : ''}`}>
-                            <td className={getClickableCellClassName('px-3 py-5 md:px-5 lg:px-6')}>
+                            <td className={getClickableCellClassName('py-5 pl-6 pr-3 md:pr-5 lg:pr-6')}>
                               <button
                                 type="button"
                                 onClick={() => setUserModalState({ isOpen: true, user: account })}
-                                className={getClickableCellButtonClassName('px-3 py-5 md:px-5 lg:px-6')}
+                                className={getClickableCellButtonClassName('py-5 pl-2 pr-3 md:pr-5 lg:pr-6')}
                               >
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2">
@@ -955,8 +805,8 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
               count={filteredOrders.length}
               description="Rejestr transakcji ze Stripe, przelewów tradycyjnych i dostępów nadawanych ręcznie."
               action={(
-                <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-                  <label className="relative block min-w-[18rem]">
+                <div className="flex w-full flex-col gap-3">
+                  <label className="relative block">
                     <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-mauve/35" />
                     <input
                       type="search"
@@ -966,33 +816,36 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
                     />
                   </label>
-                  <select
-                    value={orderStatusFilter}
-                    onChange={(event) => setOrderStatusFilter(event.target.value)}
-                    className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
-                  >
-                    <option value="all">Wszystkie statusy</option>
-                    <option value="pending_bank_transfer">Oczekujące na przelew</option>
-                    <option value="pending">W trakcie</option>
-                    <option value="manual">Dostęp ręczny</option>
-                    <option value="completed">Opłacone</option>
-                    <option value="failed">Nieopłacone</option>
-                    <option value="refunded">Zwrócone</option>
-                    <option value="cancelled">Anulowane</option>
-                  </select>
-                  <input
-                    type="month"
-                    value={orderExportMonth}
-                    onChange={(event) => setOrderExportMonth(event.target.value)}
-                    className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleExportOrders}
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10"
-                  >
-                    <Download size={16} /> Eksportuj CSV
-                  </button>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <select
+                      value={orderStatusFilter}
+                      onChange={(event) => setOrderStatusFilter(event.target.value)}
+                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 sm:flex-1"
+                    >
+                      <option value="all">Wszystkie statusy</option>
+                      <option value="pending_bank_transfer">Oczekujące na przelew</option>
+                      <option value="pending">W trakcie</option>
+                      <option value="manual">Dostęp ręczny</option>
+                      <option value="completed">Opłacone</option>
+                      <option value="failed">Nieopłacone</option>
+                      <option value="refunded">Zwrócone</option>
+                      <option value="cancelled">Anulowane</option>
+                    </select>
+                    <input
+                      type="month"
+                      lang="pl"
+                      value={orderExportMonth}
+                      onChange={(event) => setOrderExportMonth(event.target.value)}
+                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 sm:flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleExportOrders}
+                      className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-gold/20 bg-gold/5 px-5 text-fs-label font-bold uppercase tracking-[0.18em] text-gold transition hover:bg-gold/10 sm:flex-1"
+                    >
+                      <Download size={16} /> Eksportuj CSV
+                    </button>
+                  </div>
                 </div>
               )}
             >
@@ -1003,12 +856,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-gold/5 bg-nude/30">
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Zamówienie</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Klientka</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Produkt</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Kwota</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Status</th>
-                        <th className="px-8 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Akcje</th>
+                        <th className="py-4 pl-8 pr-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:pr-6">Zamówienie</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Klientka</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Produkt</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Kwota</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Status</th>
+                        <th className="px-4 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -1017,11 +870,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
                         return (
                           <tr key={order.id} className="transition-colors hover:bg-white/40">
-                            <td className={getClickableCellClassName('px-8 py-6 text-fs-ui text-mauve/60')}>
+                            <td className={getClickableCellClassName('py-6 pl-6 pr-4 text-fs-ui text-mauve/60 md:pr-6')}>
                               <button
                                 type="button"
                                 onClick={() => setOrderModalState({ isOpen: true, order })}
-                                className={getClickableCellButtonClassName('px-8 py-6 text-fs-ui text-mauve/60')}
+                                className={getClickableCellButtonClassName('py-6 pl-2 pr-4 text-fs-ui text-mauve/60 md:pr-6')}
                               >
                                 <div>
                                   <p className="font-serif text-fs-body text-mauve">{getOrderNumberLabel(order)}</p>
@@ -1029,20 +882,20 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                                 </div>
                               </button>
                             </td>
-                            <td className="px-8 py-6">
+                            <td className="px-4 py-6 md:px-6">
                               <div className="space-y-1">
                                 <div className="font-medium text-mauve">{getOrderCustomerName(order)}</div>
                                 <div className="text-fs-ui text-mauve/55">{order.customer_email}</div>
                               </div>
                             </td>
-                            <td className="px-8 py-6 text-fs-ui text-mauve/75">{order.product_title || order.product_id}</td>
-                            <td className="px-8 py-6">
+                            <td className="px-4 py-6 text-fs-ui text-mauve/75 md:px-6">{order.product_title || order.product_id}</td>
+                            <td className="px-4 py-6 md:px-6">
                               <div className="space-y-1">
                                 <div className="font-serif text-fs-body-lg text-mauve whitespace-nowrap">{formatCurrency(order.amount_total)}</div>
                                 {order.applied_coupon_code ? <div className="text-fs-label uppercase tracking-[0.16em] text-mauve/45">Kupon: {order.applied_coupon_code}</div> : null}
                               </div>
                             </td>
-                            <td className="px-8 py-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
+                            <td className="px-4 py-6 md:px-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
                             <td className="px-8 py-6">
                               <div className="flex justify-end gap-2">
                                 <AdminActionIconButton title="Edytuj zamówienie" onClick={() => setOrderModalState({ isOpen: true, order })} icon={<Edit size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
@@ -1073,11 +926,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-gold/5 bg-nude/30">
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Strona</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">SEO</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Obrazek</th>
-                        <th className="px-8 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Akcje</th>
+                        <th className="py-4 pl-8 pr-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:pr-6">Strona</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Adres</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">SEO</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Obrazek</th>
+                        <th className="px-4 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -1087,11 +940,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
                         return (
                           <tr key={page.page_key} className="transition-colors hover:bg-white/40">
-                            <td className={getClickableCellClassName('px-8 py-6')}>
+                            <td className={getClickableCellClassName('py-6 pl-6 pr-4 md:pr-6')}>
                               <button
                                 type="button"
                                 onClick={() => setPageModalState({ isOpen: true, page })}
-                                className={getClickableCellButtonClassName('px-8 py-6')}
+                                className={getClickableCellButtonClassName('py-6 pl-2 pr-4 md:pr-6')}
                               >
                                 <div>
                                   <p className="font-serif text-fs-body-lg text-mauve">{page.page_name}</p>
@@ -1099,12 +952,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                                 </div>
                               </button>
                             </td>
-                            <td className="px-8 py-6 text-fs-ui text-mauve/60">{pagePreviewPath}</td>
-                            <td className="px-8 py-6"><AdminStatusIcon title={seoMeta.title} tone={seoMeta.tone} icon={seoMeta.icon} /></td>
-                            <td className="px-8 py-6 text-fs-ui text-mauve/60">{page.featured_image_url ? 'Dodany' : 'Brak'}</td>
+                            <td className="px-4 py-6 text-fs-ui text-mauve/60 md:px-6">{pagePreviewPath}</td>
+                            <td className="px-4 py-6 md:px-6"><AdminStatusIcon title={seoMeta.title} tone={seoMeta.tone} icon={seoMeta.icon} /></td>
+                            <td className="px-4 py-6 text-fs-ui text-mauve/60 md:px-6">{page.featured_image_url ? 'Dodany' : 'Brak'}</td>
                             <td className="px-8 py-6">
                               <div className="flex justify-end gap-2">
-                                <AdminActionIconButton title="Podgląd strony" onClick={() => openPreviewInNewTab(pagePreviewPath)} icon={<Eye size={16} />} tone="accent" className={TABLE_ACTION_BUTTON_CLASS} />
+                                <AdminActionIconButton title="Podgląd strony" onClick={() => openPreviewInNewTab(pagePreviewPath)} icon={<Eye size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
                                 <AdminActionIconButton title="Edytuj stronę" onClick={() => setPageModalState({ isOpen: true, page })} icon={<Edit size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
                               </div>
                             </td>
@@ -1140,12 +993,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-gold/5 bg-nude/30">
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Kod</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Rabat</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Ograniczenia</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Status</th>
-                        <th className="px-8 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Użycia</th>
-                        <th className="px-8 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Akcje</th>
+                        <th className="py-4 pl-8 pr-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:pr-6">Kod</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Rabat</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Ograniczenia</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Status</th>
+                        <th className="px-4 py-4 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Użycia</th>
+                        <th className="px-4 py-4 text-right text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55 md:px-6">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -1154,20 +1007,20 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
                         return (
                           <tr key={coupon.id} className="transition-colors hover:bg-white/40">
-                            <td className={getClickableCellClassName('px-8 py-6 font-mono text-fs-body-lg font-bold text-mauve')}>
+                            <td className={getClickableCellClassName('py-6 pl-6 pr-4 font-mono text-fs-body-lg font-bold text-mauve md:pr-6')}>
                               <button
                                 type="button"
                                 onClick={() => setCouponModalState({ isOpen: true, coupon })}
-                                className={getClickableCellButtonClassName('px-8 py-6 font-mono text-fs-body-lg font-bold text-mauve')}
+                                className={getClickableCellButtonClassName('py-6 pl-2 pr-4 font-mono text-fs-body-lg font-bold text-mauve md:pr-6')}
                               >
                                 {coupon.code}
                               </button>
                             </td>
-                            <td className="px-8 py-6 text-fs-ui font-bold text-gold">{coupon.discount_type === 'percent' ? `-${coupon.value}%` : `-${formatCurrency(coupon.value)}`}</td>
-                            <td className="px-8 py-6 text-fs-ui text-mauve/60">{renderCouponRestrictions(coupon)}</td>
-                            <td className="px-8 py-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
-                            <td className="px-8 py-6 text-fs-ui text-mauve/70">{coupon.times_used}{coupon.usage_limit != null ? ` / ${coupon.usage_limit}` : ''}</td>
-                            <td className="px-8 py-6">
+                            <td className="px-4 py-6 md:px-6 text-fs-ui font-bold text-gold">{coupon.discount_type === 'percent' ? `-${coupon.value}%` : `-${formatCurrency(coupon.value)}`}</td>
+                            <td className="px-4 py-6 md:px-6 text-fs-ui text-mauve/60">{renderCouponRestrictions(coupon)}</td>
+                            <td className="px-4 py-6 md:px-6"><AdminStatusIcon title={statusMeta.title} tone={statusMeta.tone} icon={statusMeta.icon} /></td>
+                            <td className="px-4 py-6 md:px-6 text-fs-ui text-mauve/70">{coupon.times_used}{coupon.usage_limit != null ? ` / ${coupon.usage_limit}` : ''}</td>
+                            <td className="px-4 py-6 md:px-6">
                               <div className="flex justify-end gap-2">
                                 <AdminActionIconButton title="Edytuj kupon" onClick={() => setCouponModalState({ isOpen: true, coupon })} icon={<Edit size={16} />} className={TABLE_ACTION_BUTTON_CLASS} />
                                 <AdminActionIconButton title="Usuń kupon" onClick={() => handleDeleteCoupon(coupon.id)} icon={<Trash2 size={16} />} tone="danger" className={TABLE_ACTION_BUTTON_CLASS} />
@@ -1198,90 +1051,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
               </div>
 
               <form onSubmit={handleSaveSettings} className="space-y-6">
-                <SettingsGroup eyebrow="Wygląd i SEO" title="Ustawienia globalne" description="Domyślne metadane strony oraz favicon. Uwaga: zmiany w tych ustawieniach będą widoczne dla klientów dopiero po ponownej publikacji serwisu (kolejnym wdrożeniu / zapisaniu jakiejkolwiek strony).">
-                  <div className="space-y-6">
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Favicon (ikona w karcie przeglądarki)</p>
-                      <AdminImagePicker
-                        value={settings.favicon_url || ''}
-                        onChange={(url) => setSettings({ ...settings, favicon_url: url })}
-                      />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
-                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
-                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
-                      <AdminImagePicker
-                        value={settings.seo_default_social_image || ''}
-                        onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
-                      />
-                    </div>
-                  </div>
-                </SettingsGroup>
-
-                <SettingsGroup eyebrow="Marketing i Kody" title="Skrypty zagnieżdżone" description="Wklej tutaj zewnętrzne skrypty narzędzi analitycznych i reklamowych (np. Piksel Meta/Facebook, Google Analytics 4, Hotjar, Google Tag Manager). Zmiany w kodach również wymagają ponownej modyfikacji i wdrożenia platformy.">
-                  <div className="space-y-6">
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;head&gt;</p>
-                      <textarea value={settings.marketing_head_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_head_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
-                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane przed końcowym znacznikiem &lt;/head&gt;. Tutaj umieszcza się większość kodów weryfikacyjnych i śledzących.</p>
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;body&gt; (na końcu)</p>
-                      <textarea value={settings.marketing_body_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_body_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
-                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane tuż przed &lt;/body&gt; na dole strony. Np. skrypty czatów, dodatkowe pop-upy z zewnętrznych narzędzi.</p>
-                    </div>
-                  </div>
-                </SettingsGroup>
-
-                <SettingsGroup eyebrow="Tryb serwisowy" title="Strona w trybie serwisowym" description="Gdy tryb serwisowy jest włączony, odwiedzający widzą stronę informacyjną zamiast normalnej treści. Administratorzy nadal mają pełny dostęp do serwisu.">
-                  <div className="space-y-4">
-                    <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-gold/10 bg-white px-5 py-4 transition hover:border-gold/25">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          className="sr-only"
-                          checked={Boolean(settings.maintenance_mode)}
-                          onChange={(event) => setSettings({ ...settings, maintenance_mode: event.target.checked })}
-                        />
-                        <div className={`h-6 w-11 rounded-full transition-colors ${settings.maintenance_mode ? 'bg-gold' : 'bg-mauve/20'}`}></div>
-                        <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${settings.maintenance_mode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
-                      </div>
-                      <div>
-                        <p className="font-bold text-mauve">{settings.maintenance_mode ? 'Tryb serwisowy włączony' : 'Tryb serwisowy wyłączony'}</p>
-                        <p className="mt-0.5 text-fs-ui text-mauve/55">{settings.maintenance_mode ? 'Strona jest tymczasowo niedostępna dla odwiedzających.' : 'Strona jest publicznie dostępna.'}</p>
-                      </div>
-                    </label>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wiadomość dla odwiedzających (opcjonalnie)</p>
-                      <input value={settings.maintenance_message || ''} onChange={(event) => setSettings({ ...settings, maintenance_message: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Wkrótce wracamy. Trwają prace serwisowe." />
-                    </div>
-                  </div>
-                </SettingsGroup>
-
-                <SettingsGroup eyebrow="Płatności" title="Stripe" description="Wszystkie klucze Stripe są zebrane w jednym bloku, aby łatwiej kontrolować konfigurację checkoutu i webhooków.">
-                  <div className="grid gap-5 xl:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Publiczny)</label>
-                      <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Prywatny / Secret)</label>
-                      <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_SECRET_KEY_PLACEHOLDER" />
-                    </div>
-                    <div className="space-y-1 xl:col-span-2">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Webhook Stripe</label>
-                      <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_WEBHOOK_SECRET_PLACEHOLDER" />
-                    </div>
-                  </div>
-                </SettingsGroup>
-
                 <SettingsGroup eyebrow="Komunikacja" title="Kontakt i powiadomienia" description="W tym miejscu trzymasz dane kontaktowe marki oraz adres, na który mają trafiać wiadomości systemowe i informacje o zamówieniach.">
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
@@ -1325,6 +1094,23 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   </div>
                 </SettingsGroup>
 
+                <SettingsGroup eyebrow="Płatności" title="Stripe" description="Wszystkie klucze Stripe są zebrane w jednym bloku, aby łatwiej kontrolować konfigurację checkoutu i webhooków.">
+                  <div className="grid gap-5 xl:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Publiczny)</label>
+                      <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Prywatny / Secret)</label>
+                      <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_SECRET_KEY_PLACEHOLDER" />
+                    </div>
+                    <div className="space-y-1 xl:col-span-2">
+                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Webhook Stripe</label>
+                      <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_WEBHOOK_SECRET_PLACEHOLDER" />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
                 <SettingsGroup eyebrow="Obsługa ręczna" title="Przelewy tradycyjne" description="Dane wyświetlane klientce przy wyborze przelewu manualnego. Sekcja jest podzielona na czytelne pola w układzie dwukolumnowym.">
                   {!bankTransferConfigured ? (
                     <div className="mb-5 rounded-[24px] border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
@@ -1347,6 +1133,73 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                     <div className="space-y-1 xl:col-span-2">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Dodatkowe instrukcje do przelewu</label>
                       <textarea value={settings.bank_transfer_instructions || ''} onChange={(event) => setSettings({ ...settings, bank_transfer_instructions: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Np. poproś klientkę o przesłanie potwierdzenia przelewu albo dodaj dodatkowe instrukcje." />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Wygląd i SEO" title="Ustawienia globalne" description="Domyślne metadane strony oraz favicon. Po zapisaniu zmiany powinny pojawić się na stronie po chwili.">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Favicon (ikona w karcie przeglądarki)</p>
+                      <AdminImagePicker
+                        value={settings.favicon_url || ''}
+                        onChange={(url) => setSettings({ ...settings, favicon_url: url })}
+                      />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
+                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
+                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
+                      <AdminImagePicker
+                        value={settings.seo_default_social_image || ''}
+                        onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
+                      />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Marketing i kody" title="Skrypty zagnieżdżone" description="Wklej tutaj zewnętrzne skrypty narzędzi analitycznych i reklamowych (np. Piksel Meta/Facebook, Google Analytics 4, Hotjar, Google Tag Manager). Po zapisaniu zmiany pojawią się na stronie po chwili.">
+                  <div className="space-y-6">
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;head&gt;</p>
+                      <textarea value={settings.marketing_head_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_head_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane przed końcowym znacznikiem &lt;/head&gt;. Tutaj umieszcza się większość kodów weryfikacyjnych i śledzących.</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;body&gt; (na końcu)</p>
+                      <textarea value={settings.marketing_body_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_body_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <p className="mt-2 text-fs-ui text-mauve/40">Dodane tuż przed &lt;/body&gt; na dole strony. Np. skrypty czatów, dodatkowe pop-upy z zewnętrznych narzędzi.</p>
+                    </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Tryb serwisowy" title="Strona w trybie serwisowym" description="Gdy tryb serwisowy jest włączony, odwiedzający widzą stronę informacyjną zamiast normalnej treści. Administratorzy nadal mają pełny dostęp do serwisu.">
+                  <div className="space-y-4">
+                    <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-gold/10 bg-white px-5 py-4 transition hover:border-gold/25">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={Boolean(settings.maintenance_mode)}
+                          onChange={(event) => setSettings({ ...settings, maintenance_mode: event.target.checked })}
+                        />
+                        <div className={`h-6 w-11 rounded-full transition-colors ${settings.maintenance_mode ? 'bg-gold' : 'bg-mauve/20'}`}></div>
+                        <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${settings.maintenance_mode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+                      </div>
+                      <div>
+                        <p className="font-bold text-mauve">{settings.maintenance_mode ? 'Tryb serwisowy włączony' : 'Tryb serwisowy wyłączony'}</p>
+                        <p className="mt-0.5 text-fs-ui text-mauve/55">{settings.maintenance_mode ? 'Strona jest tymczasowo niedostępna dla odwiedzających.' : 'Strona jest publicznie dostępna.'}</p>
+                      </div>
+                    </label>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wiadomość dla odwiedzających (opcjonalnie)</p>
+                      <input value={settings.maintenance_message || ''} onChange={(event) => setSettings({ ...settings, maintenance_message: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Wkrótce wracamy. Trwają prace serwisowe." />
                     </div>
                   </div>
                 </SettingsGroup>
@@ -1374,10 +1227,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
             productId={productModalState.productId}
             embedded={true}
             onClose={() => setProductModalState({ isOpen: false, productId: 'new' })}
-            onSaved={(message) => {
+            onSaved={async (message) => {
               setProductModalState({ isOpen: false, productId: 'new' });
-              alert(message);
-              handlePublicContentChanged();
+              await handlePublicContentChanged({ baseMessage: message, showAlert: true });
               fetchData();
             }}
           />
@@ -1419,10 +1271,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
         <AdminPageSettingsModal
           page={pageModalState.page}
           onClose={() => setPageModalState({ isOpen: false, page: null })}
-          onSaved={(message) => {
+          onSaved={async (message) => {
             setPageModalState({ isOpen: false, page: null });
-            alert(message);
-            handlePublicContentChanged();
+            await handlePublicContentChanged({ baseMessage: message, showAlert: true });
             fetchData();
           }}
         />

@@ -234,7 +234,7 @@ try {
             if ($product) {
                 $productTitle = (string) ($product['title'] ?? $productTitle);
                 if (!empty($product['slug'])) {
-                    $retryUrl = mailer_detect_base_url() . '/oferta/' . $product['slug'];
+                    $retryUrl = mailer_detect_base_url() . '/' . $product['slug'];
                 }
             }
         }

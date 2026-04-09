@@ -126,7 +126,7 @@ try {
         "cd $remoteRoot",
         'find . -mindepth 1 -maxdepth 1 ! -name data ! -name .well-known -exec rm -rf {} +',
         'mkdir -p data',
-        'find data -mindepth 1 -maxdepth 1 ! -name database.sqlite ! -name webhook.log ! -name .htaccess -exec rm -rf {} +',
+        'find data -mindepth 1 -maxdepth 1 ! -name database.sqlite ! -name webhook.log ! -name .htaccess ! -name runtime-secrets.php -exec rm -rf {} +',
         "tar -xzf ~/$remoteStage/$archiveName -C .",
         'find . -type d -exec chmod 755 {} +',
         'find . -type f -exec chmod 644 {} +',
@@ -144,7 +144,7 @@ try {
 
     Invoke-Step -Label 'Running production smoke checks' -Action {
         Invoke-HealthCheck -Label 'Homepage' -Url "$siteBaseUrl/"
-        Invoke-HealthCheck -Label 'Product route' -Url "$siteBaseUrl/oferta/otulic-polog/"
+        Invoke-HealthCheck -Label 'Product route' -Url "$siteBaseUrl/otulic-polog/"
         Invoke-HealthCheck -Label 'Optional auth API' -Url "$siteBaseUrl/api/auth/me?optional=1"
     }
 

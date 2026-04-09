@@ -191,7 +191,7 @@ export default function AdminUserModal({
         await axios.post('/api/admin/users', payload);
       }
 
-      onSaved(isEditing ? 'Użytkownik został zaktualizowany.' : 'Użytkownik został utworzony.');
+      onSaved('Użytkownik został zapisany.');
     } catch (requestError) {
       setError(requestError.response?.data?.error || 'Nie udało się zapisać użytkownika.');
     } finally {
@@ -353,7 +353,7 @@ export default function AdminUserModal({
                   <li key={product.id} className="flex flex-col gap-3 px-4 py-4 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0">
                       <p className="font-medium text-mauve">{product.title}</p>
-                      <p className="mt-1 text-fs-ui text-mauve/50">{translateProductType(product.type)}{product.slug ? ` • /oferta/${product.slug}` : ''}</p>
+                      <p className="mt-1 text-fs-ui text-mauve/50">{translateProductType(product.type)}{product.slug ? ` • /${product.slug}` : ''}</p>
                     </div>
                     <div className="shrink-0 text-left md:text-right">
                       <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Data zakupu</p>
