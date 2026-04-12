@@ -5,13 +5,12 @@ const token = initialToken ?? '';
 const isLogin = mode === 'login';
 const isForgotPassword = mode === 'forgot-password';
 const isResetPassword = mode === 'reset-password';
-const hasResetToken = Boolean(token);
 ---
 
 <div
   class:list={[
-    'rounded-[32px] border border-white/80 shadow-soft backdrop-blur-md md:p-10',
-    isLogin ? 'bg-white/70 p-8 backdrop-blur-sm' : 'bg-white/60 p-8',
+    'rounded-4xl border border-white/80 shadow-soft backdrop-blur-md md:p-10',
+    isLogin ? 'bg-white/70 p-8 backdrop-blur-xs' : 'bg-white/60 p-8',
   ]}
   data-auth-form-root
   data-mode={mode}
@@ -25,7 +24,7 @@ const hasResetToken = Boolean(token);
       </p>
 
       <div class="mb-6 hidden rounded-2xl border border-gold/20 bg-gold/10 p-4 text-fs-ui text-gold" data-auth-message></div>
-      <div class="mb-6 hidden rounded-2xl border border-rose/40 bg-rose/20 p-4 text-fs-ui font-semibold text-mauve shadow-sm" data-auth-error></div>
+      <div class="mb-6 hidden rounded-2xl border border-rose/40 bg-rose/20 p-4 text-fs-ui font-semibold text-mauve shadow-xs" data-auth-error></div>
 
       <form class="flex flex-col gap-5" data-auth-form>
         <div>
@@ -33,7 +32,7 @@ const hasResetToken = Boolean(token);
           <input
             type="email"
             name="email"
-            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-hidden focus:ring-2 focus:ring-gold/30"
             placeholder="twoj@email.pl"
             required
           />
@@ -43,7 +42,7 @@ const hasResetToken = Boolean(token);
           <input
             type="password"
             name="password"
-            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-hidden focus:ring-2 focus:ring-gold/30"
             placeholder="••••••••••••"
             required
           />
@@ -84,7 +83,7 @@ const hasResetToken = Boolean(token);
           <input
             type="email"
             name="email"
-            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-hidden focus:ring-2 focus:ring-gold/30"
             placeholder="twoj@email.pl"
             required
           />
@@ -109,8 +108,8 @@ const hasResetToken = Boolean(token);
     </>
   )}
 
-  {isResetPassword && !hasResetToken && (
-    <div class="text-center">
+  {isResetPassword && (
+    <div class="text-center hidden" data-reset-missing-token>
       <h1 class="mb-4 font-serif text-fs-title-md text-mauve">Błąd linku</h1>
       <p class="mb-8 font-light text-rose/80">Brak tokenu resetującego. Skopiuj pełny link z e-maila.</p>
       <a href="/zapomnialam-hasla" class="text-fs-label font-bold uppercase tracking-widest text-gold transition-colors hover:text-gold/80">
@@ -119,8 +118,8 @@ const hasResetToken = Boolean(token);
     </div>
   )}
 
-  {isResetPassword && hasResetToken && (
-    <>
+  {isResetPassword && (
+    <div data-reset-form-state>
       <h1 class="mb-2 text-center font-serif text-fs-title-md text-mauve">Nowe hasło</h1>
       <p class="mb-8 text-center text-fs-ui font-light text-mauve/50">
         Utwórz nowe, silne hasło dla swojego konta (min. 12 znaków).
@@ -139,7 +138,7 @@ const hasResetToken = Boolean(token);
           <input
             type="password"
             name="password"
-            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-hidden focus:ring-2 focus:ring-gold/30"
             placeholder="••••••••••••"
             required
             minlength="12"
@@ -150,7 +149,7 @@ const hasResetToken = Boolean(token);
           <input
             type="password"
             name="password_confirm"
-            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-none focus:ring-2 focus:ring-gold/30"
+            class="h-14 w-full rounded-2xl border border-mauve/10 bg-white px-5 font-light text-mauve transition-all focus:outline-hidden focus:ring-2 focus:ring-gold/30"
             placeholder="••••••••••••"
             required
             minlength="12"
@@ -167,13 +166,12 @@ const hasResetToken = Boolean(token);
           Zmień hasło
         </button>
       </form>
-    </>
+    </div>
   )}
 </div>
 
 <script>
   // @ts-nocheck
-  /** @returns {Promise<any>} */
   async function postJson(url, payload) {
     const response = await fetch(url, {
       method: 'POST',
@@ -184,7 +182,6 @@ const hasResetToken = Boolean(token);
       body: JSON.stringify(payload),
     });
 
-    /** @type {any} */
     let body = null;
     try {
       body = await response.json();
@@ -208,12 +205,22 @@ const hasResetToken = Boolean(token);
   document.querySelectorAll('[data-auth-form-root]').forEach((node) => {
     const root = node instanceof HTMLElement ? node : null;
     const mode = root?.dataset.mode || 'login';
-    const token = root?.dataset.token || '';
+    const token = mode === 'reset-password'
+      ? root?.dataset.token || new URLSearchParams(window.location.search).get('token') || ''
+      : root?.dataset.token || '';
     const form = root?.querySelector('[data-auth-form]');
     const errorBox = root?.querySelector('[data-auth-error]');
     const messageBox = root?.querySelector('[data-auth-message]');
     const successBox = root?.querySelector('[data-auth-success]');
     const submitButton = root?.querySelector('[data-submit-button]');
+    const missingTokenState = root?.querySelector('[data-reset-missing-token]');
+    const resetFormState = root?.querySelector('[data-reset-form-state]');
+
+    if (root && mode === 'reset-password') {
+      root.dataset.token = token;
+      setHidden(missingTokenState, Boolean(token));
+      setHidden(resetFormState, !token);
+    }
 
     if (!(form instanceof HTMLFormElement) || !(submitButton instanceof HTMLButtonElement)) {
       return;

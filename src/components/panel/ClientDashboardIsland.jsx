@@ -58,7 +58,7 @@ function PanelFrame() {
             </button>
             <button
               onClick={handleLogout}
-              className="group relative inline-flex h-10 min-w-[2.5rem] w-auto cursor-pointer items-center justify-start border-0 outline-none sm:min-w-[10rem]"
+              className="group relative inline-flex h-10 min-w-10 w-auto cursor-pointer items-center justify-start border-0 outline-hidden sm:min-w-40"
             >
               <span
                 className="circle absolute left-0 top-0 block h-10 w-10 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.25rem] z-0"
@@ -74,7 +74,7 @@ function PanelFrame() {
         </div>
       </header>
 
-      <main className="flex-grow px-4 pt-24 sm:px-6">
+      <main className="grow px-4 pt-24 sm:px-6">
         <ClientDashboard />
       </main>
 

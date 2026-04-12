@@ -153,7 +153,7 @@ export default function AdminReviews({ onPublicContentSaved }) {
                     <button
                       type="button"
                       onClick={() => openEditModal(r)}
-                      className="block w-full px-8 py-6 text-left transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/30"
+                      className="block w-full px-8 py-6 text-left transition-colors hover:bg-white/10 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gold/30"
                     >
                       <strong className="block font-serif text-fs-body-lg font-normal text-mauve">{r.author}</strong>
                       <span className="mt-1 block text-fs-label uppercase tracking-[0.16em] text-mauve/45">{r.subtitle || 'Bez podtytułu'}</span>

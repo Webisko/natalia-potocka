@@ -9,7 +9,7 @@ const offerPagePath = Astro.props.offerPagePath || '/#oferta';
 <div class="w-full bg-nude">
   <section class="relative flex min-h-[70vh] items-center overflow-hidden pb-20 pt-10">
     <div class="pointer-events-none absolute inset-0 -z-10"></div>
-    <div class="pointer-events-none absolute bottom-0 left-0 z-20 h-32 w-full bg-gradient-to-t from-nude via-nude/80 to-transparent"></div>
+    <div class="pointer-events-none absolute bottom-0 left-0 z-20 h-32 w-full bg-linear-to-t from-nude via-nude/80 to-transparent"></div>
     <svg class="absolute inset-0 h-full w-full pointer-events-none opacity-20" viewBox="0 0 1440 600" preserveAspectRatio="none">
       <path d="M-100,300 C300,100 700,500 1100,250 C1350,100 1500,300 1700,200" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="8 18" class="animate-flow-vein-gold"></path>
       <path d="M-100,360 C300,160 700,560 1100,310 C1350,160 1500,360 1700,260" fill="none" stroke="#E6B8B8" stroke-width="2" stroke-dasharray="14 28" class="animate-flow-vein-rose"></path>
@@ -26,9 +26,9 @@ const offerPagePath = Astro.props.offerPagePath || '/#oferta';
           </svg>
           <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-terracotta">O mnie</span>
         </div>
-        <h1 class="mb-8 font-serif text-4xl leading-[1.05] text-mauve md:text-6xl lg:text-7xl">Matematyczka,<br />która zaufała <span class="bg-gradient-to-r from-gold to-[#B88A44] bg-clip-text italic text-transparent">intuicji.</span></h1>
+        <h1 class="mb-8 font-serif text-4xl leading-[1.05] text-mauve md:text-6xl lg:text-7xl">Matematyczka,<br />która zaufała <span class="bg-linear-to-r from-gold to-[#B88A44] bg-clip-text italic text-transparent">intuicji.</span></h1>
         <p class="mb-10 max-w-2xl text-lg font-light leading-relaxed text-mauve/70 md:text-xl">Jestem edukatorką okołoporodową i terapeutką traumy. Łączę analityczny umysł z głęboką empatią – by być przy Tobie w sposób, który naprawdę ma znaczenie.</p>
-        <a href="/konsultacja-indywidualna" class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+        <a href="/konsultacja-indywidualna" class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
           <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
@@ -63,7 +63,7 @@ const offerPagePath = Astro.props.offerPagePath || '/#oferta';
             <div class="absolute inset-0 scale-110 animate-morph border border-gold/30" style="animation-delay: 2s; border-radius: 40% 60% 60% 40% / 55% 45% 55% 45%;"></div>
             <div class="relative h-full w-full overflow-hidden shadow-xl" style="border-radius: 40% 60% 60% 40% / 55% 45% 55% 45%;">
               <OptimizedImage src={featuredImageSrc} alt="Natalia Potocka" class="h-full w-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 768px) 420px, 320px" />
-              <div class="absolute inset-0 bg-gradient-to-t from-mauve/20 to-transparent"></div>
+              <div class="absolute inset-0 bg-linear-to-t from-mauve/20 to-transparent"></div>
             </div>
             <div class="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-gold/10 blur-xl animate-heartbeat"></div>
           </div>
@@ -104,16 +104,16 @@ const offerPagePath = Astro.props.offerPagePath || '/#oferta';
           </svg>
           <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Sprawdź ofertę</span>
         </div>
-        <h2 class="mb-8 font-serif text-4xl leading-[1.1] text-mauve md:text-6xl">Każda kobieta zasługuje na <span class="bg-gradient-to-r from-terracotta to-gold bg-clip-text italic text-transparent">wsparcie, które czuje.</span></h2>
+        <h2 class="mb-8 font-serif text-4xl leading-[1.1] text-mauve md:text-6xl">Każda kobieta zasługuje na <span class="bg-linear-to-r from-terracotta to-gold bg-clip-text italic text-transparent">wsparcie, które czuje.</span></h2>
         <p class="mx-auto mb-12 max-w-2xl text-lg font-light leading-relaxed text-mauve/65 md:text-xl">Przejrzyj dostępne formy wsparcia – od terapii traumy i konsultacji indywidualnych, po nagrania webinarów i medytacje, które możesz odtwarzać kiedy chcesz.</p>
         <div class="flex flex-col items-center justify-center gap-5 sm:flex-row">
-          <a href={offerPagePath} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <a href={offerPagePath} class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
             <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
               <BlobArrowIcon />
             </span>
             <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Terapia i konsultacje</span>
           </a>
-          <a href={offerPagePath} class="group relative inline-flex h-[50px] min-w-[12rem] w-auto cursor-pointer items-center justify-start border-0 outline-none">
+          <a href={offerPagePath} class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
             <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
               <BlobArrowIcon />
             </span>

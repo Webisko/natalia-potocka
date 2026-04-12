@@ -30,7 +30,10 @@ export default function RichTextEditor({ label, value, onChange, placeholder = '
 
   const runCommand = (command, commandValue) => {
     editorRef.current?.focus();
-    document.execCommand(command, false, commandValue);
+    const execCommand = Reflect.get(document, 'execCommand');
+    if (typeof execCommand === 'function') {
+      execCommand.call(document, command, false, commandValue);
+    }
     syncValue();
   };
 
@@ -48,7 +51,7 @@ export default function RichTextEditor({ label, value, onChange, placeholder = '
   return (
     <div>
       <label className="mb-2 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">{label}</label>
-      <div className="overflow-hidden rounded-[24px] border border-mauve/15 bg-white">
+      <div className="overflow-hidden rounded-3xl border border-mauve/15 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-mauve/10 px-4 py-3">
           {TOOLBAR_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -86,7 +89,7 @@ export default function RichTextEditor({ label, value, onChange, placeholder = '
               syncValue();
             }}
             onInput={syncValue}
-            className="min-h-[220px] px-4 py-4 text-fs-body leading-8 text-mauve focus:outline-none [&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:font-serif [&_h2]:text-fs-title-sm [&_h2]:text-mauve [&_h3]:font-serif [&_h3]:text-fs-body-lg [&_h3]:text-mauve [&_li]:ml-5 [&_li]:pl-1 [&_ol]:list-decimal [&_ul]:list-disc"
+            className="min-h-55 px-4 py-4 text-fs-body leading-8 text-mauve focus:outline-hidden [&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:font-serif [&_h2]:text-fs-title-sm [&_h2]:text-mauve [&_h3]:font-serif [&_h3]:text-fs-body-lg [&_h3]:text-mauve [&_li]:ml-5 [&_li]:pl-1 [&_ol]:list-decimal [&_ul]:list-disc"
           />
         </div>
       </div>

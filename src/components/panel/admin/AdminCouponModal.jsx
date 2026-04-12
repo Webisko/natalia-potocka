@@ -84,7 +84,7 @@ function CouponDateTimeField({ label, value, onChange }) {
         calendarStartDay={1}
         popperPlacement="bottom-start"
         wrapperClassName="admin-datepicker-wrapper"
-        className="admin-datepicker-input w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+        className="admin-datepicker-input w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
       />
       <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Format polski: dd.mm.rrrr, godz. gg:mm.</p>
     </div>
@@ -208,7 +208,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 required
                 value={formData.code}
                 onChange={(event) => setFormData((previous) => ({ ...previous, code: event.target.value.toUpperCase() }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -216,7 +216,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
               <select
                 value={formData.discount_type}
                 onChange={(event) => setFormData((previous) => ({ ...previous, discount_type: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               >
                 <option value="percent">Zniżka procentowa</option>
                 <option value="amount">Zniżka kwotowa</option>
@@ -231,7 +231,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 step="0.01"
                 value={formData.value}
                 onChange={(event) => setFormData((previous) => ({ ...previous, value: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -239,7 +239,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
               <select
                 value={formData.is_active ? 'active' : 'inactive'}
                 onChange={(event) => setFormData((previous) => ({ ...previous, is_active: event.target.value === 'active' }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               >
                 <option value="active">Aktywny</option>
                 <option value="inactive">Nieaktywny</option>
@@ -251,7 +251,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 rows={3}
                 value={formData.description}
                 onChange={(event) => setFormData((previous) => ({ ...previous, description: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-none"
                 placeholder="Np. kampania wiosenna, webinar, oferta dla klientek po konsultacji"
               />
             </div>
@@ -283,7 +283,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 step="0.01"
                 value={formData.minimum_spend}
                 onChange={(event) => setFormData((previous) => ({ ...previous, minimum_spend: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -294,7 +294,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 step="0.01"
                 value={formData.maximum_spend}
                 onChange={(event) => setFormData((previous) => ({ ...previous, maximum_spend: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -305,7 +305,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 step="1"
                 value={formData.usage_limit}
                 onChange={(event) => setFormData((previous) => ({ ...previous, usage_limit: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -316,7 +316,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 step="1"
                 value={formData.usage_limit_per_user}
                 onChange={(event) => setFormData((previous) => ({ ...previous, usage_limit_per_user: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
           </div>
@@ -342,21 +342,21 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 <button
                   type="button"
                   onClick={() => setFormData((previous) => ({ ...previous, product_scope_mode: 'include' }))}
-                  className={`inline-flex min-w-[8.5rem] items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'include' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
+                  className={`inline-flex min-w-34 items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'include' ? 'bg-gold text-white shadow-xs shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
                 >
                   Dozwolone
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData((previous) => ({ ...previous, product_scope_mode: 'exclude' }))}
-                  className={`inline-flex min-w-[8.5rem] items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'exclude' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
+                  className={`inline-flex min-w-34 items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'exclude' ? 'bg-gold text-white shadow-xs shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
                 >
                   Wykluczone
                 </button>
               </div>
             </div>
 
-            <div className="self-start rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-[16.5rem]">
+            <div className="self-start rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-66">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zaznaczone produkty</p>
               <p className="mt-2 font-medium text-mauve">{formData.scoped_product_ids.length}</p>
             </div>
@@ -400,7 +400,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
               rows={6}
               value={formData.allowed_emails}
               onChange={(event) => setFormData((previous) => ({ ...previous, allowed_emails: event.target.value }))}
-              className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
+              className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-none"
               placeholder={'jeden@adres.pl\n*@gmail.com'}
             />
             <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Możesz wpisać konkretne adresy lub wzorce z gwiazdką, np. *@gmail.com.</p>

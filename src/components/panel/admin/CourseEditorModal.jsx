@@ -44,7 +44,7 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Tytuł lekcji *</label>
-          <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve placeholder:text-mauve/30 focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Tytuł lekcji..." />
+          <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve placeholder:text-mauve/30 focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Tytuł lekcji..." />
         </div>
         <div>
           <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Typ lekcji</label>
@@ -58,7 +58,7 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
         </div>
         <div>
           <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Czas trwania (min)</label>
-          <input type="number" value={form.duration_minutes} onChange={(event) => setForm({ ...form, duration_minutes: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="np. 20" />
+          <input type="number" value={form.duration_minutes} onChange={(event) => setForm({ ...form, duration_minutes: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="np. 20" />
         </div>
         {(form.lesson_type === 'video' || form.lesson_type === 'audio') && (
           <div className="sm:col-span-2">
@@ -83,16 +83,16 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
         {form.lesson_type === 'text' && (
           <div className="sm:col-span-2">
             <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Treść lekcji (Markdown)</label>
-            <textarea value={form.content_text} onChange={(event) => setForm({ ...form, content_text: event.target.value })} rows={8} className="w-full resize-y rounded-xl border border-mauve/15 bg-white px-4 py-2.5 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="# Nagłówek&#10;&#10;Tekst lekcji..." />
+            <textarea value={form.content_text} onChange={(event) => setForm({ ...form, content_text: event.target.value })} rows={8} className="w-full resize-y rounded-xl border border-mauve/15 bg-white px-4 py-2.5 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="# Nagłówek&#10;&#10;Tekst lekcji..." />
           </div>
         )}
         <div className="sm:col-span-2">
           <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Opis (widoczny dla klientki)</label>
-          <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={2} className="w-full resize-none rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Krótki opis lekcji..." />
+          <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={2} className="w-full resize-none rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Krótki opis lekcji..." />
         </div>
         <div>
           <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Kolejność</label>
-          <input type="number" value={form.order_index} onChange={(event) => setForm({ ...form, order_index: Number.parseInt(event.target.value || '0', 10) })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" />
+          <input type="number" value={form.order_index} onChange={(event) => setForm({ ...form, order_index: Number.parseInt(event.target.value || '0', 10) })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" />
         </div>
       </div>
       <div className="flex justify-end gap-3">
@@ -154,8 +154,8 @@ function ModuleEditor({ module, onRefresh }) {
     <div className="overflow-hidden rounded-2xl border border-mauve/10 bg-white/60">
       {editingModule ? (
         <div className="border-b border-mauve/10 bg-gold/5 p-4">
-          <input value={moduleForm.title} onChange={(event) => setModuleForm({ ...moduleForm, title: event.target.value })} className="mb-2 w-full rounded-xl border border-mauve/15 bg-white px-3 py-2 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" />
-          <input value={moduleForm.description} onChange={(event) => setModuleForm({ ...moduleForm, description: event.target.value })} className="mb-3 w-full rounded-xl border border-mauve/15 bg-white px-3 py-2 text-fs-body text-mauve/60 focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Opis modułu (opcjonalny)..." />
+          <input value={moduleForm.title} onChange={(event) => setModuleForm({ ...moduleForm, title: event.target.value })} className="mb-2 w-full rounded-xl border border-mauve/15 bg-white px-3 py-2 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" />
+          <input value={moduleForm.description} onChange={(event) => setModuleForm({ ...moduleForm, description: event.target.value })} className="mb-3 w-full rounded-xl border border-mauve/15 bg-white px-3 py-2 text-fs-body text-mauve/60 focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Opis modułu (opcjonalny)..." />
           <div className="flex justify-end gap-2">
             <button onClick={() => setEditingModule(false)} className="rounded-lg bg-mauve/5 px-3 py-1.5 text-fs-label font-medium text-mauve/50 transition-colors hover:bg-mauve/10">Anuluj</button>
             <button onClick={saveModule} className="flex items-center gap-1 rounded-lg bg-gold px-3 py-1.5 text-fs-label font-bold uppercase tracking-wider text-white transition-colors hover:bg-gold/90">
@@ -330,20 +330,20 @@ export default function CourseEditorModal({ productId, productTitle, onClose }) 
         </div>
       )}
     >
-          <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-sm">
+          <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-xs">
             <h3 className="mb-4 flex items-center gap-2 font-serif text-mauve"><BookOpen size={16} className="text-gold" /> Ustawienia kursu</h3>
             <div className="space-y-3">
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Tytuł kursu *</label>
-                <input value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Tytuł..." />
+                <input value={courseForm.title} onChange={(event) => setCourseForm({ ...courseForm, title: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Tytuł..." />
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">URL miniaturki</label>
-                <input value={courseForm.thumbnail_url} onChange={(event) => setCourseForm({ ...courseForm, thumbnail_url: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="https://..." />
+                <input value={courseForm.thumbnail_url} onChange={(event) => setCourseForm({ ...courseForm, thumbnail_url: event.target.value })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="https://..." />
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Opis</label>
-                <textarea value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} rows={3} className="w-full resize-none rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Opis kursu..." />
+                <textarea value={courseForm.description} onChange={(event) => setCourseForm({ ...courseForm, description: event.target.value })} rows={3} className="w-full resize-none rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Opis kursu..." />
               </div>
             </div>
             <div className="mt-4 flex justify-end">
@@ -360,7 +360,7 @@ export default function CourseEditorModal({ productId, productTitle, onClose }) 
           </div>
 
           {course && (
-            <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-sm">
+            <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-xs">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-serif text-mauve"><Star size={15} className="text-gold" /> Moduły ({course.modules?.length || 0})</h3>
                 <button onClick={() => setAddingModule(!addingModule)} className="flex items-center gap-2 text-fs-label font-bold uppercase tracking-wider text-gold transition-colors hover:text-gold/70">
@@ -370,8 +370,8 @@ export default function CourseEditorModal({ productId, productTitle, onClose }) 
 
               {addingModule && (
                 <form onSubmit={addModule} className="mb-4 rounded-2xl border border-mauve/10 bg-white/70 p-4">
-                  <input value={moduleForm.title} onChange={(event) => setModuleForm({ ...moduleForm, title: event.target.value })} required className="mb-2 w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Tytuł modułu..." />
-                  <input value={moduleForm.description} onChange={(event) => setModuleForm({ ...moduleForm, description: event.target.value })} className="mb-3 w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/30" placeholder="Opis (opcjonalny)..." />
+                  <input value={moduleForm.title} onChange={(event) => setModuleForm({ ...moduleForm, title: event.target.value })} required className="mb-2 w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Tytuł modułu..." />
+                  <input value={moduleForm.description} onChange={(event) => setModuleForm({ ...moduleForm, description: event.target.value })} className="mb-3 w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" placeholder="Opis (opcjonalny)..." />
                   <div className="flex justify-end gap-2">
                     <button type="button" onClick={() => setAddingModule(false)} className="rounded-lg bg-mauve/5 px-3 py-1.5 text-fs-label font-medium text-mauve/50 transition-colors hover:bg-mauve/10">Anuluj</button>
                     <button type="submit" className="rounded-lg bg-gold px-3 py-1.5 text-fs-label font-bold uppercase tracking-wider text-white transition-colors hover:bg-gold/90">Utwórz moduł</button>

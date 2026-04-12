@@ -5,7 +5,7 @@ export default function PanelBlobButton({
   tone = 'primary',
   icon,
   className = '',
-  minWidthClassName = 'min-w-[12rem]',
+  minWidthClassName = 'min-w-48',
   href,
   target,
   rel,
@@ -31,7 +31,7 @@ export default function PanelBlobButton({
       download={download}
       type={href ? undefined : type}
       disabled={href ? undefined : disabled}
-      className={`group/cta relative inline-flex h-12 max-w-full items-center justify-start overflow-hidden border-0 outline-none ${minWidthClassName} ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} ${className}`}
+      className={`group/cta relative inline-flex h-12 max-w-full items-center justify-start overflow-hidden border-0 outline-hidden ${minWidthClassName} ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'} ${className}`}
       {...props}
     >
       <span

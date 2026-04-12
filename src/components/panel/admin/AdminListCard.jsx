@@ -8,7 +8,7 @@ export default function AdminListCard({
   bodyClassName = '',
 }) {
   return (
-    <section className={`overflow-hidden rounded-[40px] border border-white/80 bg-white/60 shadow-sm ${className}`.trim()}>
+    <section className={`overflow-hidden rounded-[40px] border border-white/80 bg-white/60 shadow-xs ${className}`.trim()}>
       <div className="flex flex-col gap-4 border-b border-gold/5 px-8 py-8 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="font-serif text-fs-title-sm text-mauve">

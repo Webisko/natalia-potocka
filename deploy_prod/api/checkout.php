@@ -52,6 +52,26 @@ function getCheckoutPaymentConfig(): array {
     ];
 }
 
+function normalizeDelimitedText($value, bool $lowercase = false): array
+{
+    if (is_array($value)) {
+        $items = $value;
+    } else {
+        $items = preg_split('/[\n,;]+/', (string) ($value ?? '')) ?: [];
+    }
+
+    $normalized = [];
+    foreach ($items as $item) {
+        $trimmed = trim((string) $item);
+        if ($trimmed === '') {
+            continue;
+        }
+        $normalized[] = $lowercase ? strtolower($trimmed) : $trimmed;
+    }
+
+    return array_values(array_unique($normalized));
+}
+
 function normalizeCouponRow(array $coupon): array {
     $coupon['code'] = strtoupper(trim((string) ($coupon['code'] ?? '')));
     $coupon['discount_type'] = strtolower(trim((string) ($coupon['discount_type'] ?? '')));

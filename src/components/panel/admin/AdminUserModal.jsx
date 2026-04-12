@@ -463,7 +463,7 @@ export default function AdminUserModal({
                   <select
                     value={formData.is_admin ? 'admin' : 'user'}
                     onChange={(event) => setFormData((prev) => ({ ...prev, is_admin: event.target.value === 'admin' }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   >
                     <option value="user">Użytkownik</option>
                     <option value="admin">Administrator</option>
@@ -487,7 +487,7 @@ export default function AdminUserModal({
               <input
                 value={formData.first_name}
                 onChange={(event) => setFormData((prev) => ({ ...prev, first_name: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div>
@@ -495,7 +495,7 @@ export default function AdminUserModal({
               <input
                 value={formData.last_name}
                 onChange={(event) => setFormData((prev) => ({ ...prev, last_name: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div className="md:col-span-2">
@@ -505,7 +505,7 @@ export default function AdminUserModal({
                 required
                 value={formData.email}
                 onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
               />
             </div>
             <div className="md:col-span-2">
@@ -516,7 +516,7 @@ export default function AdminUserModal({
                 type="password"
                 value={formData.password}
                 onChange={(event) => setFormData((prev) => ({ ...prev, password: event.target.value }))}
-                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 placeholder={isEditing ? 'Zostaw puste, aby nie zmieniać hasła' : 'Minimum 6 znaków'}
               />
               <p className="mt-2 text-fs-ui leading-6 text-mauve/55">
@@ -556,7 +556,7 @@ export default function AdminUserModal({
                         <input
                           readOnly
                           value={resetLinkData.url}
-                          className="min-w-0 flex-1 rounded-2xl border border-mauve/10 bg-nude/35 px-4 py-3 text-fs-body text-mauve/70 focus:outline-none"
+                          className="min-w-0 flex-1 rounded-2xl border border-mauve/10 bg-nude/35 px-4 py-3 text-fs-body text-mauve/70 focus:outline-hidden"
                         />
                         <button
                           type="button"
@@ -634,7 +634,7 @@ export default function AdminUserModal({
                     <select
                       value={manualAccessProductId}
                       onChange={(event) => setManualAccessProductId(event.target.value)}
-                      className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                      className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                     >
                       {grantableProducts.map((product) => (
                         <option key={product.id} value={product.id}>{product.title}</option>

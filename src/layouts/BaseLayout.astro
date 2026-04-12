@@ -102,13 +102,13 @@ const faviconHref = globalSettings.favicon_url || '/favicon.svg?v=np-monogram-1'
     <meta name="twitter:description" content={description} />
     {resolvedSocialImage && <meta name="twitter:image" content={resolvedSocialImage} />}
     {allStructuredData.map((schema) => (
-      <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)}></script>
     ))}
     {globalSettings.marketing_head_scripts ? <Fragment set:html={globalSettings.marketing_head_scripts} /> : null}
   </head>
   <body class="min-h-screen flex flex-col bg-[#FAF7F2] relative">
     {showHeader && <SiteHeader />}
-    <main class="flex-grow z-0">
+    <main class="grow z-0">
       {showBreadcrumbs && <Breadcrumbs items={breadcrumbItems} />}
       <slot />
     </main>

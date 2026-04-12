@@ -19,7 +19,7 @@ export default function AdminCheckbox({
         className="sr-only"
       />
       <span
-        className={`mt-0.5 flex h-[18px] w-[18px] items-center justify-center rounded border transition ${checked ? 'border-rose bg-rose shadow-sm shadow-rose/20' : 'border-mauve/30 bg-white'} ${boxClassName}`.trim()}
+        className={`mt-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-xs border transition ${checked ? 'border-rose bg-rose shadow-xs shadow-rose/20' : 'border-mauve/30 bg-white'} ${boxClassName}`.trim()}
         aria-hidden="true"
       >
         {checked ? (

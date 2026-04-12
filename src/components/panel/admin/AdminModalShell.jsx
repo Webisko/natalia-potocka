@@ -12,10 +12,10 @@ export default function AdminModalShell({
   dialogClassName = '',
   alignClassName = 'items-center',
   overlayClassName = 'bg-mauve/45',
-  zIndexClassName = 'z-[90]',
+  zIndexClassName = 'z-90',
 }) {
   return (
-    <div className={`fixed inset-0 ${zIndexClassName} flex justify-center px-4 py-8 backdrop-blur-sm ${alignClassName} ${overlayClassName}`.trim()}>
+    <div className={`fixed inset-0 ${zIndexClassName} flex justify-center px-4 py-8 backdrop-blur-xs ${alignClassName} ${overlayClassName}`.trim()}>
       <div className={`flex max-h-[92vh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15 ${dialogClassName}`.trim()}>
         <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
           <div>
@@ -36,7 +36,7 @@ export default function AdminModalShell({
         <div className={`admin-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8 ${bodyClassName}`.trim()}>{children}</div>
 
         {footer ? (
-          <div className="border-t border-gold/10 bg-[#FCF9F7]/95 px-6 py-5 backdrop-blur-sm md:px-8">
+          <div className="border-t border-gold/10 bg-[#FCF9F7]/95 px-6 py-5 backdrop-blur-xs md:px-8">
             {footer}
           </div>
         ) : null}

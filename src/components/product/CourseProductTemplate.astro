@@ -31,9 +31,9 @@ const secondaryImage = product.secondary_image_url || null;
       {product.thumbnail_url ? (
         <OptimizedImage src={product.thumbnail_url} alt={product.title} class="h-full w-full object-cover" loading="eager" decoding="async" fetchpriority="high" sizes="100vw" />
       ) : (
-        <div class="h-full w-full bg-gradient-to-br from-mauve to-mauve/80"></div>
+        <div class="h-full w-full bg-linear-to-br from-mauve to-mauve/80"></div>
       )}
-      <div class="absolute inset-0 bg-mauve/85 backdrop-blur-sm"></div>
+      <div class="absolute inset-0 bg-mauve/85 backdrop-blur-xs"></div>
     </div>
 
     <div class="container-shell relative z-10 w-full pt-8">
@@ -54,11 +54,11 @@ const secondaryImage = product.secondary_image_url || null;
 
   {secondaryImage && (
     <section class="container-shell pb-8 pt-2 md:pb-12">
-      <div class="overflow-hidden rounded-[34px] border border-white/80 bg-white/80 p-3 shadow-soft backdrop-blur-sm">
+      <div class="overflow-hidden rounded-[34px] border border-white/80 bg-white/80 p-3 shadow-soft backdrop-blur-xs">
         <OptimizedImage
           src={secondaryImage}
           alt={`${product.title} - dodatkowy obrazek`}
-          class="h-full max-h-[720px] w-full rounded-[28px] object-cover"
+          class="h-full max-h-180 w-full rounded-[28px] object-cover"
           loading="lazy"
           decoding="async"
           sizes="(min-width: 1024px) 1200px, 100vw"
@@ -85,7 +85,7 @@ const secondaryImage = product.secondary_image_url || null;
             <div class="space-y-3">
               {learningPoints.map((point) => (
                 <div class="flex items-start gap-3">
-                  <div class="text-fs-label mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold">✓</div>
+                  <div class="text-fs-label mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold">✓</div>
                   <p class="text-lg leading-8 text-mauve/70">{point}</p>
                 </div>
               ))}
@@ -102,7 +102,7 @@ const secondaryImage = product.secondary_image_url || null;
                 <details class="overflow-hidden rounded-2xl border border-mauve/10 bg-white/60">
                   <summary class="flex cursor-pointer list-none items-center justify-between p-5 text-left hover:bg-white/80">
                     <div class="flex items-center gap-4">
-                      <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-mauve/5 text-mauve/40">✦</div>
+                      <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-mauve/5 text-mauve/40">✦</div>
                       <div>
                         <h3 class="font-serif text-mauve">{module.title}</h3>
                         <span class="text-fs-label font-light text-mauve/40">{module.lessons?.length || 0} lekcji</span>
@@ -116,7 +116,7 @@ const secondaryImage = product.secondary_image_url || null;
                         <span class="text-sm text-gold">{lesson.lesson_type === 'audio' ? '♪' : lesson.lesson_type === 'text' ? '≡' : '▶'}</span>
                         <span class="flex-1 text-base leading-7 text-mauve/70">{lesson.title}</span>
                         {lesson.duration_minutes && <span class="text-fs-label font-light text-mauve/30">{lesson.duration_minutes} min</span>}
-                        <span class="flex-shrink-0 text-mauve/20">🔒</span>
+                        <span class="shrink-0 text-mauve/20">🔒</span>
                       </div>
                     ))}
                   </div>
@@ -130,8 +130,8 @@ const secondaryImage = product.secondary_image_url || null;
         )}
       </div>
 
-      <div class="w-full flex-shrink-0 lg:w-80">
-        <div class="sticky top-32 rounded-[30px] border border-gold/10 bg-nude p-8 shadow-sm">
+      <div class="w-full shrink-0 lg:w-80">
+        <div class="sticky top-32 rounded-[30px] border border-gold/10 bg-nude p-8 shadow-xs">
           <h3 class="text-2xl font-serif text-mauve">Dołącz do kursu</h3>
           <p class="mt-2 text-base font-light leading-7 text-mauve/55">Natychmiastowy dostęp do wszystkich materiałów.</p>
           <div class="mb-6 mt-6">
@@ -169,7 +169,7 @@ const secondaryImage = product.secondary_image_url || null;
           <ul class="mt-6 space-y-3 border-t border-mauve/10 pt-6">
             {['Materiały wideo Full HD', 'Ćwiczenia i karty pracy', 'Pliki do pobrania', 'Dostęp dożywotni'].map((feature) => (
               <li class="flex items-center gap-3 text-base font-light leading-7 text-mauve/60">
-                <div class="text-fs-label flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold">✓</div>
+                <div class="text-fs-label flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/10 text-gold">✓</div>
                 {feature}
               </li>
             ))}

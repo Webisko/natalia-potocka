@@ -7,9 +7,9 @@ export default function AdminActionIconButton({
   className = '',
 }) {
   const toneClassName = {
-    default: 'border-mauve/15 bg-white text-mauve/70 hover:border-gold/35 hover:text-mauve hover:shadow-sm',
+    default: 'border-mauve/15 bg-white text-mauve/70 hover:border-gold/35 hover:text-mauve hover:shadow-xs',
     accent: 'border-gold/20 bg-gold/5 text-gold/80 hover:border-gold/35 hover:bg-gold/10 hover:text-gold',
-    danger: 'border-rose/35 bg-rose/12 text-mauve/75 hover:border-rose/55 hover:bg-rose/20 hover:text-mauve hover:shadow-sm hover:shadow-rose/15',
+    danger: 'border-rose/35 bg-rose/12 text-mauve/75 hover:border-rose/55 hover:bg-rose/20 hover:text-mauve hover:shadow-xs hover:shadow-rose/15',
   };
 
   return (

@@ -144,9 +144,9 @@ function CourseLMS({ product, onBack }) {
   };
 
   const LessonIcon = ({ type }) => {
-    if (type === 'audio') return <Headphones size={14} className="text-gold flex-shrink-0" />;
-    if (type === 'text') return <FileText size={14} className="text-mauve/40 flex-shrink-0" />;
-    return <Play size={14} className="text-terracotta flex-shrink-0" />;
+    if (type === 'audio') return <Headphones size={14} className="text-gold shrink-0" />;
+    if (type === 'text') return <FileText size={14} className="text-mauve/40 shrink-0" />;
+    return <Play size={14} className="text-terracotta shrink-0" />;
   };
 
   if (loading) return (
@@ -174,7 +174,7 @@ function CourseLMS({ product, onBack }) {
     return (
       <div className="flex flex-col lg:flex-row gap-6 -mx-4 sm:-mx-6 lg:-mx-8">
         {/* SIDEBAR NAVIGATION */}
-        <div className={`w-full lg:w-80 flex-shrink-0 bg-white rounded-3xl shadow-sm border border-gold/10 p-6 transition-all ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
+        <div className={`w-full lg:w-80 shrink-0 bg-white rounded-3xl shadow-xs border border-gold/10 p-6 transition-all ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
           <button onClick={() => setActiveLesson(null)} className="mb-8 flex items-center gap-2 text-fs-body text-mauve/70 transition-colors hover:text-mauve">
             <ChevronLeft size={16} /> Zamknij lekcję
           </button>
@@ -183,7 +183,7 @@ function CourseLMS({ product, onBack }) {
             <h3 className="font-serif text-fs-title-sm text-mauve leading-tight">{course.title}</h3>
             <div className="mt-2 text-fs-body text-mauve/60">{progress.completed} / {progress.total} ukończonych</div>
             <div className="h-1.5 bg-mauve/5 rounded-full mt-4 overflow-hidden border border-gold/5">
-              <div className="h-full bg-gradient-to-r from-gold to-terracotta rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
+              <div className="h-full bg-linear-to-r from-gold to-terracotta rounded-full transition-all duration-1000" style={{ width: `${pct}%` }} />
             </div>
           </div>
 
@@ -204,7 +204,7 @@ function CourseLMS({ product, onBack }) {
                         return (
                           <button key={lesson.id} onClick={() => setActiveLesson(lesson)} 
                             className={`w-full flex items-center gap-3 p-4 text-left transition-all ${isActive ? 'bg-gold/5 border-l-4 border-gold' : 'hover:bg-white/60 border-l-4 border-transparent'}`}>
-                            <div className="flex-shrink-0">
+                            <div className="shrink-0">
                               {done ? <Check size={14} className="text-gold" /> : <LessonIcon type={lesson.lesson_type} />}
                             </div>
                             <span className={`text-fs-ui leading-relaxed ${isActive ? 'text-mauve font-semibold' : 'text-mauve/80'} line-clamp-2`}>{lesson.title}</span>
@@ -220,7 +220,7 @@ function CourseLMS({ product, onBack }) {
         </div>
 
         {/* MAIN LESSON CONTENT */}
-        <div className="flex-1 bg-white rounded-3xl shadow-sm border border-gold/10 p-6 md:p-10 min-h-[70vh]">
+        <div className="flex-1 bg-white rounded-3xl shadow-xs border border-gold/10 p-6 md:p-10 min-h-[70vh]">
           <div className="max-w-3xl mx-auto">
             <div className="flex lg:hidden items-center justify-between mb-6">
               <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-fs-ui text-gold uppercase tracking-wider font-bold flex items-center gap-2">
@@ -241,7 +241,7 @@ function CourseLMS({ product, onBack }) {
             )}
             
             {activeLesson.lesson_type === 'audio' && activeLesson.content_url && (
-              <div className="bg-nude rounded-2xl p-8 mb-10 flex flex-col items-center gap-6 border border-gold/10 shadow-sm">
+              <div className="bg-nude rounded-2xl p-8 mb-10 flex flex-col items-center gap-6 border border-gold/10 shadow-xs">
                 <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center">
                   <Volume2 size={32} className="text-gold" />
                 </div>
@@ -275,8 +275,8 @@ function CourseLMS({ product, onBack }) {
                 <div className="space-y-2">
                   {activeLesson.attachments.map(att => (
                     <a key={att.id} href={att.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-3 bg-white hover:bg-white/80 transition-colors px-4 py-3 rounded-xl text-mauve/80 text-fs-ui shadow-sm border border-gold/5">
-                      <Download size={16} className="text-gold flex-shrink-0" />
+                      className="flex items-center gap-3 bg-white hover:bg-white/80 transition-colors px-4 py-3 rounded-xl text-mauve/80 text-fs-ui shadow-xs border border-gold/5">
+                      <Download size={16} className="text-gold shrink-0" />
                       {att.name}
                     </a>
                   ))}
@@ -353,7 +353,7 @@ function CourseLMS({ product, onBack }) {
         </div>
         {/* PROGRESS BAR */}
         <div className="h-2 bg-mauve/10 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-gold to-terracotta rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+          <div className="h-full bg-linear-to-r from-gold to-terracotta rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
         </div>
       </div>
 
@@ -368,7 +368,7 @@ function CourseLMS({ product, onBack }) {
               <button onClick={() => toggleModule(module.id)}
                 className="w-full flex items-center justify-between p-5 text-left hover:bg-white/50 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${isModuleComplete ? 'bg-gold' : 'bg-mauve/10'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${isModuleComplete ? 'bg-gold' : 'bg-mauve/10'}`}>
                     {isModuleComplete ? <Check size={16} className="text-white" /> : <BookOpen size={15} className="text-mauve/40" />}
                   </div>
                   <div>
@@ -376,7 +376,7 @@ function CourseLMS({ product, onBack }) {
                     <span className="text-fs-label text-mauve/55">{completedInModule}/{module.lessons?.length || 0} lekcji ukończonych</span>
                   </div>
                 </div>
-                <ChevronDown size={16} className={`text-mauve/30 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={16} className={`text-mauve/30 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>
               {isOpen && (
                 <div className="border-t border-mauve/5 divide-y divide-mauve/5">
@@ -386,7 +386,7 @@ function CourseLMS({ product, onBack }) {
                       <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 hover:bg-white/40 transition-colors group">
                         {/* COMPLETE TOGGLE */}
                         <button onClick={() => toggleComplete(lesson.id)}
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${done ? 'border-gold bg-gold' : 'border-mauve/20 hover:border-gold'}`}>
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${done ? 'border-gold bg-gold' : 'border-mauve/20 hover:border-gold'}`}>
                           {done && <Check size={12} className="text-white" />}
                         </button>
                         {/* LESSON INFO */}
@@ -398,16 +398,16 @@ function CourseLMS({ product, onBack }) {
                         </button>
                         {/* META */}
                         {lesson.duration_minutes && (
-                          <span className="flex flex-shrink-0 items-center gap-1 text-fs-label text-mauve/50">
+                          <span className="flex shrink-0 items-center gap-1 text-fs-label text-mauve/50">
                             <Clock size={10} /> {lesson.duration_minutes} min
                           </span>
                         )}
                         {lesson.attachments?.length > 0 && (
-                          <Download size={12} className="text-mauve/20 flex-shrink-0" />
+                          <Download size={12} className="text-mauve/20 shrink-0" />
                         )}
                         {/* OPEN LESSON */}
                         <button onClick={() => setActiveLesson(lesson)}
-                          className="ml-1 rounded-lg bg-mauve/5 px-3 py-1 text-fs-label whitespace-nowrap text-mauve/65 transition-colors flex-shrink-0 hover:bg-mauve/10 hover:text-mauve">
+                          className="ml-1 rounded-lg bg-mauve/5 px-3 py-1 text-fs-label whitespace-nowrap text-mauve/65 transition-colors shrink-0 hover:bg-mauve/10 hover:text-mauve">
                           Otwórz
                         </button>
                       </div>
@@ -431,7 +431,7 @@ function DigitalProductViewer({ item, onClose }) {
   const hasPlayableContent = Boolean(item.content_url);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4 sm:p-6" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="absolute inset-0 bg-mauve/60 backdrop-blur-md" />
       <div className="relative bg-white w-full max-w-4xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-300">
         <div className="flex items-center justify-between p-6 md:p-8 border-b border-gold/5">
@@ -486,7 +486,7 @@ function DigitalProductViewer({ item, onClose }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  minWidthClassName="min-w-[11rem]"
+                  minWidthClassName="min-w-44"
                   icon={<Download size={18} />}
                 >
                   Pobierz plik
@@ -495,7 +495,7 @@ function DigitalProductViewer({ item, onClose }) {
               <PanelBlobButton
                 tone="secondary"
                 onClick={onClose}
-                minWidthClassName="min-w-[11rem]"
+                minWidthClassName="min-w-44"
                 icon={<X size={18} />}
               >
                 Zamknij podgląd
@@ -523,7 +523,7 @@ function DigitalProductCard({ item, onOpen }) {
             onError={() => setImageFailed(true)}
           />
         ) : (
-          <div className={`w-full h-full flex items-center justify-center ${isAudio ? 'bg-gradient-to-br from-gold/5 to-blush/20' : 'bg-gradient-to-br from-terracotta/5 to-nude'}`}>
+          <div className={`w-full h-full flex items-center justify-center ${isAudio ? 'bg-linear-to-br from-gold/5 to-blush/20' : 'bg-linear-to-br from-terracotta/5 to-nude'}`}>
             {isAudio ? <Headphones size={48} className="text-gold/30" /> : <PlayCircle size={48} className="text-terracotta/30" />}
           </div>
         )}
@@ -540,7 +540,7 @@ function DigitalProductCard({ item, onOpen }) {
                     <h3 className="font-serif text-fs-body-lg text-mauve mb-3 leading-tight group-hover:text-terracotta transition-colors">{item.title}</h3>
         <p className="mb-5 flex-1 line-clamp-2 text-fs-body leading-relaxed text-mauve/60">{item.description}</p>
         <div className="pt-4 border-t border-gold/5">
-          <PanelBlobButton minWidthClassName="min-w-[11rem]">Otwórz teraz</PanelBlobButton>
+          <PanelBlobButton minWidthClassName="min-w-44">Otwórz teraz</PanelBlobButton>
         </div>
       </div>
     </div>
@@ -647,7 +647,7 @@ export default function ClientDashboard() {
                 <h2 className="mb-3 text-fs-title-sm font-serif text-mauve/60">Twoja biblioteka jest pusta</h2>
                 <p className="mb-8 text-fs-body text-mauve/55">Odkryj ofertę i wróć tutaj po zakupie materiałów.</p>
                 <div className="flex justify-center">
-                  <PanelBlobButton href="/" minWidthClassName="min-w-[11.5rem]">Przejrzyj ofertę</PanelBlobButton>
+                  <PanelBlobButton href="/" minWidthClassName="min-w-46">Przejrzyj ofertę</PanelBlobButton>
                 </div>
               </div>
             </section>
@@ -682,7 +682,7 @@ export default function ClientDashboard() {
                             </div>
                           </div>
                         ) : (
-                          <div className="relative flex h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-mauve/10 to-mauve/20">
+                          <div className="relative flex h-48 items-center justify-center overflow-hidden bg-linear-to-br from-mauve/10 to-mauve/20">
                             <BookOpen size={48} className="text-mauve/20" />
                             <div className="absolute inset-0 flex items-center justify-center bg-mauve/40 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-[2px]">
                               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-mauve shadow-xl transition-transform group-hover:scale-100 scale-75">
@@ -698,7 +698,7 @@ export default function ClientDashboard() {
                           <h3 className="mb-3 font-serif text-fs-body-lg leading-tight text-mauve transition-colors group-hover:text-terracotta">{item.title}</h3>
                           <p className="mb-5 flex-1 line-clamp-2 text-fs-body leading-relaxed text-mauve/60">{item.description?.split('\n')[0]}</p>
                           <div className="border-t border-gold/5 pt-4">
-                            <PanelBlobButton minWidthClassName="min-w-[12rem]">Rozpocznij naukę</PanelBlobButton>
+                            <PanelBlobButton minWidthClassName="min-w-48">Rozpocznij naukę</PanelBlobButton>
                           </div>
                         </div>
                       </div>

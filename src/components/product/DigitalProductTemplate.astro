@@ -23,7 +23,6 @@ type RelatedProduct = {
 };
 
 const { product } = Astro.props;
-const productPath = `/${product.slug}`;
 const content = getDigitalProductContent(product.slug) || {};
 const isAudio = product.type === 'audio';
 const displayImage = product.thumbnail_url || content.image || null;
@@ -58,7 +57,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
   <section class:list={[pageShellClass, 'pb-16 pt-32 md:pb-20 md:pt-40 lg:pt-44']}>
     <div class="grid gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-16">
       <div class="relative flex w-full justify-center lg:justify-start">
-        <div class="relative h-[400px] w-[300px] md:h-[500px] md:w-[400px] lg:h-[560px] lg:w-[430px]">
+        <div class="relative h-100 w-75 md:h-125 md:w-100 lg:h-140 lg:w-107.5">
           <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
           {displayImage ? (
             <OptimizedImage
@@ -72,7 +71,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
               sizes="(min-width: 1024px) 430px, (min-width: 768px) 400px, 300px"
             />
           ) : (
-            <div class="relative flex h-full w-full items-center justify-center bg-gradient-to-br from-blush/40 to-rose/20 font-serif text-4xl text-mauve/20 shadow-2xl" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;">{product.title}</div>
+            <div class="relative flex h-full w-full items-center justify-center bg-linear-to-br from-blush/40 to-rose/20 font-serif text-4xl text-mauve/20 shadow-2xl" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;">{product.title}</div>
           )}
         </div>
       </div>
@@ -140,12 +139,12 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
               )}
             </div>
 
-            <div class="w-full sm:w-auto sm:flex-shrink-0">
+            <div class="w-full sm:w-auto sm:shrink-0">
               <ProductCheckout
                 product={product}
                 layout="inline"
                 buttonLabel="Kup Dostęp Teraz"
-                buttonClass="group relative inline-flex h-[50px] min-w-[14rem] w-full cursor-pointer items-center justify-start border-0 outline-none"
+                buttonClass="group relative inline-flex h-[50px] min-w-56 w-full cursor-pointer items-center justify-start border-0 outline-hidden"
                 purchasedLabel="Przejdź do biblioteki"
                 purchasedClass="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-mauve font-medium tracking-wide text-white transition-all hover:bg-mauve/90"
                 showButtonIcon={true}
@@ -174,10 +173,10 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
           <div class:list={['blob-card group isolate relative flex flex-col items-center rounded-[30px] p-8 text-center transition-all duration-300', index === 1 && 'md:-mt-8']}>
             <div
               class:list={[
-                'blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 transition-all duration-500 ease-out origin-center group-hover:!inset-0 group-hover:!ml-0 group-hover:!h-full group-hover:!w-full group-hover:!rounded-[30px] group-hover:!shadow-2xl',
+                'blob-bg absolute left-1/2 top-8 -z-10 -ml-20 h-40 w-40 transition-all duration-500 ease-out origin-center group-hover:inset-0! group-hover:ml-0! group-hover:h-full! group-hover:w-full! group-hover:rounded-[30px]! group-hover:shadow-2xl!',
                 index === 1
-                  ? 'animate-heartbeat bg-terracotta shadow-xl shadow-terracotta/20 group-hover:!animate-none'
-                  : 'bg-white shadow-sm group-hover:!bg-white/95 group-hover:!shadow-mauve/10',
+                  ? 'animate-heartbeat bg-terracotta shadow-xl shadow-terracotta/20 group-hover:animate-none!'
+                  : 'bg-white shadow-xs group-hover:bg-white/95! group-hover:shadow-mauve/10!',
               ]}
               style={`border-radius: ${benefitBlobShapes[index % benefitBlobShapes.length]};`}
             ></div>
@@ -227,7 +226,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
 
         {secondaryImage ? (
           <div class="flex justify-center lg:justify-end">
-            <div class="relative h-[360px] w-[280px] md:h-[460px] md:w-[370px]">
+            <div class="relative h-90 w-70 md:h-115 md:w-92.5">
               <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
               <OptimizedImage
                 src={secondaryImage}
@@ -252,14 +251,14 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
           <span class="h-px w-8 bg-gold/60"></span>
           <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">FAQ</span>
         </div>
-        <div class="rounded-[30px] border border-white/80 bg-white/65 p-6 shadow-[0_22px_70px_-48px_rgba(72,43,62,0.45)] backdrop-blur-sm md:p-10">
+        <div class="rounded-[30px] border border-white/80 bg-white/65 p-6 shadow-[0_22px_70px_-48px_rgba(72,43,62,0.45)] backdrop-blur-xs md:p-10">
           <h2 class="mb-8 font-serif text-3xl text-mauve md:text-4xl">Najczęstsze pytania</h2>
           <div>
             {faqItems.map((item: FaqItem) => (
               <div class="faq-accordion-item border-b border-mauve/10 py-5 last:border-0" data-faq-item data-open="false">
                 <button type="button" class="flex w-full cursor-pointer items-center justify-between gap-4 text-left font-medium text-mauve" data-faq-toggle aria-expanded="false">
                   <span>{item.q}</span>
-                  <svg class="faq-accordion-icon h-4 w-4 flex-shrink-0 text-gold" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <svg class="faq-accordion-icon h-4 w-4 shrink-0 text-gold" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
                 </button>

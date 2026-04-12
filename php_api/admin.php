@@ -27,6 +27,11 @@ const PUBLIC_CONTENT_SETTING_KEYS = [
     'legal_terms_content',
 ];
 
+const MASKED_ADMIN_SETTING_KEYS = [
+    'stripe_secret',
+    'stripe_webhook_secret',
+];
+
 const INTERNAL_PUBLISH_SETTING_PREFIX = 'site_publish_';
 const GITHUB_PUBLISH_REPO_OWNER = 'Webisko';
 const GITHUB_PUBLISH_REPO_NAME = 'natalia-potocka';
@@ -139,7 +144,13 @@ function shouldExposeSettingKey(string $key): bool
 function canWriteSettingKey(string $key): bool
 {
     return !str_starts_with($key, INTERNAL_PUBLISH_SETTING_PREFIX)
-        && $key !== 'github_publish_token';
+    && $key !== 'github_publish_token'
+    && !str_ends_with($key, '_configured');
+}
+
+function isMaskedAdminSettingKey(string $key): bool
+{
+    return in_array($key, MASKED_ADMIN_SETTING_KEYS, true);
 }
 
 function getSettingValue(string $key, string $default = ''): string
@@ -1618,7 +1629,19 @@ if ($method === 'GET' && $action === 'settings') {
             if (!shouldExposeSettingKey($key)) {
                 continue;
             }
-            $settings[$key] = $row['value'] ?? '';
+
+            if (str_ends_with($key, '_configured')) {
+                continue;
+            }
+
+            $value = (string) ($row['value'] ?? '');
+            if (isMaskedAdminSettingKey($key)) {
+                $settings[$key] = '';
+                $settings[$key . '_configured'] = trim($value) !== '';
+                continue;
+            }
+
+            $settings[$key] = $value;
         }
         sendJson($settings);
     } catch (Exception $e) {
@@ -1635,6 +1658,11 @@ if ($method === 'POST' && $action === 'settings') {
             if (!canWriteSettingKey((string) $key)) {
                 continue;
             }
+
+            if (isMaskedAdminSettingKey((string) $key) && trim(normalizeSettingStoredValue($value)) === '') {
+                continue;
+            }
+
             $stmt->execute([(string) $key, normalizeSettingStoredValue($value)]);
         }
         if ($dirtyPublicContent) {

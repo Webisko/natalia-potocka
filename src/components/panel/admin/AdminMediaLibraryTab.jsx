@@ -52,7 +52,7 @@ function MediaCardPreview({ asset }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-mauve/55">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-mauve/45 shadow-sm">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-mauve/45 shadow-xs">
         {mediaKind === 'video' ? <Film size={24} /> : null}
         {mediaKind === 'document' ? <FileText size={24} /> : null}
         {mediaKind === 'image' ? <Image size={24} /> : null}
@@ -140,7 +140,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
                   <input
                     value={details.title}
                     onChange={(event) => setDetails((current) => ({ ...current, title: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   />
                 </div>
                 <div>
@@ -148,7 +148,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
                   <input
                     value={details.alt_text}
                     onChange={(event) => setDetails((current) => ({ ...current, alt_text: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   />
                 </div>
               </div>
@@ -411,7 +411,7 @@ export default function AdminMediaLibraryTab({ onContentChanged }) {
             key={kind}
             type="button"
             onClick={() => setActiveFilter((currentFilter) => (currentFilter === kind ? 'all' : kind))}
-            className={`rounded-[24px] border px-5 py-4 text-left transition ${isActive ? 'border-gold bg-gold/10 shadow-sm' : 'border-gold/10 bg-white hover:border-gold/30 hover:bg-gold/5'}`}
+            className={`rounded-[24px] border px-5 py-4 text-left transition ${isActive ? 'border-gold bg-gold/10 shadow-xs' : 'border-gold/10 bg-white hover:border-gold/30 hover:bg-gold/5'}`}
           >
             <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">{getKindLabel(kind)}</p>
             <p className="mt-2 font-serif text-fs-title-sm text-mauve">{groupedCounts[kind] || 0}</p>
@@ -439,9 +439,9 @@ export default function AdminMediaLibraryTab({ onContentChanged }) {
                 key={group.id}
                 type="button"
                 onClick={() => setOpenGroupId(group.id)}
-                className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/85 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-gold/25 hover:shadow-md"
+                className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/85 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-gold/25 hover:shadow-md"
               >
-                <div className="aspect-[16/10] overflow-hidden bg-nude/50">
+                <div className="aspect-16/10 overflow-hidden bg-nude/50">
                   <MediaCardPreview asset={asset} />
                 </div>
                 <div className="space-y-3 p-5">

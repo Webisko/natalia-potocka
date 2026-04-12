@@ -286,11 +286,10 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
     };
 
     try {
-      let response;
       if (isNew) {
-        response = await axios.post('/api/admin/products', payload);
+        await axios.post('/api/admin/products', payload);
       } else {
-        response = await axios.put(`/api/admin/products/${id}`, payload);
+        await axios.put(`/api/admin/products/${id}`, payload);
       }
 
       if (embedded && typeof onSaved === 'function') {
@@ -337,7 +336,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
             <div className="space-y-5">
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Typ produktu</label>
-                <select name="type" value={formData.type} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20">
+                <select name="type" value={formData.type} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20">
                   {productTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
@@ -351,16 +350,16 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Tytuł</label>
-                <input name="title" value={formData.title} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                <input name="title" value={formData.title} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Slug (URL)</label>
-                <input name="slug" value={formData.slug} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                <input name="slug" value={formData.slug} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                 <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Slug uzupełnia się automatycznie na podstawie tytułu, ale możesz go ręcznie zmienić.</p>
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Krótki opis</label>
-                <textarea name="short_description" value={formData.short_description} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="To będzie krótki opis przy tytule i na listach produktów." />
+                <textarea name="short_description" value={formData.short_description} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="To będzie krótki opis przy tytule i na listach produktów." />
                 <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Jeśli zostawisz to pole puste, system użyje początku długiego opisu.</p>
               </div>
 
@@ -423,7 +422,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                     helperText="Ten obrazek pojawia się po prawej stronie sekcji Szczegóły, w tym samym stylu organicznym co grafika hero."
                   />
 
-                  <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
+                  <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
                     W uproszczonym szablonie webinarów i medytacji nie pokazujemy już osobnego bloku „Opis produktu”, ale drugi obrazek nadal wyróżnia produkt w sekcji Szczegóły.
                   </div>
                 </div>
@@ -450,12 +449,12 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               <div className="space-y-5">
                 <div>
                   <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Czas trwania</label>
-                  <input name="duration_label" value={formData.duration_label || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="np. około 1 godzina nagrania" />
+                  <input name="duration_label" value={formData.duration_label || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="np. około 1 godzina nagrania" />
                   <p className="mt-2 text-fs-ui leading-6 text-mauve/55">To pole wyświetla się pod krótkim opisem na stronie webinaru lub medytacji.</p>
                 </div>
               </div>
             ) : (
-              <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/60">
+              <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/60">
                 Dla kursów możesz uzupełnić sekcję „Co zyskasz”. Pozostałe elementy treści kursu dopracujemy później.
               </div>
             )}
@@ -486,7 +485,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                                   key={option.value}
                                   type="button"
                                   onClick={() => handleBenefitCardChange(index, 'icon', option.value)}
-                                  className={`flex h-12 items-center justify-center rounded-2xl border transition ${isSelected ? 'border-gold bg-gold/10 text-gold shadow-sm' : 'border-mauve/15 bg-white text-mauve/55 hover:border-gold/30 hover:text-gold'}`}
+                                  className={`flex h-12 items-center justify-center rounded-2xl border transition ${isSelected ? 'border-gold bg-gold/10 text-gold shadow-xs' : 'border-mauve/15 bg-white text-mauve/55 hover:border-gold/30 hover:text-gold'}`}
                                   title={option.label}
                                   aria-label={option.label}
                                 >
@@ -499,13 +498,13 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
 
                         <div>
                           <label className="mb-1 block text-fs-ui text-mauve/55">Tytuł</label>
-                          <input value={card.title} onChange={(e) => handleBenefitCardChange(index, 'title', e.target.value)} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                          <input value={card.title} onChange={(e) => handleBenefitCardChange(index, 'title', e.target.value)} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                         </div>
                       </div>
 
                       <div>
                         <label className="mb-2 block text-fs-ui text-mauve/55">Opis</label>
-                          <textarea value={card.description} onChange={(e) => handleBenefitCardChange(index, 'description', e.target.value)} rows={5} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                          <textarea value={card.description} onChange={(e) => handleBenefitCardChange(index, 'description', e.target.value)} rows={5} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                       </div>
                     </div>
                   </div>
@@ -531,7 +530,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
 
               <div className="space-y-5">
                 {formData.faq_json.map((item, index) => (
-                  <div key={index} className="rounded-[24px] border border-gold/10 bg-white px-5 py-5 shadow-sm">
+                  <div key={index} className="rounded-3xl border border-gold/10 bg-white px-5 py-5 shadow-xs">
                     <div className="mb-4 flex items-center justify-between gap-4">
                       <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-gold">Pytanie {index + 1}</p>
                       <button
@@ -549,7 +548,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                         <input
                           value={item.q}
                           onChange={(event) => handleFaqItemChange(index, 'q', event.target.value)}
-                          className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                          className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                         />
                       </div>
 
@@ -559,7 +558,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                           value={item.a}
                           onChange={(event) => handleFaqItemChange(index, 'a', event.target.value)}
                           rows={4}
-                          className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                          className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                         />
                       </div>
                     </div>
@@ -579,7 +578,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
           <div className="space-y-6">
             <div>
               <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres produktu</label>
-              <input value={productUrlPreview} readOnly className="w-full rounded-2xl border border-mauve/15 bg-nude/45 px-4 py-3 text-fs-body text-mauve/75 focus:outline-none" />
+              <input value={productUrlPreview} readOnly className="w-full rounded-2xl border border-mauve/15 bg-nude/45 px-4 py-3 text-fs-body text-mauve/75 focus:outline-hidden" />
               <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Adres aktualizuje się automatycznie na podstawie slugu z sekcji głównej.</p>
             </div>
 
@@ -587,11 +586,11 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               <div className="grid gap-5 md:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena podstawowa</label>
-                  <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                  <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                 </div>
                 <div>
                   <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena promocyjna</label>
-                  <input type="number" step="0.01" name="promotional_price" value={formData.promotional_price} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="np. 99.00" />
+                  <input type="number" step="0.01" name="promotional_price" value={formData.promotional_price} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="np. 99.00" />
                 </div>
                 <div className="md:col-span-2">
                   <AdminDateTimeField
@@ -602,7 +601,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4">
+              <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold/80">Omnibus</p>
                 <p className="mt-2 text-fs-body leading-7 text-mauve/70">Najniższa cena z ostatnich 30 dni jest liczona automatycznie na podstawie historii zmian ceny.</p>
                 <div className="mt-4">
@@ -625,17 +624,17 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
             <div className="space-y-5">
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Tytuł SEO</label>
-                <input name="meta_title" value={formData.meta_title || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                <input name="meta_title" value={formData.meta_title || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                 <div className="mt-3"><SeoLengthIndicator type="title" value={formData.meta_title || ''} /></div>
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Opis SEO</label>
-                <textarea name="meta_desc" value={formData.meta_desc || ''} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" />
+                <textarea name="meta_desc" value={formData.meta_desc || ''} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
                 <div className="mt-3"><SeoLengthIndicator type="description" value={formData.meta_desc || ''} /></div>
               </div>
               <div>
                 <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres kanoniczny</label>
-                <input name="canonical_url" value={formData.canonical_url || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="https://..." />
+                <input name="canonical_url" value={formData.canonical_url || ''} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="https://..." />
               </div>
               <AdminCheckbox
                 checked={Boolean(formData.noindex)}

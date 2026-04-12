@@ -43,11 +43,11 @@ const productPayload = {
 <div data-checkout-instance={checkoutInstanceId}>
 {layout === 'card' ? (
   <aside class="card-surface overflow-hidden lg:sticky lg:top-28" id={checkoutRootId}>
-    <div class="aspect-[4/3] bg-white">
+    <div class="aspect-4/3 bg-white">
       {product.thumbnail_url ? (
         <OptimizedImage src={product.thumbnail_url} alt={product.title} class="h-full w-full object-cover" loading="eager" decoding="async" sizes="(min-width: 1024px) 24rem, 100vw" />
       ) : (
-        <div class="flex h-full items-center justify-center bg-gradient-to-br from-blush to-white font-serif text-fs-title-md text-mauve/40">{product.title}</div>
+        <div class="flex h-full items-center justify-center bg-linear-to-br from-blush to-white font-serif text-fs-title-md text-mauve/40">{product.title}</div>
       )}
     </div>
     <div class="p-8">
@@ -60,7 +60,7 @@ const productPayload = {
         <p class="mt-3 border-l-2 border-gold/30 pl-3 text-fs-ui text-mauve/55">Najniższa cena z 30 dni przed obniżką: {formatPrice(product.lowest_price_30_days)}</p>
       )}
 
-      <div class="mt-8 rounded-[24px] border border-gold/15 bg-nude/70 p-5 text-fs-ui text-mauve/70">
+      <div class="mt-8 rounded-3xl border border-gold/15 bg-nude/70 p-5 text-fs-ui text-mauve/70">
         Zakup działa już bezpośrednio z backendem przez ten modal. Dla Stripe dostępne są karta, BLIK i Przelewy24, a przelew tradycyjny tworzy zamówienie do ręcznej obsługi.
       </div>
 
@@ -123,9 +123,9 @@ const productPayload = {
   </div>
 )}
 
-<div id={checkoutModalId} class="fixed inset-0 z-[9999] hidden items-center justify-center px-4 py-8">
-  <div class="absolute inset-0 bg-mauve/40 backdrop-blur-sm" data-close-modal></div>
-  <div class="relative z-10 max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[32px] bg-white/95 p-8 shadow-2xl md:p-10">
+<div id={checkoutModalId} class="fixed inset-0 z-9999 hidden items-center justify-center px-4 py-8">
+  <div class="absolute inset-0 bg-mauve/40 backdrop-blur-xs" data-close-modal></div>
+  <div class="relative z-10 max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-4xl bg-white/95 p-8 shadow-2xl md:p-10">
     <button type="button" class="absolute right-5 top-5 text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
 
     <div class="relative z-10">
@@ -144,16 +144,16 @@ const productPayload = {
         <div class="grid gap-4 md:grid-cols-2">
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Imię</label>
-            <input name="first_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <input name="first_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
           </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Nazwisko</label>
-            <input name="last_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <input name="last_name" type="text" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
           </div>
         </div>
         <div>
           <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
-          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
         <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
           <input name="setPasswordNow" type="checkbox" class="mt-1 h-4 w-4 accent-gold" />
@@ -165,12 +165,12 @@ const productPayload = {
         <div class="grid gap-4" data-password-fields hidden>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-            <input name="password" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <input name="password" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
             <p class="mt-2 text-fs-ui text-mauve/55">Minimum 12 znaków, mała i wielka litera, cyfra oraz znak specjalny.</p>
           </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Powtórz hasło</label>
-            <input name="password_confirm" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <input name="password_confirm" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
           </div>
         </div>
         <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Materiały będą dostępne po opłaceniu i potwierdzeniu adresu e-mail. Jeśli ustawisz hasło teraz, zalogujesz się zaraz po potwierdzeniu konta.</p>
@@ -179,11 +179,11 @@ const productPayload = {
       <form class="mt-6 space-y-4" data-login-form hidden>
         <div>
           <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
-          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
         <div>
           <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-          <input name="password" type="password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <input name="password" type="password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
       </form>
 
@@ -192,7 +192,7 @@ const productPayload = {
       </div>
 
       <div class="mt-6 grid gap-4" data-shared-panel>
-        <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
+        <div class="rounded-3xl border border-mauve/10 bg-nude/60 p-5">
           <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Sposób płatności</p>
           <div class="mt-4 grid gap-3">
             <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="stripe">
@@ -213,9 +213,9 @@ const productPayload = {
           <p class="mt-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 text-fs-ui text-mauve/60" data-payment-method-hint hidden></p>
         </div>
 
-        <div class="rounded-[24px] border border-mauve/10 bg-nude/60 p-5">
+        <div class="rounded-3xl border border-mauve/10 bg-nude/60 p-5">
           <label class="mb-2 block text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold" for="checkout-coupon-code">Kod rabatowy</label>
-          <input id="checkout-coupon-code" name="couponCode" type="text" placeholder="Wpisz kod, jeśli go masz" class="w-full rounded-2xl border border-white/80 bg-white/90 px-5 py-3 text-mauve outline-none transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <input id="checkout-coupon-code" name="couponCode" type="text" placeholder="Wpisz kod, jeśli go masz" class="w-full rounded-2xl border border-white/80 bg-white/90 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
           <p class="mt-3 text-fs-ui text-mauve/60" data-coupon-status>Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.</p>
         </div>
 
@@ -229,7 +229,7 @@ const productPayload = {
         </label>
       </div>
 
-      <div class="mt-6 space-y-4 rounded-[24px] border border-mauve/10 bg-nude/70 p-5 text-fs-ui text-mauve/75" data-bank-transfer-panel hidden>
+      <div class="mt-6 space-y-4 rounded-3xl border border-mauve/10 bg-nude/70 p-5 text-fs-ui text-mauve/75" data-bank-transfer-panel hidden>
         <div>
           <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Kwota</p>
           <p class="mt-2 font-serif text-fs-title-md text-mauve" data-bank-amount></p>
@@ -477,7 +477,7 @@ const productPayload = {
         const isActive = button.getAttribute('data-switch-mode') === mode;
         button.classList.toggle('bg-white', isActive);
         button.classList.toggle('text-mauve', isActive);
-        button.classList.toggle('shadow-sm', isActive);
+        button.classList.toggle('shadow-xs', isActive);
       });
 
       if (mode === 'guest') {

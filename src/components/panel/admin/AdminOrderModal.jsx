@@ -177,15 +177,15 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
             ) : null}
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Numer zamówienia</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{detailOrder.order_number || 'Brak numeru'}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Utworzono</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(detailOrder.created_at)}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4 md:col-span-2">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4 md:col-span-2">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Klientka</p>
                 <p className="mt-2 text-fs-body text-mauve">{getCustomerName(detailOrder)}</p>
                 <p className="mt-1 text-fs-ui text-mauve/55">{detailOrder.customer_email}</p>
@@ -200,15 +200,15 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
             ) : null}
 
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Metoda płatności</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{formatPaymentMethod(detailOrder.payment_method)}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Produkt</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{detailOrder.product_title || 'Brak danych'}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Ostatnia zmiana</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(detailOrder.updated_at)}</p>
               </div>
@@ -222,7 +222,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
                   required
                   value={formData.customer_email}
                   onChange={(event) => setFormData((prev) => ({ ...prev, customer_email: event.target.value }))}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
               <div>
@@ -230,7 +230,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
                 <select
                   value={formData.product_id}
                   onChange={(event) => setFormData((prev) => ({ ...prev, product_id: event.target.value }))}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 >
                   {products.map((product) => (
                     <option key={product.id} value={product.id}>{product.title}</option>
@@ -245,7 +245,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
                   min="0"
                   value={formData.amount_total}
                   onChange={(event) => setFormData((prev) => ({ ...prev, amount_total: event.target.value }))}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
               <div>
@@ -253,7 +253,7 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
                 <select
                   value={formData.status}
                   onChange={(event) => setFormData((prev) => ({ ...prev, status: event.target.value }))}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 >
                   {STATUS_OPTIONS.map((statusOption) => (
                     <option key={statusOption.value} value={statusOption.value}>{statusOption.label}</option>

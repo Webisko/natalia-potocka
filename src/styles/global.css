@@ -1,6 +1,222 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source('../');
+
+@theme {
+  --color-nude: #f8f1eb;
+  --color-blush: #efd9d1;
+  --color-rose: #e7c8c8;
+  --color-mauve: #5d4058;
+  --color-gold: #d4af37;
+  --color-goldLight: #f4e2a1;
+  --color-terracotta: #e88d67;
+  --color-surface: #f7f3f0;
+
+  --font-serif: Playfair Display, serif;
+  --font-sans: Lato, sans-serif;
+
+  --text-fs-label: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+  --text-fs-label--line-height: 1.35;
+  --text-fs-ui: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
+  --text-fs-ui--line-height: 1.45;
+  --text-fs-body: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+  --text-fs-body--line-height: 1.65;
+  --text-fs-body-lg: clamp(1.0625rem, 1rem + 0.35vw, 1.1875rem);
+  --text-fs-body-lg--line-height: 1.7;
+  --text-fs-title-sm: clamp(1.25rem, 1.12rem + 0.55vw, 1.5rem);
+  --text-fs-title-sm--line-height: 1.25;
+  --text-fs-title-md: clamp(1.5rem, 1.28rem + 0.95vw, 2rem);
+  --text-fs-title-md--line-height: 1.18;
+  --text-fs-title-lg: clamp(1.875rem, 1.5rem + 1.6vw, 3rem);
+  --text-fs-title-lg--line-height: 1.1;
+  --text-fs-title-xl: clamp(2.25rem, 1.75rem + 2.2vw, 3.75rem);
+  --text-fs-title-xl--line-height: 1.02;
+  --text-fs-display: clamp(2.75rem, 1.9rem + 3.3vw, 4.5rem);
+  --text-fs-display--line-height: 0.95;
+
+  --animate-breathe: breathe 8s ease-in-out infinite;
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-pulse-slow: breathe 10s ease-in-out infinite;
+  --animate-heartbeat: heartbeat 3.6s ease-in-out infinite;
+  --animate-morph: morph 8s ease-in-out infinite;
+  --animate-flow: flow 3s linear infinite;
+  --animate-flow-slow: flow 6s linear infinite;
+  --animate-flow-slower: flow 12s linear infinite;
+  --animate-flow-vein-gold: flowVeinGold 8s ease-in-out infinite;
+  --animate-flow-vein-rose: flowVeinRose 12s ease-in-out infinite;
+
+  --shadow-soft: 0 20px 70px -35px rgba(93, 64, 88, 0.4);
+
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes heartbeat {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.05);
+    }
+    40% {
+      transform: scale(0.98);
+    }
+    60% {
+      transform: scale(1.04);
+    }
+  }
+  @keyframes morph {
+    0% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    50% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    100% {
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+  }
+  @keyframes flow {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes flowVeinGold {
+    0% {
+      stroke-dashoffset: 600;
+      opacity: 0.3;
+    }
+    30% {
+      opacity: 0.8;
+    }
+    60% {
+      opacity: 0.5;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0.3;
+    }
+  }
+  @keyframes flowVeinRose {
+    0% {
+      stroke-dashoffset: 0;
+      opacity: 0.25;
+    }
+    40% {
+      opacity: 0.6;
+    }
+    100% {
+      stroke-dashoffset: -800;
+      opacity: 0.25;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility container-shell {
+  @apply mx-auto w-full max-w-310 px-6 md:px-12;
+}
+
+@utility hide-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@utility section-eyebrow {
+  @apply inline-flex items-center gap-2 rounded-full border border-gold/20 bg-white/70 px-4 py-2 font-extrabold uppercase tracking-[0.24em] text-gold;
+  font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+  line-height: 1.35;
+}
+
+@utility card-surface {
+  @apply rounded-[28px] border border-white/80 bg-white/75 shadow-soft backdrop-blur-xs;
+}
+
+@utility button-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-terracotta px-6 py-3 font-bold uppercase tracking-[0.18em] text-white transition hover:bg-terracotta/90;
+  font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+  line-height: 1.35;
+}
+
+@utility button-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-mauve/15 bg-white/80 px-6 py-3 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold;
+  font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
+  line-height: 1.35;
+}
+
+@utility legal-copy {
+  & h2 {
+    @apply mb-4 mt-10 font-serif text-mauve;
+    font-size: clamp(1.5rem, 1.28rem + 0.95vw, 2rem);
+    line-height: 1.18;
+  }
+
+  & h2:first-child {
+    @apply mt-0;
+  }
+
+  & p {
+    @apply mb-4 text-mauve/80;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  & ul {
+    @apply mb-4 space-y-2 pl-6 text-mauve/80;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  & ol {
+    @apply mb-4 space-y-2 pl-6 text-mauve/80;
+    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
+    line-height: 1.65;
+  }
+
+  & ul {
+    @apply list-disc;
+  }
+
+  & ol {
+    @apply list-decimal;
+  }
+}
 
 @layer base {
   html {
@@ -17,72 +233,4 @@
     display: none !important;
   }
 
-}
-
-@layer components {
-  .container-shell {
-    @apply mx-auto w-full max-w-[1240px] px-6 md:px-12;
-  }
-
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .section-eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border border-gold/20 bg-white/70 px-4 py-2 font-extrabold uppercase tracking-[0.24em] text-gold;
-    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
-    line-height: 1.35;
-  }
-
-  .card-surface {
-    @apply rounded-[28px] border border-white/80 bg-white/75 shadow-soft backdrop-blur-sm;
-  }
-
-  .button-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-terracotta px-6 py-3 font-bold uppercase tracking-[0.18em] text-white transition hover:bg-terracotta/90;
-    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
-    line-height: 1.35;
-  }
-
-  .button-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-mauve/15 bg-white/80 px-6 py-3 font-bold uppercase tracking-[0.18em] text-mauve transition hover:border-gold/40 hover:text-gold;
-    font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
-    line-height: 1.35;
-  }
-
-  .legal-copy h2 {
-    @apply mb-4 mt-10 font-serif text-mauve;
-    font-size: clamp(1.5rem, 1.28rem + 0.95vw, 2rem);
-    line-height: 1.18;
-  }
-
-  .legal-copy h2:first-child {
-    @apply mt-0;
-  }
-
-  .legal-copy p {
-    @apply mb-4 text-mauve/80;
-    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
-    line-height: 1.65;
-  }
-
-  .legal-copy ul,
-  .legal-copy ol {
-    @apply mb-4 space-y-2 pl-6 text-mauve/80;
-    font-size: clamp(0.9375rem, 0.91rem + 0.2vw, 1.0625rem);
-    line-height: 1.65;
-  }
-
-  .legal-copy ul {
-    @apply list-disc;
-  }
-
-  .legal-copy ol {
-    @apply list-decimal;
-  }
 }

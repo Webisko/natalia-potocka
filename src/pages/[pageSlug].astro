@@ -12,7 +12,7 @@ import { getCustomSlugPages, getPagePathByKey, getPageSettingsBySlug } from '../
 import { PAGE_RESERVED_SLUGS, PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
 import { getProductBySlug, getPublishedProducts } from '../lib/products.js';
 import { getServiceOfferBySlug, SERVICE_CONTENT } from '../lib/serviceContent.js';
-import { buildCollectionPageSchema, buildFaqSchema, buildProductSchema } from '../lib/structuredData.js';
+import { buildFaqSchema, buildProductSchema } from '../lib/structuredData.js';
 
 export function getStaticPaths() {
   const pages = getCustomSlugPages();

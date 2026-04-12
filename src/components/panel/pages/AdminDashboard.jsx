@@ -46,7 +46,7 @@ function LazyPanelLoader() {
 
 function SettingsGroup({ eyebrow, title, description, children, className = '' }) {
   return (
-    <section className={`rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-sm md:p-8 ${className}`.trim()}>
+    <section className={`rounded-4xl border border-white/80 bg-white/70 p-6 shadow-xs md:p-8 ${className}`.trim()}>
       <div className="border-b border-gold/10 pb-5">
         <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">{eyebrow}</p>
         <div className="mt-3 flex items-center gap-4">
@@ -260,7 +260,28 @@ function getClickableCellClassName(baseClassName) {
 }
 
 function getClickableCellButtonClassName(paddingClassName) {
-  return `block w-full ${paddingClassName} text-left transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/30`;
+  return `block w-full ${paddingClassName} text-left transition-colors hover:bg-white/10 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gold/30`;
+}
+
+function normalizeAdminSettingsResponse(payload) {
+  const response = payload && typeof payload === 'object' ? payload : {};
+  const {
+    stripe_secret_configured: stripeSecretConfiguredFlag,
+    stripe_webhook_secret_configured: stripeWebhookSecretConfiguredFlag,
+    ...rest
+  } = response;
+
+  return {
+    settings: {
+      ...rest,
+      stripe_secret: '',
+      stripe_webhook_secret: '',
+    },
+    secretState: {
+      stripeSecretConfigured: Boolean(stripeSecretConfiguredFlag ?? response.stripe_secret),
+      stripeWebhookSecretConfigured: Boolean(stripeWebhookSecretConfiguredFlag ?? response.stripe_webhook_secret),
+    },
+  };
 }
 
 export default function AdminDashboard({ initialTab = 'pages' }) {
@@ -271,9 +292,13 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
   const [settings, setSettings] = useState({});
-    const bankTransferConfigured = Boolean(
-      `${settings.bank_account_name || ''}`.trim() && `${settings.bank_account_number || ''}`.trim(),
-    );
+  const [secretFieldState, setSecretFieldState] = useState({
+    stripeSecretConfigured: false,
+    stripeWebhookSecretConfigured: false,
+  });
+  const bankTransferConfigured = Boolean(
+    `${settings.bank_account_name || ''}`.trim() && `${settings.bank_account_number || ''}`.trim(),
+  );
 
   const [pages, setPages] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -292,7 +317,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
   const [orderExportMonth, setOrderExportMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [secondaryTask, setSecondaryTask] = useState('');
   const [settingsEmailFeedback, setSettingsEmailFeedback] = useState({ tone: '', message: '' });
-  const [publishStatus, setPublishStatus] = useState(null);
+  const [, setPublishStatus] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -330,7 +355,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
         })));
       } else if (activeTab === 'settings' && isAdmin) {
         const response = await axios.get('/api/admin/settings');
-        setSettings(response.data || {});
+        const normalizedSettings = normalizeAdminSettingsResponse(response.data);
+        setSettings(normalizedSettings.settings);
+        setSecretFieldState(normalizedSettings.secretState);
       }
     } catch (error) {
       console.error(error);
@@ -343,7 +370,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
     fetchData();
   }, [fetchData]);
 
-  const fetchPublishStatus = useCallback(async (options = {}) => {
+  const fetchPublishStatus = useCallback(async () => {
     if (!isAdmin) {
       return null;
     }
@@ -364,7 +391,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
   const handlePublicContentChanged = useCallback(async (options = {}) => {
     const { baseMessage = 'Zmiany zostały zapisane.', showAlert = false } = options;
-    const status = await fetchPublishStatus({ silent: true });
+    const status = await fetchPublishStatus();
 
     let nextMessage = baseMessage;
 
@@ -474,6 +501,16 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
     try {
       await axios.post('/api/admin/settings', settings);
+      setSettings((previous) => ({
+        ...previous,
+        stripe_secret: '',
+        stripe_webhook_secret: '',
+      }));
+      setSecretFieldState((previous) => ({
+        ...previous,
+        stripeSecretConfigured: previous.stripeSecretConfigured || Boolean(settings.stripe_secret?.trim()),
+        stripeWebhookSecretConfigured: previous.stripeWebhookSecretConfigured || Boolean(settings.stripe_webhook_secret?.trim()),
+      }));
       await handlePublicContentChanged({ baseMessage: 'Ustawienia zostały zapisane.', showAlert: true });
     } catch (error) {
       alert(`Błąd: ${error.message}`);
@@ -580,7 +617,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
   return (
     <div className="bg-nude">
-      <div className="mx-auto max-w-[1200px] px-6 py-10">
+      <div className="mx-auto max-w-300 px-6 py-10">
         <div className="mb-10 flex flex-col gap-6 pb-4">
           <div>
             <h1 className="mb-2 font-serif text-fs-title-md text-mauve">
@@ -588,7 +625,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
             </h1>
           </div>
 
-          <nav className="admin-scrollbar admin-scrollbar-x relative z-0 flex w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto rounded-[28px] border border-white/60 bg-white/40 p-2 shadow-sm lg:gap-2 xl:justify-between xl:gap-0 xl:overflow-visible">
+          <nav className="admin-scrollbar admin-scrollbar-x relative z-0 flex w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto rounded-[28px] border border-white/60 bg-white/40 p-2 shadow-xs lg:gap-2 xl:justify-between xl:gap-0 xl:overflow-visible">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -640,7 +677,6 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                         const typeMeta = getProductTypeMeta(product.type);
                         const statusMeta = getProductStatusMeta(product);
                         const productPreviewPath = getProductPreviewPath(product);
-                        const isPreviewAvailable = Boolean(product.is_published);
                         const isTestCourse = product.type === 'course' && !product.is_published;
 
                         return (
@@ -716,7 +752,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       value={userSearch}
                       onChange={(event) => setUserSearch(event.target.value)}
                       placeholder="Szukaj po e-mailu, nazwie lub ID"
-                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                     />
                   </label>
                   <button
@@ -738,9 +774,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       <tr className="border-b border-gold/5 bg-nude/30">
                         <th className="w-[36%] py-4 pl-8 pr-3 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:pr-5 lg:pr-6">Użytkownik</th>
                         <th className="w-[34%] px-3 py-4 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:px-5 lg:px-6">E-mail</th>
-                        <th className="w-[74px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[98px] md:px-3">Zakupione produkty</th>
-                        <th className="w-[56px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[72px] md:px-4">Status</th>
-                        <th className="w-[82px] px-2 py-4 text-right text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[96px] md:px-4 lg:px-5">Akcje</th>
+                        <th className="w-18.5 px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-24.5 md:px-3">Zakupione produkty</th>
+                        <th className="w-14 px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-18 md:px-4">Status</th>
+                        <th className="w-20.5 px-2 py-4 text-right text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-24 md:px-4 lg:px-5">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -771,7 +807,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                                 </div>
                               </button>
                             </td>
-                            <td className="px-3 py-5 md:px-5 lg:px-6"><div className="max-w-[108px] truncate text-[0.8rem] font-medium text-mauve sm:max-w-[140px] md:max-w-[210px]" title={account.email}>{account.email}</div></td>
+                            <td className="px-3 py-5 md:px-5 lg:px-6"><div className="max-w-27 truncate text-[0.8rem] font-medium text-mauve sm:max-w-35 md:max-w-52.5" title={account.email}>{account.email}</div></td>
                             <td className="px-2 py-5 text-center text-fs-ui font-semibold text-mauve/70 md:px-3">{purchasedProductsCount}</td>
                             <td className="px-2 py-5 text-center md:px-4">
                               <span title={account.email_confirmed ? 'Potwierdzony e-mail' : 'Niepotwierdzony e-mail'} className={`inline-flex h-7 w-7 items-center justify-center rounded-full border md:h-8 md:w-8 ${account.email_confirmed ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
@@ -813,14 +849,14 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       value={orderSearch}
                       onChange={(event) => setOrderSearch(event.target.value)}
                       placeholder="Szukaj po e-mailu lub numerze"
-                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                      className="h-12 w-full rounded-2xl border border-gold/10 bg-white px-12 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                     />
                   </label>
                   <div className="flex flex-col gap-3 sm:flex-row">
                     <select
                       value={orderStatusFilter}
                       onChange={(event) => setOrderStatusFilter(event.target.value)}
-                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 sm:flex-1"
+                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 sm:flex-1"
                     >
                       <option value="all">Wszystkie statusy</option>
                       <option value="pending_bank_transfer">Oczekujące na przelew</option>
@@ -836,7 +872,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       lang="pl"
                       value={orderExportMonth}
                       onChange={(event) => setOrderExportMonth(event.target.value)}
-                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 sm:flex-1"
+                      className="h-12 rounded-2xl border border-gold/10 bg-white px-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 sm:flex-1"
                     />
                     <button
                       type="button"
@@ -1045,7 +1081,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
           {activeTab === 'settings' && isAdmin ? (
             <div className="animate-in slide-in-from-right-4 duration-500 space-y-6">
-              <div className="rounded-[40px] border border-white/80 bg-white/60 p-8 shadow-sm md:p-12">
+              <div className="rounded-[40px] border border-white/80 bg-white/60 p-8 shadow-xs md:p-12">
                 <h2 className="mb-2 font-serif text-fs-title-sm text-mauve">Ustawienia platformy</h2>
                 <p className="text-fs-body text-mauve/60">Sekcje ustawień korzystają z tych samych odstępów i układu co pozostałe elementy panelu.</p>
               </div>
@@ -1055,23 +1091,23 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">E-mail kontaktowy i powiadomień</label>
-                      <input value={settings.notify_email || ''} onChange={(event) => setSettings({ ...settings, notify_email: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="kontakt@domena.pl" />
+                      <input value={settings.notify_email || ''} onChange={(event) => setSettings({ ...settings, notify_email: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="kontakt@domena.pl" />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Telefon</label>
-                      <input value={settings.contact_phone || ''} onChange={(event) => setSettings({ ...settings, contact_phone: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="+48 ..." />
+                      <input value={settings.contact_phone || ''} onChange={(event) => setSettings({ ...settings, contact_phone: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="+48 ..." />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Instagram</label>
-                      <input value={settings.instagram_url || ''} onChange={(event) => setSettings({ ...settings, instagram_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="https://instagram.com/..." />
+                      <input value={settings.instagram_url || ''} onChange={(event) => setSettings({ ...settings, instagram_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="https://instagram.com/..." />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Facebook</label>
-                      <input value={settings.facebook_url || ''} onChange={(event) => setSettings({ ...settings, facebook_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="https://facebook.com/..." />
+                      <input value={settings.facebook_url || ''} onChange={(event) => setSettings({ ...settings, facebook_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="https://facebook.com/..." />
                     </div>
                     <div className="space-y-3 xl:col-span-2">
                       <p className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Test szablonów e-mail</p>
-                      <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4">
+                      <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4">
                         <p className="text-fs-body leading-7 text-mauve/65">Wyślij testowy e-mail na adres powiadomień, aby sprawdzić aktualny wygląd wiadomości po zmianach w kolorach lub ustawieniach marki.</p>
                         {settingsEmailFeedback.message ? (
                           <div className={`mt-4 rounded-2xl border px-4 py-3 text-fs-ui leading-6 ${settingsEmailFeedback.tone === 'error' ? 'border-rose/20 bg-rose/10 text-mauve/80' : 'border-emerald-200 bg-emerald-50/90 text-emerald-800'}`}>
@@ -1098,41 +1134,43 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Publiczny)</label>
-                      <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
+                      <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Prywatny / Secret)</label>
-                      <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_SECRET_KEY_PLACEHOLDER" />
+                      <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeSecretConfigured ? 'Nowa wartość nadpisze zapisany klucz' : 'STRIPE_SECRET_KEY_PLACEHOLDER'} autoComplete="new-password" />
+                      <p className="mt-2 text-fs-ui leading-6 text-mauve/55">{secretFieldState.stripeSecretConfigured ? 'Klucz jest zapisany. Zostaw to pole puste, aby zachować obecną wartość.' : 'Klucz nie jest jeszcze zapisany.'}</p>
                     </div>
                     <div className="space-y-1 xl:col-span-2">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Webhook Stripe</label>
-                      <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_WEBHOOK_SECRET_PLACEHOLDER" />
+                      <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeWebhookSecretConfigured ? 'Nowa wartość nadpisze zapisany sekret webhooka' : 'STRIPE_WEBHOOK_SECRET_PLACEHOLDER'} autoComplete="new-password" />
+                      <p className="mt-2 text-fs-ui leading-6 text-mauve/55">{secretFieldState.stripeWebhookSecretConfigured ? 'Sekret webhooka jest zapisany. Zostaw to pole puste, aby zachować obecną wartość.' : 'Sekret webhooka nie jest jeszcze zapisany.'}</p>
                     </div>
                   </div>
                 </SettingsGroup>
 
                 <SettingsGroup eyebrow="Obsługa ręczna" title="Przelewy tradycyjne" description="Dane wyświetlane klientce przy wyborze przelewu manualnego. Sekcja jest podzielona na czytelne pola w układzie dwukolumnowym.">
                   {!bankTransferConfigured ? (
-                    <div className="mb-5 rounded-[24px] border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
+                    <div className="mb-5 rounded-3xl border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
                       Przelew tradycyjny jest obecnie wyłączony na stronie sprzedażowej, bo brakuje odbiorcy lub numeru rachunku. Uzupełnij oba pola poniżej i zapisz ustawienia, aby metoda znów była dostępna dla klientek.
                     </div>
                   ) : null}
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Odbiorca przelewu tradycyjnego</label>
-                      <input value={settings.bank_account_name || ''} onChange={(event) => setSettings({ ...settings, bank_account_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Imię i nazwisko lub nazwa odbiorcy" />
+                      <input value={settings.bank_account_name || ''} onChange={(event) => setSettings({ ...settings, bank_account_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Imię i nazwisko lub nazwa odbiorcy" />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Numer konta do przelewu</label>
-                      <input value={settings.bank_account_number || ''} onChange={(event) => setSettings({ ...settings, bank_account_number: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="12 3456 7890 1234 5678 9012 3456" />
+                      <input value={settings.bank_account_number || ''} onChange={(event) => setSettings({ ...settings, bank_account_number: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="12 3456 7890 1234 5678 9012 3456" />
                     </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Nazwa banku</label>
-                      <input value={settings.bank_name || ''} onChange={(event) => setSettings({ ...settings, bank_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Opcjonalnie" />
+                      <input value={settings.bank_name || ''} onChange={(event) => setSettings({ ...settings, bank_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Opcjonalnie" />
                     </div>
                     <div className="space-y-1 xl:col-span-2">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Dodatkowe instrukcje do przelewu</label>
-                      <textarea value={settings.bank_transfer_instructions || ''} onChange={(event) => setSettings({ ...settings, bank_transfer_instructions: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Np. poproś klientkę o przesłanie potwierdzenia przelewu albo dodaj dodatkowe instrukcje." />
+                      <textarea value={settings.bank_transfer_instructions || ''} onChange={(event) => setSettings({ ...settings, bank_transfer_instructions: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Np. poproś klientkę o przesłanie potwierdzenia przelewu albo dodaj dodatkowe instrukcje." />
                     </div>
                   </div>
                 </SettingsGroup>
@@ -1148,11 +1186,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                     </div>
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
-                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
+                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
                     </div>
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
-                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
+                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
                     </div>
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
@@ -1168,12 +1206,12 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   <div className="space-y-6">
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;head&gt;</p>
-                      <textarea value={settings.marketing_head_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_head_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <textarea value={settings.marketing_head_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_head_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
                       <p className="mt-2 text-fs-ui text-mauve/40">Dodane przed końcowym znacznikiem &lt;/head&gt;. Tutaj umieszcza się większość kodów weryfikacyjnych i śledzących.</p>
                     </div>
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Sekcja &lt;body&gt; (na końcu)</p>
-                      <textarea value={settings.marketing_body_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_body_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
+                      <textarea value={settings.marketing_body_scripts || ''} onChange={(event) => setSettings({ ...settings, marketing_body_scripts: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 font-mono text-fs-ui text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="<script>...</script>" />
                       <p className="mt-2 text-fs-ui text-mauve/40">Dodane tuż przed &lt;/body&gt; na dole strony. Np. skrypty czatów, dodatkowe pop-upy z zewnętrznych narzędzi.</p>
                     </div>
                   </div>
@@ -1190,7 +1228,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                           onChange={(event) => setSettings({ ...settings, maintenance_mode: event.target.checked })}
                         />
                         <div className={`h-6 w-11 rounded-full transition-colors ${settings.maintenance_mode ? 'bg-gold' : 'bg-mauve/20'}`}></div>
-                        <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${settings.maintenance_mode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+                        <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-xs transition-transform ${settings.maintenance_mode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
                       </div>
                       <div>
                         <p className="font-bold text-mauve">{settings.maintenance_mode ? 'Tryb serwisowy włączony' : 'Tryb serwisowy wyłączony'}</p>
@@ -1199,7 +1237,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                     </label>
                     <div>
                       <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wiadomość dla odwiedzających (opcjonalnie)</p>
-                      <input value={settings.maintenance_message || ''} onChange={(event) => setSettings({ ...settings, maintenance_message: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20" placeholder="Wkrótce wracamy. Trwają prace serwisowe." />
+                      <input value={settings.maintenance_message || ''} onChange={(event) => setSettings({ ...settings, maintenance_message: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Wkrótce wracamy. Trwają prace serwisowe." />
                     </div>
                   </div>
                 </SettingsGroup>

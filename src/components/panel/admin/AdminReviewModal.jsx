@@ -92,7 +92,7 @@ export default function AdminReviewModal({ initialReview, onClose, onSaved }) {
                     required
                     value={formData.author}
                     onChange={(event) => setFormData((prev) => ({ ...prev, author: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   />
                 </div>
                 <div>
@@ -100,7 +100,7 @@ export default function AdminReviewModal({ initialReview, onClose, onSaved }) {
                   <input
                     value={formData.subtitle}
                     onChange={(event) => setFormData((prev) => ({ ...prev, subtitle: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                     placeholder="Np. mama Zuzi"
                   />
                 </div>
@@ -111,7 +111,7 @@ export default function AdminReviewModal({ initialReview, onClose, onSaved }) {
                     rows={6}
                     value={formData.content}
                     onChange={(event) => setFormData((prev) => ({ ...prev, content: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-none"
                   />
                 </div>
               </div>
@@ -121,7 +121,7 @@ export default function AdminReviewModal({ initialReview, onClose, onSaved }) {
                   <select
                     value={formData.is_active}
                     onChange={(event) => setFormData((prev) => ({ ...prev, is_active: event.target.value }))}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   >
                     <option value={1}>Widoczna</option>
                     <option value={0}>Ukryta</option>

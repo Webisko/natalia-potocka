@@ -1,7 +1,7 @@
 ---
 import { getProductBySlug, getPublishedProducts } from '../../lib/products.js';
-import { getServiceLandingPageSettingsBySlug } from '../../lib/pageSettings.js';
-import { getServiceOfferBySlug, getServiceOffers, SERVICE_CONTENT } from '../../lib/serviceContent.js';
+import * as pageSettings from '../../lib/pageSettings.js';
+import { getServiceOfferBySlug, getServiceOffers } from '../../lib/serviceContent.js';
 
 export function getStaticPaths() {
   return [...getPublishedProducts(), ...getServiceOffers()].map((product) => ({
@@ -12,15 +12,22 @@ export function getStaticPaths() {
 const params = Astro.params as unknown as Record<string, string | undefined>;
 const slug = String(params.slug || '');
 const product = getProductBySlug(slug) || getServiceOfferBySlug(slug);
-const servicePage = product?.type === 'service' ? getServiceLandingPageSettingsBySlug(slug) : null;
+
+function getRedirectPath() {
+  if (product?.type === 'service') {
+    const servicePage = pageSettings.getServiceLandingPageSettingsBySlug(slug);
+    if (servicePage?.slug) {
+      return `/${servicePage.slug}`;
+    }
+  }
+
+  return `/${product?.slug || slug}`;
+}
 
 if (!product) {
   return Astro.redirect('/#oferta', 302);
 }
 
-const redirectPath = product.type === 'service' && servicePage?.slug
-  ? `/${servicePage.slug}`
-  : `/${product.slug}`;
-
-return Astro.redirect(redirectPath, 301);
+void getRedirectPath;
+return Astro.redirect(getRedirectPath(), 301);
 ---

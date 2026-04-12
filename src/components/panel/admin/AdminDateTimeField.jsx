@@ -39,7 +39,7 @@ export default function AdminDateTimeField({ label, value, onChange, helperText 
         calendarStartDay={1}
         popperPlacement="bottom-start"
         wrapperClassName="admin-datepicker-wrapper"
-        className="admin-datepicker-input w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+        className="admin-datepicker-input w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
       />
       {helperText ? <p className="mt-2 text-fs-ui leading-6 text-mauve/55">{helperText}</p> : null}
     </div>

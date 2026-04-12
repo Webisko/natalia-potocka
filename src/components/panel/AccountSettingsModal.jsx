@@ -133,7 +133,7 @@ export default function AccountSettingsModal({ onClose }) {
               <input
                 value={profileForm.first_name}
                 onChange={(event) => setProfileForm((prev) => ({ ...prev, first_name: event.target.value }))}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
               />
             </label>
             <label className="block">
@@ -141,7 +141,7 @@ export default function AccountSettingsModal({ onClose }) {
               <input
                 value={profileForm.last_name}
                 onChange={(event) => setProfileForm((prev) => ({ ...prev, last_name: event.target.value }))}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
               />
             </label>
             <label className="block md:col-span-2">
@@ -151,7 +151,7 @@ export default function AccountSettingsModal({ onClose }) {
                 <input
                   value={profileForm.phone}
                   onChange={(event) => setProfileForm((prev) => ({ ...prev, phone: event.target.value }))}
-                  className="h-14 w-full rounded-2xl border border-gold/10 bg-white pl-12 pr-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                  className="h-14 w-full rounded-2xl border border-gold/10 bg-white pl-12 pr-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
                   placeholder="Opcjonalnie"
                 />
               </div>
@@ -166,7 +166,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="submit"
                 disabled={profileState.saving}
                 icon={profileState.saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                minWidthClassName="min-w-[11.5rem]"
+                minWidthClassName="min-w-46"
               >
                 Zapisz dane
               </PanelBlobButton>
@@ -205,7 +205,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="email"
                 value={emailForm.email}
                 onChange={(event) => setEmailForm({ email: event.target.value })}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
                 placeholder="nowy-adres@przyklad.pl"
               />
             </label>
@@ -245,7 +245,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="password"
                 value={passwordForm.current_password}
                 onChange={(event) => setPasswordForm((prev) => ({ ...prev, current_password: event.target.value }))}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
               />
             </label>
 
@@ -255,7 +255,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="password"
                 value={passwordForm.new_password}
                 onChange={(event) => setPasswordForm((prev) => ({ ...prev, new_password: event.target.value }))}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
               />
             </label>
 
@@ -265,7 +265,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="password"
                 value={passwordForm.password_confirm}
                 onChange={(event) => setPasswordForm((prev) => ({ ...prev, password_confirm: event.target.value }))}
-                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-none transition focus:ring-2 focus:ring-gold/20"
+                className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-5 text-fs-body text-mauve outline-hidden transition focus:ring-2 focus:ring-gold/20"
               />
             </label>
 
@@ -274,7 +274,7 @@ export default function AccountSettingsModal({ onClose }) {
                 type="submit"
                 disabled={passwordState.saving}
                 icon={passwordState.saving ? <Loader2 size={16} className="animate-spin" /> : <LockKeyhole size={16} />}
-                minWidthClassName="min-w-[11.5rem]"
+                minWidthClassName="min-w-46"
               >
                 Zmień hasło
               </PanelBlobButton>

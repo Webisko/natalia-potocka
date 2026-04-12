@@ -75,7 +75,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
 
     try {
       // Save page settings
-      const pageResponse = await axios.put(`/api/admin/pages/${page.page_key}`, {
+      await axios.put(`/api/admin/pages/${page.page_key}`, {
         title: formData.title,
         slug: formData.slug,
         featured_image_url: formData.featured_image_url,
@@ -160,7 +160,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                 <input
                   value={formData.title}
                   onChange={(event) => handleChange('title', event.target.value)}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                   value={formData.slug}
                   onChange={(event) => handleChange('slug', event.target.value)}
                   disabled={isLockedSlug}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                 <input
                   value={formData.meta_title}
                   onChange={(event) => handleChange('meta_title', event.target.value)}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
                 <div className="mt-3">
                   <SeoLengthIndicator type="title" value={formData.meta_title} />
@@ -211,7 +211,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                   value={formData.meta_desc}
                   onChange={(event) => handleChange('meta_desc', event.target.value)}
                   rows={4}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-none"
                 />
                 <div className="mt-3">
                   <SeoLengthIndicator type="description" value={formData.meta_desc} />
@@ -224,7 +224,7 @@ export default function AdminPageSettingsModal({ page, onClose, onSaved }) {
                   value={formData.canonical_url}
                   onChange={(event) => handleChange('canonical_url', event.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
 

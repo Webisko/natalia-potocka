@@ -35,7 +35,7 @@ function MediaPreview({ source, title }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-mauve/55">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-mauve/45 shadow-sm">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-mauve/45 shadow-xs">
         {mediaKind === 'video' ? <Film size={24} /> : null}
         {mediaKind === 'document' ? <FileText size={24} /> : null}
         {mediaKind === 'other' ? <Link2 size={24} /> : null}
@@ -147,7 +147,7 @@ export default function AdminMediaPicker({
       <div className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/80">
         {value ? (
           <div className="p-4">
-            <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-nude/50">
+            <div className="aspect-16/10 overflow-hidden rounded-2xl bg-nude/50">
               <MediaPreview source={value} title={currentValueLabel} />
             </div>
             <div className="mt-4 space-y-3">
@@ -159,7 +159,7 @@ export default function AdminMediaPicker({
                     value={value}
                     onChange={(event) => onChange(event.target.value)}
                     placeholder={manualUrlPlaceholder}
-                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                    className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                   />
                 </div>
               ) : (
@@ -213,7 +213,7 @@ export default function AdminMediaPicker({
                   value={value}
                   onChange={(event) => onChange(event.target.value)}
                   placeholder={manualUrlPlaceholder}
-                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-none focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
                 />
               </div>
             ) : null}
@@ -222,7 +222,7 @@ export default function AdminMediaPicker({
       </div>
 
       {isLibraryOpen ? (
-        <div className="fixed inset-0 z-[120] flex items-start justify-center overflow-y-auto bg-mauve/45 px-4 py-6 backdrop-blur-sm md:py-8">
+        <div className="fixed inset-0 z-120 flex items-start justify-center overflow-y-auto bg-mauve/45 px-4 py-6 backdrop-blur-xs md:py-8">
           <div className="absolute inset-0" onClick={() => setIsLibraryOpen(false)} />
           <div className="relative z-10 my-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
             <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
@@ -262,7 +262,7 @@ export default function AdminMediaPicker({
                         }}
                         className={`overflow-hidden rounded-2xl border text-left transition ${isSelected ? 'border-gold shadow-lg shadow-gold/10' : 'border-mauve/10 hover:border-gold/30'}`}
                       >
-                        <div className="aspect-[16/10] overflow-hidden bg-nude/50">
+                        <div className="aspect-16/10 overflow-hidden bg-nude/50">
                           <MediaPreview source={asset.public_url} title={asset.alt_text || asset.original_name} />
                         </div>
                         <div className="space-y-1 p-3">
