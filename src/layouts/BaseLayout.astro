@@ -107,6 +107,14 @@ const faviconHref = globalSettings.favicon_url || '/favicon.svg?v=np-monogram-1'
     {globalSettings.marketing_head_scripts ? <Fragment set:html={globalSettings.marketing_head_scripts} /> : null}
   </head>
   <body class="min-h-screen flex flex-col bg-[#FAF7F2] relative">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="absolute left-[-10%] top-[0%] h-[70vw] w-[70vw] rounded-full bg-[#EADDD7]/30 blur-[130px] mix-blend-multiply animate-breathe"></div>
+      <div class="absolute right-[-5%] top-[20%] h-[50vw] w-[50vw] rounded-full bg-rose/10 blur-[120px] mix-blend-multiply animate-heartbeat"></div>
+      <div class="absolute left-[10%] top-[40%] h-[60vw] w-[60vw] rounded-full bg-[#F4E2A1]/5 blur-[120px] mix-blend-multiply animate-breathe"></div>
+      <div class="absolute right-[5%] top-[60%] h-[65vw] w-[65vw] rounded-full bg-blush/10 blur-[140px] mix-blend-multiply animate-heartbeat"></div>
+      <div class="absolute left-[5%] top-[80%] h-[50vw] w-[50vw] rounded-full bg-rose/10 blur-[100px] mix-blend-multiply animate-breathe"></div>
+      <div class="absolute right-[-10%] bottom-[-5%] h-[70vw] w-[70vw] rounded-full bg-[#EADDD7]/20 blur-[120px] mix-blend-multiply animate-heartbeat"></div>
+    </div>
     {showHeader && <SiteHeader />}
     <main class="grow z-0">
       {showBreadcrumbs && <Breadcrumbs items={breadcrumbItems} />}

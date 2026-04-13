@@ -60,6 +60,8 @@ export default function AdminMediaPicker({
   allowManualUrl = false,
   manualUrlLabel = 'Adres pliku lub embed URL',
   manualUrlPlaceholder = 'https://',
+  previewAspectClassName = 'aspect-16/10',
+  emptyStateMinHeightClassName = 'min-h-36',
 }) {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [mediaAssets, setMediaAssets] = useState([]);
@@ -147,7 +149,7 @@ export default function AdminMediaPicker({
       <div className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/80">
         {value ? (
           <div className="p-4">
-            <div className="aspect-16/10 overflow-hidden rounded-2xl bg-nude/50">
+            <div className={`${previewAspectClassName} overflow-hidden rounded-2xl bg-nude/50`}>
               <MediaPreview source={value} title={currentValueLabel} />
             </div>
             <div className="mt-4 space-y-3">
@@ -185,7 +187,7 @@ export default function AdminMediaPicker({
           </div>
         ) : (
           <div className="p-4">
-            <div className="flex min-h-36 items-center justify-center rounded-2xl border border-dashed border-mauve/15 bg-nude/45 p-6 text-center text-fs-body leading-6 text-mauve/50">
+            <div className={`flex ${emptyStateMinHeightClassName} items-center justify-center rounded-2xl border border-dashed border-mauve/15 bg-nude/45 p-6 text-center text-fs-body leading-6 text-mauve/50`}>
               {emptyStateText}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -224,7 +226,7 @@ export default function AdminMediaPicker({
       {isLibraryOpen ? (
         <div className="fixed inset-0 z-120 flex items-start justify-center overflow-y-auto bg-mauve/45 px-4 py-6 backdrop-blur-xs md:py-8">
           <div className="absolute inset-0" onClick={() => setIsLibraryOpen(false)} />
-          <div className="relative z-10 my-auto w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
+          <div className="relative z-10 my-auto w-full max-w-5xl overflow-hidden rounded-4xl border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
             <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
               <div>
                 <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">Biblioteka</p>

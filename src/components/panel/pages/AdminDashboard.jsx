@@ -254,6 +254,7 @@ function openPreviewInNewTab(path) {
 }
 
 const TABLE_ACTION_BUTTON_CLASS = 'h-9 w-9 rounded-lg';
+const MASKED_SECRET_PLACEHOLDER = '••••••••••••••••';
 
 function getClickableCellClassName(baseClassName) {
   return `${baseClassName} p-0`;
@@ -1087,6 +1088,40 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
               </div>
 
               <form onSubmit={handleSaveSettings} className="space-y-6">
+                <SettingsGroup eyebrow="Wygląd i SEO" title="Ustawienia globalne" description="Domyślne metadane strony oraz favicon. Po zapisaniu zmiany powinny pojawić się na stronie po chwili.">
+                  <div className="space-y-6">
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.75fr)] xl:items-start">
+                      <div className="space-y-6">
+                        <div>
+                          <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
+                          <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
+                        </div>
+                        <div>
+                          <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
+                          <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
+                        </div>
+                      </div>
+                      <div className="xl:justify-self-end xl:w-full xl:max-w-[320px]">
+                        <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Favicon (ikona w karcie przeglądarki)</p>
+                        <AdminImagePicker
+                          value={settings.favicon_url || ''}
+                          onChange={(url) => setSettings({ ...settings, favicon_url: url })}
+                          previewAspectClassName="aspect-square"
+                          emptyStateMinHeightClassName="min-h-[16rem]"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
+                      <AdminImagePicker
+                        value={settings.seo_default_social_image || ''}
+                        onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
+                        previewAspectClassName="aspect-16/9"
+                      />
+                    </div>
+                  </div>
+                </SettingsGroup>
+
                 <SettingsGroup eyebrow="Komunikacja" title="Kontakt i powiadomienia" description="W tym miejscu trzymasz dane kontaktowe marki oraz adres, na który mają trafiać wiadomości systemowe i informacje o zamówieniach.">
                   <div className="grid gap-5 xl:grid-cols-2">
                     <div className="space-y-1">
@@ -1135,74 +1170,65 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                   </div>
                 </SettingsGroup>
 
-                <SettingsGroup eyebrow="Płatności" title="Stripe" description="Wszystkie klucze Stripe są zebrane w jednym bloku, aby łatwiej kontrolować konfigurację checkoutu i webhooków.">
-                  <div className="grid gap-5 xl:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Publiczny)</label>
-                      <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
+                <SettingsGroup eyebrow="Płatności" title="Metody płatności" description="W jednym miejscu zarządzasz checkoutem Stripe oraz danymi do przelewów tradycyjnych wyświetlanymi klientkom przy płatności ręcznej.">
+                  <div className="space-y-8">
+                    <div>
+                      <div className="mb-6 border-b border-gold/10 pb-5">
+                        <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/75">Płatność online</p>
+                        <div className="mt-3 flex items-center gap-4">
+                          <h4 className="font-serif text-fs-title-sm text-mauve">Stripe</h4>
+                          <span className="h-px flex-1 bg-gold/15" />
+                        </div>
+                        <p className="mt-3 max-w-3xl text-fs-body leading-7 text-mauve/60">Klucze Stripe kontrolują checkout online oraz podpisywanie webhooków.</p>
+                      </div>
+                      <div className="grid gap-5 xl:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Publiczny)</label>
+                          <input value={settings.stripe_pub || ''} onChange={(event) => setSettings({ ...settings, stripe_pub: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Prywatny / Secret)</label>
+                          <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeSecretConfigured ? MASKED_SECRET_PLACEHOLDER : 'STRIPE_SECRET_KEY_PLACEHOLDER'} autoComplete="new-password" />
+                        </div>
+                        <div className="space-y-1 xl:col-span-2">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Webhook Stripe</label>
+                          <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeWebhookSecretConfigured ? MASKED_SECRET_PLACEHOLDER : 'STRIPE_WEBHOOK_SECRET_PLACEHOLDER'} autoComplete="new-password" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Stripe (Prywatny / Secret)</label>
-                      <input type="password" value={settings.stripe_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeSecretConfigured ? 'Nowa wartość nadpisze zapisany klucz' : 'STRIPE_SECRET_KEY_PLACEHOLDER'} autoComplete="new-password" />
-                      <p className="mt-2 text-fs-ui leading-6 text-mauve/55">{secretFieldState.stripeSecretConfigured ? 'Klucz jest zapisany. Zostaw to pole puste, aby zachować obecną wartość.' : 'Klucz nie jest jeszcze zapisany.'}</p>
-                    </div>
-                    <div className="space-y-1 xl:col-span-2">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Klucz Webhook Stripe</label>
-                      <input type="password" value={settings.stripe_webhook_secret || ''} onChange={(event) => setSettings({ ...settings, stripe_webhook_secret: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={secretFieldState.stripeWebhookSecretConfigured ? 'Nowa wartość nadpisze zapisany sekret webhooka' : 'STRIPE_WEBHOOK_SECRET_PLACEHOLDER'} autoComplete="new-password" />
-                      <p className="mt-2 text-fs-ui leading-6 text-mauve/55">{secretFieldState.stripeWebhookSecretConfigured ? 'Sekret webhooka jest zapisany. Zostaw to pole puste, aby zachować obecną wartość.' : 'Sekret webhooka nie jest jeszcze zapisany.'}</p>
-                    </div>
-                  </div>
-                </SettingsGroup>
 
-                <SettingsGroup eyebrow="Obsługa ręczna" title="Przelewy tradycyjne" description="Dane wyświetlane klientce przy wyborze przelewu manualnego. Sekcja jest podzielona na czytelne pola w układzie dwukolumnowym.">
-                  {!bankTransferConfigured ? (
-                    <div className="mb-5 rounded-3xl border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
-                      Przelew tradycyjny jest obecnie wyłączony na stronie sprzedażowej, bo brakuje odbiorcy lub numeru rachunku. Uzupełnij oba pola poniżej i zapisz ustawienia, aby metoda znów była dostępna dla klientek.
-                    </div>
-                  ) : null}
-                  <div className="grid gap-5 xl:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Odbiorca przelewu tradycyjnego</label>
-                      <input value={settings.bank_account_name || ''} onChange={(event) => setSettings({ ...settings, bank_account_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Imię i nazwisko lub nazwa odbiorcy" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Numer konta do przelewu</label>
-                      <input value={settings.bank_account_number || ''} onChange={(event) => setSettings({ ...settings, bank_account_number: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="12 3456 7890 1234 5678 9012 3456" />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Nazwa banku</label>
-                      <input value={settings.bank_name || ''} onChange={(event) => setSettings({ ...settings, bank_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Opcjonalnie" />
-                    </div>
-                    <div className="space-y-1 xl:col-span-2">
-                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Dodatkowe instrukcje do przelewu</label>
-                      <textarea value={settings.bank_transfer_instructions || ''} onChange={(event) => setSettings({ ...settings, bank_transfer_instructions: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Np. poproś klientkę o przesłanie potwierdzenia przelewu albo dodaj dodatkowe instrukcje." />
-                    </div>
-                  </div>
-                </SettingsGroup>
-
-                <SettingsGroup eyebrow="Wygląd i SEO" title="Ustawienia globalne" description="Domyślne metadane strony oraz favicon. Po zapisaniu zmiany powinny pojawić się na stronie po chwili.">
-                  <div className="space-y-6">
                     <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Favicon (ikona w karcie przeglądarki)</p>
-                      <AdminImagePicker
-                        value={settings.favicon_url || ''}
-                        onChange={(url) => setSettings({ ...settings, favicon_url: url })}
-                      />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny tytuł (jeśli strona go nie nadpisze)</p>
-                      <input value={settings.seo_default_title || ''} onChange={(event) => setSettings({ ...settings, seo_default_title: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder={SITE_NAME || "Natalia Potocka"} />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślny opis (jeśli strona go nie nadpisze)</p>
-                      <textarea value={settings.seo_default_desc || ''} onChange={(event) => setSettings({ ...settings, seo_default_desc: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Opis Twojej działalności..." />
-                    </div>
-                    <div>
-                      <p className="mb-2 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Domyślne zdjęcie udostępniania (Social Media)</p>
-                      <AdminImagePicker
-                        value={settings.seo_default_social_image || ''}
-                        onChange={(url) => setSettings({ ...settings, seo_default_social_image: url })}
-                      />
+                      <div className="mb-6 border-b border-gold/10 pb-5">
+                        <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/75">Płatność ręczna</p>
+                        <div className="mt-3 flex items-center gap-4">
+                          <h4 className="font-serif text-fs-title-sm text-mauve">Przelewy tradycyjne</h4>
+                          <span className="h-px flex-1 bg-gold/15" />
+                        </div>
+                        <p className="mt-3 text-fs-body leading-7 text-mauve/60">Dane wyświetlane klientce przy wyborze przelewu manualnego.</p>
+                      </div>
+                      {!bankTransferConfigured ? (
+                        <div className="mb-5 rounded-3xl border border-amber-300/60 bg-amber-50 px-5 py-4 text-fs-body leading-7 text-amber-900">
+                          Przelew tradycyjny jest obecnie wyłączony na stronie sprzedażowej, bo brakuje odbiorcy lub numeru rachunku. Uzupełnij oba pola poniżej i zapisz ustawienia, aby metoda znów była dostępna dla klientek.
+                        </div>
+                      ) : null}
+                      <div className="grid gap-5 xl:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Odbiorca przelewu tradycyjnego</label>
+                          <input value={settings.bank_account_name || ''} onChange={(event) => setSettings({ ...settings, bank_account_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Imię i nazwisko lub nazwa odbiorcy" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Numer konta do przelewu</label>
+                          <input value={settings.bank_account_number || ''} onChange={(event) => setSettings({ ...settings, bank_account_number: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 font-mono text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="12 3456 7890 1234 5678 9012 3456" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Nazwa banku</label>
+                          <input value={settings.bank_name || ''} onChange={(event) => setSettings({ ...settings, bank_name: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="Opcjonalnie" />
+                        </div>
+                        <div className="space-y-1 xl:col-span-2">
+                          <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Dodatkowe instrukcje do przelewu</label>
+                          <textarea value={settings.bank_transfer_instructions || ''} onChange={(event) => setSettings({ ...settings, bank_transfer_instructions: event.target.value })} className="min-h-32 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Np. poproś klientkę o przesłanie potwierdzenia przelewu albo dodaj dodatkowe instrukcje." />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </SettingsGroup>
