@@ -450,11 +450,11 @@ export default function AdminUserModal({
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4">
+            <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4">
               <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Status konta</p>
               <p className="mt-2 text-fs-body leading-7 text-mauve/70">{accountStatusLabel}</p>
             </div>
-            <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4">
+            <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4">
               <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Rola</p>
               {isEditing ? (
                 <p className="mt-2 text-fs-body leading-7 text-mauve/70">{accountRoleLabel}</p>
@@ -523,7 +523,7 @@ export default function AdminUserModal({
                 {isEditing ? 'Pozostaw puste, jeśli hasło ma zostać bez zmian.' : 'Nowe konto otrzyma hasło ustawione w tym formularzu.'}
               </p>
               {isEditing ? (
-                <div className="mt-4 space-y-3 rounded-[24px] border border-gold/10 bg-white px-4 py-4">
+                <div className="mt-4 space-y-3 rounded-3xl border border-gold/10 bg-white px-4 py-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">Reset hasła</p>
@@ -582,7 +582,7 @@ export default function AdminUserModal({
               <h3 className="mt-2 font-serif text-fs-title-sm text-mauve">Produkty przypisane do konta</h3>
               <p className="mt-2 text-fs-body leading-7 text-mauve/60">Zaznacz produkty, które mają być od razu dostępne z poziomu konta klienta.</p>
             </div>
-            <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70">
+            <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wybrane produkty</p>
               <p className="mt-2 font-medium text-mauve">{formData.purchased_items.length}</p>
             </div>
@@ -620,7 +620,7 @@ export default function AdminUserModal({
                 <h3 className="mt-2 font-serif text-fs-title-sm text-mauve">Ręczne nadanie dostępu</h3>
                 <p className="mt-2 text-fs-body leading-7 text-mauve/60">Dodaj produkt do konta i zapisz to działanie jako osobne zamówienie manualne z numerem i logiem zdarzeń.</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70">
+              <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70">
                 <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Adres konta</p>
                 <p className="mt-2 break-all font-medium text-mauve">{detailUser?.email || 'Brak danych'}</p>
               </div>

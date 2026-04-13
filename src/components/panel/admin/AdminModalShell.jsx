@@ -14,9 +14,11 @@ export default function AdminModalShell({
   overlayClassName = 'bg-mauve/45',
   zIndexClassName = 'z-90',
 }) {
+  const dialogClasses = `flex max-h-[92vh] w-full flex-col overflow-hidden rounded-4xl border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15 ${maxWidthClassName} ${dialogClassName}`.trim();
+
   return (
     <div className={`fixed inset-0 ${zIndexClassName} flex justify-center px-4 py-8 backdrop-blur-xs ${alignClassName} ${overlayClassName}`.trim()}>
-      <div className={`flex max-h-[92vh] w-full ${maxWidthClassName} flex-col overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15 ${dialogClassName}`.trim()}>
+      <div className={dialogClasses}>
         <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
           <div>
             {eyebrow ? <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">{eyebrow}</p> : null}

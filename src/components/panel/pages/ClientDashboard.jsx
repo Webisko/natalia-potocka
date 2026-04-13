@@ -609,8 +609,8 @@ export default function ClientDashboard() {
 
   return (
     <div className="w-full relative overflow-x-hidden">
-      <div className="absolute right-0 top-0 h-[260px] w-[260px] rounded-full bg-rose/10 blur-[100px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute left-0 top-20 h-[220px] w-[220px] rounded-full bg-gold/10 blur-[100px] pointer-events-none -z-10 -translate-x-1/3" />
+      <div className="absolute right-0 top-0 h-65 w-65 rounded-full bg-rose/10 blur-[100px] pointer-events-none -z-10 translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute left-0 top-20 h-55 w-55 rounded-full bg-gold/10 blur-[100px] pointer-events-none -z-10 -translate-x-1/3" />
       <div className="max-w-6xl mx-auto py-4">
         <h1 className="font-serif text-fs-title-md text-mauve">Hej, {getUserDisplayName(user)}!</h1>
 
@@ -743,7 +743,7 @@ export default function ClientDashboard() {
             {orders.length > 0 ? (
               <div className="grid gap-5 lg:grid-cols-2">
                 {orders.map((order) => (
-                  <article key={order.id} className="rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-[0_18px_55px_rgba(67,56,70,0.06)]">
+                  <article key={order.id} className="rounded-4xl border border-white/80 bg-white/70 p-6 shadow-[0_18px_55px_rgba(67,56,70,0.06)]">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div>
                         <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold">{order.order_number || 'Zamówienie'}</p>

@@ -105,9 +105,9 @@ function buildProductPath(slug) {
   return slug ? `/${slug}` : '/twoj-slug';
 }
 
-function AccordionSection({ title, description, open, onToggle, children }) {
+function AccordionSection({ title, description, open, onToggle, children, hasTopBorder = true }) {
   return (
-    <section className="border-t border-gold/10 pt-6 first:border-t-0 first:pt-0">
+    <section className={hasTopBorder ? 'border-t border-gold/10 pt-6 first:border-t-0 first:pt-0' : 'pt-0'}>
       <button
         type="button"
         onClick={onToggle}
@@ -138,7 +138,7 @@ function formatPrice(value) {
 export default function AdminProductEdit({ productId = 'new', embedded = false, onClose, onSaved }) {
   const id = productId;
   const isNew = id === 'new';
-  const [sections, setSections] = useState({ content: false, marketing: false, seo: false });
+  const [sections, setSections] = useState({ content: false, seo: false });
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(!isNew);
 
   const [formData, setFormData] = useState({
@@ -185,8 +185,9 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
     if (!isNew) {
       axios.get('/api/admin/products')
         .then(res => {
-          const prod = res.data.find(p => p.id === id);
+          const prod = res.data.find((item) => String(item.id) === String(id));
           if (prod) {
+            const normalizedFaq = normalizeFaqItems(prod.faq_json);
             setFormData({
               ...prod,
               short_description: prod.short_description || '',
@@ -198,7 +199,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               secondary_image_url: prod.secondary_image_url || '',
               long_description: prod.long_description || '',
               benefits_json: normalizeBenefitCards(prod.benefits_json),
-              faq_json: normalizeFaqItems(prod.faq_json).length > 0 ? normalizeFaqItems(prod.faq_json) : createEmptyFaqItems(),
+              faq_json: normalizedFaq.length > 0 ? normalizedFaq : createEmptyFaqItems(),
               meta_image_url: prod.meta_image_url || '',
               canonical_url: prod.canonical_url || '',
               noindex: Boolean(prod.noindex),
@@ -331,7 +332,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
       )}
 
       <div className="space-y-8 px-6 md:px-8">
-        <section className="space-y-8 border-b border-gold/10 pb-8">
+        <section className="space-y-8 pb-2">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-5">
               <div>
@@ -358,9 +359,37 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                 <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Slug uzupełnia się automatycznie na podstawie tytułu, ale możesz go ręcznie zmienić.</p>
               </div>
               <div>
-                <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Krótki opis</label>
-                <textarea name="short_description" value={formData.short_description} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="To będzie krótki opis przy tytule i na listach produktów." />
-                <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Jeśli zostawisz to pole puste, system użyje początku długiego opisu.</p>
+                <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres produktu</label>
+                <input value={productUrlPreview} readOnly className="w-full rounded-2xl border border-mauve/15 bg-nude/45 px-4 py-3 text-fs-body text-mauve/75 focus:outline-hidden" />
+                <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Adres aktualizuje się automatycznie na podstawie slugu z sekcji głównej.</p>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena podstawowa</label>
+                  <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena promocyjna</label>
+                  <input type="number" step="0.01" name="promotional_price" value={formData.promotional_price} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="np. 99.00" />
+                </div>
+                <div className="md:col-span-2">
+                  <AdminDateTimeField
+                    label="Promocja ważna do"
+                    value={formData.promotional_price_until}
+                    onChange={(nextValue) => setFormData((prev) => ({ ...prev, promotional_price_until: nextValue }))}
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4">
+                <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold/80">Omnibus</p>
+                <p className="mt-2 text-fs-body leading-7 text-mauve/70">Najniższa cena z ostatnich 30 dni jest liczona automatycznie na podstawie historii zmian ceny.</p>
+                <div className="mt-4">
+                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/50">Aktualnie zapisana najniższa cena 30 dni</p>
+                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{hasPromo ? formatPrice(formData.lowest_price_30_days) : 'Brak aktywnej obniżki'}</p>
+                </div>
+                <p className="mt-3 text-fs-ui leading-6 text-mauve/55">Po zapisaniu produktu system zaktualizuje tę wartość automatycznie, jeśli ustawiasz obniżkę.</p>
               </div>
 
               {isDigitalProduct ? (
@@ -403,8 +432,15 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
           description="Sekcje widoczne na stronie produktu i dane pomocnicze dla materiałów cyfrowych."
           open={sections.content}
           onToggle={() => setSections((prev) => ({ ...prev, content: !prev.content }))}
+          hasTopBorder={false}
         >
           <div className="space-y-8">
+            <div>
+              <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Krótki opis</label>
+              <textarea name="short_description" value={formData.short_description} onChange={handleChange} rows={3} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="To będzie krótki opis przy tytule i na listach produktów." />
+              <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Jeśli zostawisz to pole puste, system użyje początku długiego opisu.</p>
+            </div>
+
             {isDigitalProduct ? (
               <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <RichTextEditor
@@ -564,51 +600,6 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        </AccordionSection>
-
-        <AccordionSection
-          title="Ceny i marketing"
-          description="Adres produktu oraz ustawienia cenowe i komunikaty promocyjne."
-          open={sections.marketing}
-          onToggle={() => setSections((prev) => ({ ...prev, marketing: !prev.marketing }))}
-        >
-          <div className="space-y-6">
-            <div>
-              <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Adres produktu</label>
-              <input value={productUrlPreview} readOnly className="w-full rounded-2xl border border-mauve/15 bg-nude/45 px-4 py-3 text-fs-body text-mauve/75 focus:outline-hidden" />
-              <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Adres aktualizuje się automatycznie na podstawie slugu z sekcji głównej.</p>
-            </div>
-
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena podstawowa</label>
-                  <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Cena promocyjna</label>
-                  <input type="number" step="0.01" name="promotional_price" value={formData.promotional_price} onChange={handleChange} className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="np. 99.00" />
-                </div>
-                <div className="md:col-span-2">
-                  <AdminDateTimeField
-                    label="Promocja ważna do"
-                    value={formData.promotional_price_until}
-                    onChange={(nextValue) => setFormData((prev) => ({ ...prev, promotional_price_until: nextValue }))}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4">
-                <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold/80">Omnibus</p>
-                <p className="mt-2 text-fs-body leading-7 text-mauve/70">Najniższa cena z ostatnich 30 dni jest liczona automatycznie na podstawie historii zmian ceny.</p>
-                <div className="mt-4">
-                  <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/50">Aktualnie zapisana najniższa cena 30 dni</p>
-                  <p className="mt-2 font-serif text-fs-title-sm text-mauve">{hasPromo ? formatPrice(formData.lowest_price_30_days) : 'Brak aktywnej obniżki'}</p>
-                </div>
-                <p className="mt-3 text-fs-ui leading-6 text-mauve/55">Po zapisaniu produktu system zaktualizuje tę wartość automatycznie, jeśli ustawiasz obniżkę.</p>
               </div>
             </div>
           </div>

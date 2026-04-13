@@ -330,7 +330,7 @@ export default function CourseEditorModal({ productId, productTitle, onClose }) 
         </div>
       )}
     >
-          <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-xs">
+          <div className="rounded-4xl border border-white/80 bg-white/75 p-6 shadow-xs">
             <h3 className="mb-4 flex items-center gap-2 font-serif text-mauve"><BookOpen size={16} className="text-gold" /> Ustawienia kursu</h3>
             <div className="space-y-3">
               <div>
@@ -360,7 +360,7 @@ export default function CourseEditorModal({ productId, productTitle, onClose }) 
           </div>
 
           {course && (
-            <div className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-xs">
+            <div className="rounded-4xl border border-white/80 bg-white/75 p-6 shadow-xs">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 font-serif text-mauve"><Star size={15} className="text-gold" /> Moduły ({course.modules?.length || 0})</h3>
                 <button onClick={() => setAddingModule(!addingModule)} className="flex items-center gap-2 text-fs-label font-bold uppercase tracking-wider text-gold transition-colors hover:text-gold/70">

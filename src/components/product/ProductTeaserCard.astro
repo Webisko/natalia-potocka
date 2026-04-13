@@ -1,12 +1,11 @@
 ---
 import OptimizedImage from '../OptimizedImage.astro';
 import { getProductKindLabel } from '../../lib/products.js';
-import { getDigitalProductContent } from '../../lib/productContent.js';
 
 const { product, shape = '46% 54% 39% 61% / 55% 38% 62% 45%' } = Astro.props;
 
 const href = `/${product.slug}`;
-const displayImage = product.thumbnail_url || getDigitalProductContent(product.slug)?.image || null;
+const displayImage = product.thumbnail_url || null;
 const kindLabel = getProductKindLabel(product.type);
 const iconVariant = product.type === 'audio' ? 'audio' : product.type === 'course' ? 'course' : 'video';
 const iconBlobClass = iconVariant === 'audio'
@@ -14,7 +13,7 @@ const iconBlobClass = iconVariant === 'audio'
   : iconVariant === 'course'
     ? 'rounded-[34%_66%_58%_42%/53%_37%_63%_47%]'
     : 'rounded-[42%_58%_65%_35%/38%_42%_58%_62%]';
-const description = product.short_description || product.excerpt || getDigitalProductContent(product.slug)?.lead || product.description || '';
+const description = product.short_description || product.excerpt || product.description || '';
 ---
 
 <article class="storefront-product-card group relative h-full">

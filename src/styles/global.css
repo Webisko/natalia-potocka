@@ -169,7 +169,7 @@
   }
 
   &::-webkit-scrollbar-track {
-    margin-block: 2.75rem 1.75rem;
+    margin-block: 2.5rem;
     border-radius: 999px;
     background: rgba(93, 64, 88, 0.08);
   }

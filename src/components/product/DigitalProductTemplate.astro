@@ -2,7 +2,6 @@
 import ProductCheckout from '../ProductCheckout.astro';
 import OptimizedImage from '../OptimizedImage.astro';
 import ProductCarousel from './ProductCarousel.astro';
-import { getDigitalProductContent } from '../../lib/productContent.js';
 import { getPublishedStorefrontProducts } from '../../lib/products.js';
 
 type BenefitCard = {
@@ -23,21 +22,15 @@ type RelatedProduct = {
 };
 
 const { product } = Astro.props;
-const content = getDigitalProductContent(product.slug) || {};
 const isAudio = product.type === 'audio';
-const displayImage = product.thumbnail_url || content.image || null;
+const displayImage = product.thumbnail_url || null;
 const secondaryImage = product.secondary_image_url || null;
 const currentPrice = product.currentPrice ?? product.price;
 const priceAmount = Number(currentPrice || 0).toFixed(2);
 const lowestPriceAmount = Number(product.lowest_price_30_days || 0).toFixed(2);
-const leadText = product.short_description || content.lead || product.excerpt || product.description || '';
-const durationText = product.duration_label || content.duration || null;
-const benefitCards: BenefitCard[] = (Array.isArray(product.benefits_json) && product.benefits_json.length > 0
-  ? product.benefits_json
-  : Array.isArray(content.benefitCards)
-    ? content.benefitCards
-    : [])
-  .slice(0, 3);
+const leadText = product.short_description || product.excerpt || product.description || '';
+const durationText = product.duration_label || null;
+const benefitCards: BenefitCard[] = (Array.isArray(product.benefits_json) ? product.benefits_json : []).slice(0, 3);
 const faqItems: FaqItem[] = Array.isArray(product.faq_json)
   ? product.faq_json.filter((item: FaqItem | null | undefined): item is FaqItem => Boolean(item?.q && item?.a))
   : [];
@@ -89,7 +82,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
           <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">{isAudio ? 'Medytacja audio' : 'Webinar / Wideo'}</span>
         </div>
 
-        <h1 class="max-w-[15ch] font-serif text-[2.65rem] leading-[1.06] text-mauve md:text-[3.35rem] lg:text-[3.15rem]">{product.title || content.hero}</h1>
+        <h1 class="max-w-[15ch] font-serif text-[2.65rem] leading-[1.06] text-mauve md:text-[3.35rem] lg:text-[3.15rem]">{product.title}</h1>
         <p class="mt-5 max-w-2xl text-[1.18rem] font-light leading-[1.75] text-mauve">{leadText}</p>
 
         <div class="mb-8 mt-7 flex flex-col gap-3 text-[1.18rem] font-light leading-[1.7] text-mauve">
@@ -213,7 +206,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
     </section>
   )}
 
-  {(product.long_description || content.longDescription) && (
+  {product.long_description && (
     <section class:list={[pageShellClass, 'py-16 md:py-24']}>
       <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(280px,370px)] lg:items-center lg:gap-20">
         <div>
@@ -221,7 +214,7 @@ const pageShellClass = 'mx-auto w-full max-w-[1440px] px-8 md:px-16';
             <span class="h-px w-8 bg-gold/60"></span>
             <span class="text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Szczeg&oacute;ły</span>
           </div>
-          <div class="prose prose-mauve max-w-none space-y-6 font-light text-mauve [&_p]:text-[1.08rem] [&_p]:leading-[1.9] md:[&_p]:text-[1.14rem] [&_li]:text-[1.05rem] [&_li]:leading-[1.85] [&_strong]:font-semibold [&_strong]:text-mauve" set:html={product.long_description || content.longDescription} />
+          <div class="prose prose-mauve max-w-none space-y-6 font-light text-mauve [&_p]:text-[1.08rem] [&_p]:leading-[1.9] md:[&_p]:text-[1.14rem] [&_li]:text-[1.05rem] [&_li]:leading-[1.85] [&_strong]:font-semibold [&_strong]:text-mauve" set:html={product.long_description} />
         </div>
 
         {secondaryImage ? (

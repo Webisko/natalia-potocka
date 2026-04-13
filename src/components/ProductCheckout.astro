@@ -28,6 +28,7 @@ const checkoutInstanceId =
     .replace(/^-+|-+$/g, '');
 const checkoutRootId = `${checkoutInstanceId}-root`;
 const checkoutModalId = `${checkoutInstanceId}-modal`;
+const checkoutModalDialogClass = 'relative z-10 flex max-h-[calc(100vh-3rem)] w-full max-w-184 flex-col overflow-hidden rounded-4xl bg-white/95 shadow-2xl md:max-h-[90vh]';
 
 const productPayload = {
   id: product.id,
@@ -126,10 +127,10 @@ const productPayload = {
 
 <div id={checkoutModalId} class="fixed inset-0 z-10010 hidden items-start justify-center overflow-y-auto px-4 py-6 md:items-center md:py-10">
   <div class="absolute inset-0 bg-mauve/50 backdrop-blur-sm" data-close-modal></div>
-  <div class="relative z-10 flex max-h-[calc(100vh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-4xl bg-white/95 shadow-2xl md:max-h-[90vh]">
-    <button type="button" class="absolute right-7 top-6 cursor-pointer text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
+  <div class={checkoutModalDialogClass}>
+    <button type="button" class="absolute right-7 top-6 z-20 cursor-pointer text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
 
-    <div class="modal-scrollbar relative z-10 mr-2 mt-2 mb-2 overflow-y-auto px-8 py-8 pr-6 md:mr-3 md:mt-3 md:mb-3 md:px-10 md:py-10 md:pr-8">
+    <div class="modal-scrollbar relative z-10 mr-1 mt-4 mb-4 overflow-y-auto px-8 py-8 pr-6 md:mr-1.5 md:mt-5 md:mb-5 md:px-10 md:py-10 md:pr-8">
       <p class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Zakup</p>
       <h2 class="mt-4 font-serif text-fs-title-lg text-mauve" data-modal-title>Kupujesz po raz pierwszy</h2>
       <p class="mt-3 text-fs-ui text-mauve/60" data-modal-subtitle>Możesz od razu przejść do płatności. Konto przypiszemy do tego zakupu, a dostęp aktywujesz po potwierdzeniu adresu e-mail.</p>
@@ -398,7 +399,6 @@ const productPayload = {
     const passwordFields = guestForm?.querySelector('[data-password-fields]');
     const passwordInput = guestForm?.querySelector('[data-password-input]');
     const passwordConfirmInput = guestForm?.querySelector('[data-password-confirm-input]');
-    const loginPasswordInput = loginForm?.querySelector('[data-login-password-input]');
     const passwordHint = guestForm?.querySelector('[data-password-hint]');
     const passwordMatchNote = guestForm?.querySelector('[data-password-match-note]');
     const passwordVisibilityButtons = Array.from(modal.querySelectorAll('[data-password-visibility-toggle]'));

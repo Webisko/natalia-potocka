@@ -356,7 +356,7 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
               </div>
             </div>
 
-            <div className="self-start rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-66">
+            <div className="self-start rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-66">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zaznaczone produkty</p>
               <p className="mt-2 font-medium text-mauve">{formData.scoped_product_ids.length}</p>
             </div>
