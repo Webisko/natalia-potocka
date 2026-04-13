@@ -1,6 +1,11 @@
+---
+const { contactAddress = '' } = Astro.props;
+const contactAddressLabel = `${contactAddress}`.trim();
+---
+
 <h2>§1 Postanowienia ogólne</h2>
 <p>Niniejszy regulamin określa zasady korzystania ze strony internetowej dostępnej pod adresem https://nataliapotocka.pl, w tym zasady zakupu i korzystania z produktów cyfrowych oferowanych za jej pośrednictwem.</p>
-<p>Sprzedawcą jest osoba fizyczna: Natalia Potocka, adres do korespondencji: [adres do uzupełnienia], adres e-mail: kontakt@nataliapotocka.pl.</p>
+<p>Sprzedawcą jest osoba fizyczna: Natalia Potocka{contactAddressLabel ? `, adres do korespondencji: ${contactAddressLabel}` : ''}, adres e-mail: kontakt@nataliapotocka.pl.</p>
 <p>Sprzedaż prowadzona jest w ramach działalności nierejestrowanej zgodnie z art. 5 ustawy Prawo przedsiębiorców.</p>
 <p>Oferta prezentowana na stronie skierowana jest wyłącznie do klientów znajdujących się na terytorium Rzeczypospolitej Polskiej.</p>
 <ul>

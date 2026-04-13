@@ -52,9 +52,17 @@ To repozytorium jest prowadzone w modelu Astro-first.
 
 - `npm run dev:backend` uruchamia backend na `4321`
 - `npm run dev:astro` uruchamia aktywny frontend Astro na `3000`
+- `npm run check` uruchamia diagnostykę Astro
 - `npm run build` buduje aktywną aplikację Astro
+- `npm run verify` uruchamia pełną walidację frontendu przed wdrożeniem
 - `npm run preview` uruchamia podgląd buildu Astro
 - `./scripts/deploy-production.ps1` wykonuje standardowy deploy produkcyjny przez SSH
+
+## Snapshot buildu publicznego
+
+- `data/public-build-snapshot.json` jest bezpiecznym snapshotem danych potrzebnych do statycznego buildu Astro.
+- W zwykłej pracy lokalnej, jeśli istnieje lokalna baza SQLite, frontend nadal czyta dane bezpośrednio z bazy.
+- W CI i publishu produkcyjnym snapshot może zostać odświeżony z produkcji bez kopiowania całej bazy danych.
 
 ## Kierunek dalszych prac
 

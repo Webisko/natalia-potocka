@@ -1,14 +1,19 @@
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { getPublicBuildSnapshot } from './publicBuildSnapshot.js';
 
 const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
 
 function withDb(callback) {
-  const db = new Database(dbPath, { readonly: true, fileMustExist: true });
   try {
-    return callback(db);
-  } finally {
-    db.close();
+    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+    try {
+      return callback(db);
+    } finally {
+      db.close();
+    }
+  } catch {
+    return null;
   }
 }
 
@@ -18,7 +23,7 @@ function tableExists(db, tableName) {
 }
 
 export function getGlobalSettings() {
-  return withDb((db) => {
+  const settingsFromDb = withDb((db) => {
     if (!tableExists(db, 'settings')) {
       return {};
     }
@@ -30,4 +35,11 @@ export function getGlobalSettings() {
     }
     return settings;
   });
+
+  if (settingsFromDb && typeof settingsFromDb === 'object') {
+    return settingsFromDb;
+  }
+
+  const snapshot = getPublicBuildSnapshot();
+  return snapshot?.settings && typeof snapshot.settings === 'object' ? snapshot.settings : {};
 }

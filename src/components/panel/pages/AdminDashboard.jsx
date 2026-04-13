@@ -1097,6 +1097,11 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Telefon</label>
                       <input value={settings.contact_phone || ''} onChange={(event) => setSettings({ ...settings, contact_phone: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="+48 ..." />
                     </div>
+                    <div className="space-y-1 xl:col-span-2">
+                      <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Adres korespondencyjny do dokumentów prawnych</label>
+                      <textarea value={settings.contact_address || ''} onChange={(event) => setSettings({ ...settings, contact_address: event.target.value })} className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y" placeholder="Ulica, kod pocztowy, miejscowość" />
+                      <p className="mt-2 text-fs-ui text-mauve/45">To pole zasila domyślną treść polityki prywatności i regulaminu sklepu, jeśli nie nadpiszesz ich własną treścią.</p>
+                    </div>
                     <div className="space-y-1">
                       <label className="ml-1 text-fs-label font-bold uppercase tracking-[0.2em] text-gold">Instagram</label>
                       <input value={settings.instagram_url || ''} onChange={(event) => setSettings({ ...settings, instagram_url: event.target.value })} className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20" placeholder="https://instagram.com/..." />

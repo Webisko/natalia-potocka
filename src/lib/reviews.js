@@ -1,5 +1,6 @@
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { getPublicBuildSnapshot } from './publicBuildSnapshot.js';
 
 const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
 
@@ -41,6 +42,11 @@ function withDb(callback) {
 }
 
 export function getActiveReviews() {
+  const snapshot = getPublicBuildSnapshot();
+  if (Array.isArray(snapshot?.reviews) && snapshot.reviews.length > 0) {
+    return snapshot.reviews;
+  }
+
   const reviews = withDb((db) => db.prepare('SELECT * FROM reviews WHERE is_active = 1 ORDER BY order_index ASC').all());
   return Array.isArray(reviews) && reviews.length > 0 ? reviews : FALLBACK_REVIEWS;
 }

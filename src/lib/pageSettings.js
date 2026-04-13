@@ -2,16 +2,38 @@ import path from 'node:path';
 import Database from 'better-sqlite3';
 import { PAGE_SETTINGS_DEFAULTS, PAGE_SETTINGS_BY_KEY } from '../../shared/pageDefaults.js';
 import { SERVICE_LANDING_PAGE_BY_KEY, SERVICE_LANDING_PAGE_BY_SLUG, SERVICE_LANDING_PAGE_DEFAULTS } from '../../shared/serviceLandingPages.js';
+import { getPublicBuildSnapshot } from './publicBuildSnapshot.js';
 
 const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
 
 function withDb(callback) {
-  const db = new Database(dbPath, { readonly: true, fileMustExist: true });
   try {
-    return callback(db);
-  } finally {
-    db.close();
+    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+    try {
+      return callback(db);
+    } finally {
+      db.close();
+    }
+  } catch {
+    return null;
   }
+}
+
+function getPageSettingsRows() {
+  const rows = withDb((db) => {
+    if (!tableExists(db, 'page_settings')) {
+      return null;
+    }
+
+    return db.prepare('SELECT * FROM page_settings').all();
+  });
+
+  if (Array.isArray(rows)) {
+    return rows;
+  }
+
+  const snapshot = getPublicBuildSnapshot();
+  return Array.isArray(snapshot?.page_settings) ? snapshot.page_settings : null;
 }
 
 function tableExists(db, tableName) {
@@ -42,21 +64,19 @@ function normalizeServiceLandingPage(page) {
 }
 
 export function getPageSettingsMap() {
-  return withDb((db) => {
-    if (!tableExists(db, 'page_settings')) {
-      return Object.fromEntries(PAGE_SETTINGS_DEFAULTS.map((page) => [page.page_key, normalizePageSettings(page)]));
-    }
+  const rows = getPageSettingsRows();
+  if (!rows) {
+    return Object.fromEntries(PAGE_SETTINGS_DEFAULTS.map((page) => [page.page_key, normalizePageSettings(page)]));
+  }
 
-    const rows = db.prepare('SELECT * FROM page_settings').all();
-    const byKey = new Map(rows.map((page) => [page.page_key, page]));
+  const byKey = new Map(rows.map((page) => [page.page_key, page]));
 
-    return Object.fromEntries(
-      PAGE_SETTINGS_DEFAULTS.map((page) => [
-        page.page_key,
-        normalizePageSettings(byKey.get(page.page_key) || page),
-      ]),
-    );
-  });
+  return Object.fromEntries(
+    PAGE_SETTINGS_DEFAULTS.map((page) => [
+      page.page_key,
+      normalizePageSettings(byKey.get(page.page_key) || page),
+    ]),
+  );
 }
 
 export function getPageSettings(pageKey) {
@@ -96,21 +116,19 @@ export function getPagePath(page) {
 }
 
 export function getServiceLandingPageSettingsMap() {
-  return withDb((db) => {
-    if (!tableExists(db, 'page_settings')) {
-      return Object.fromEntries(SERVICE_LANDING_PAGE_DEFAULTS.map((page) => [page.page_key, normalizeServiceLandingPage(page)]));
-    }
+  const rows = getPageSettingsRows();
+  if (!rows) {
+    return Object.fromEntries(SERVICE_LANDING_PAGE_DEFAULTS.map((page) => [page.page_key, normalizeServiceLandingPage(page)]));
+  }
 
-    const rows = db.prepare('SELECT * FROM page_settings').all();
-    const byKey = new Map(rows.map((page) => [page.page_key, page]));
+  const byKey = new Map(rows.map((page) => [page.page_key, page]));
 
-    return Object.fromEntries(
-      SERVICE_LANDING_PAGE_DEFAULTS.map((page) => [
-        page.page_key,
-        normalizeServiceLandingPage(byKey.get(page.page_key) || page),
-      ]),
-    );
-  });
+  return Object.fromEntries(
+    SERVICE_LANDING_PAGE_DEFAULTS.map((page) => [
+      page.page_key,
+      normalizeServiceLandingPage(byKey.get(page.page_key) || page),
+    ]),
+  );
 }
 
 export function getServiceLandingPageSettingsBySlug(slug) {

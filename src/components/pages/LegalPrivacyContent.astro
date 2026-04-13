@@ -1,5 +1,10 @@
+---
+const { contactAddress = '' } = Astro.props;
+const contactAddressLabel = `${contactAddress}`.trim();
+---
+
 <h2>§1 Administrator danych</h2>
-<p>Administratorem danych osobowych jest Natalia Potocka, adres do korespondencji: [adres do uzupełnienia], adres e-mail: kontakt@nataliapotocka.pl.</p>
+<p>Administratorem danych osobowych jest Natalia Potocka{contactAddressLabel ? `, adres do korespondencji: ${contactAddressLabel}` : ''}, adres e-mail: kontakt@nataliapotocka.pl.</p>
 <p>Sprzedaż prowadzona jest w ramach działalności nierejestrowanej.</p>
 
 <h2>§2 Zakres zbieranych danych</h2>

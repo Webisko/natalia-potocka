@@ -19,6 +19,7 @@ if (configuredPath !== currentPath) {
 
 const globalSettings = getGlobalSettings();
 const customContent = globalSettings.legal_terms_content || '';
+const contactAddress = globalSettings.contact_address || '';
 ---
 
 <LegalLayout
@@ -31,5 +32,5 @@ const customContent = globalSettings.legal_terms_content || '';
   noindex={Boolean(page?.noindex)}
   breadcrumbItems={breadcrumbItems}
 >
-  {customContent ? <Fragment set:html={customContent} /> : <LegalTermsContent />}
+  {customContent ? <Fragment set:html={customContent} /> : <LegalTermsContent contactAddress={contactAddress} />}
 </LegalLayout>

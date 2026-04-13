@@ -26,9 +26,15 @@ pnpm-debug.log*
 
 # Backend Data
 data/
+!data/
+data/*
+!data/mail-preview/
+!data/mail-preview/**
+!data/public-build-snapshot.json
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
 tmp_*.json
 .vscode/
 deployment_keys/
+deploy_prod/data/

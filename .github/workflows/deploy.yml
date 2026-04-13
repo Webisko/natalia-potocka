@@ -62,7 +62,7 @@ jobs:
           chmod 600 deployment_keys/id_rsa
           ssh-keyscan -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Download live production database
+      - name: Fetch public build snapshot from production
         shell: bash
         env:
           PROD_DEPLOY_SSH_HOST: ${{ secrets.PROD_DEPLOY_SSH_HOST }}
@@ -79,10 +79,15 @@ jobs:
 
           REMOTE_ROOT="${PROD_REMOTE_ROOT:-domains/nataliapotocka.pl/public_html}"
           mkdir -p data
+          REMOTE_SCRIPT="~/export-public-build-snapshot-${GITHUB_RUN_ID}.php"
 
-          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite" data/database.sqlite
-          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite-wal" data/database.sqlite-wal || true
-          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_ROOT/data/database.sqlite-shm" data/database.sqlite-shm || true
+          scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" scripts/export-public-build-snapshot.php "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_SCRIPT"
+          ssh -i deployment_keys/id_rsa -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST" "php $REMOTE_SCRIPT '$REMOTE_ROOT'; rm -f $REMOTE_SCRIPT" > data/public-build-snapshot.json
+
+          if [ ! -s data/public-build-snapshot.json ]; then
+            echo "Failed to fetch public build snapshot." >&2
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci

@@ -1,16 +1,30 @@
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { stripRichText } from '../../shared/richText.js';
+import { getPublicBuildSnapshot } from './publicBuildSnapshot.js';
 
 const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
 
 function withDb(callback) {
-  const db = new Database(dbPath, { readonly: true, fileMustExist: true });
   try {
-    return callback(db);
-  } finally {
-    db.close();
+    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
+    try {
+      return callback(db);
+    } finally {
+      db.close();
+    }
+  } catch {
+    return null;
   }
+}
+
+function isPublished(product) {
+  return product?.is_published == null || product.is_published === 1 || product.is_published === true || product.is_published === '1';
+}
+
+function getSnapshotProducts() {
+  const snapshot = getPublicBuildSnapshot();
+  return Array.isArray(snapshot?.products) ? snapshot.products : null;
 }
 
 function getColumns(db) {
@@ -76,7 +90,7 @@ function normalizeFaqItems(value) {
     .slice(0, 5);
 }
 
-function buildQuery(columns) {
+function buildQuery(columns, { publishedOnly = false } = {}) {
   const select = ['id', 'slug', 'title', 'price', 'description', 'type'];
   const optionalColumns = [
     'updated_at',
@@ -106,7 +120,7 @@ function buildQuery(columns) {
     }
   }
 
-  const where = columns.has('is_published') ? 'WHERE COALESCE(is_published, 1) = 1' : '';
+  const where = publishedOnly && columns.has('is_published') ? 'WHERE COALESCE(is_published, 1) = 1' : '';
   const orderBy = columns.has('display_order')
     ? 'ORDER BY CASE WHEN display_order IS NULL THEN 1 ELSE 0 END, display_order ASC, id DESC'
     : 'ORDER BY id DESC';
@@ -151,14 +165,22 @@ function normalizeProduct(product) {
   };
 }
 
-function getAllPublishedProducts() {
-  return withDb((db) => {
+function getAllProducts() {
+  const snapshotProducts = getSnapshotProducts();
+  if (snapshotProducts) {
+    return snapshotProducts.map((product) => normalizeProduct(product));
+  }
+
+  const rows = withDb((db) => {
     const columns = getColumns(db);
-    const rows = db.prepare(buildQuery(columns)).all();
-    return rows
-      .filter((product) => product.slug)
-      .map((product) => normalizeProduct(product));
+    return db.prepare(buildQuery(columns)).all();
   });
+
+  return Array.isArray(rows) ? rows.map((product) => normalizeProduct(product)) : [];
+}
+
+function getAllPublishedProducts() {
+  return getAllProducts().filter((product) => product.slug && isPublished(product));
 }
 
 export function getPublishedProducts() {
@@ -178,7 +200,15 @@ export function getPublishedServiceProducts() {
 }
 
 export function getAdminProductIds() {
-  return withDb((db) => db.prepare("SELECT id FROM products WHERE type != 'service' ORDER BY id DESC").all().map((product) => String(product.id)));
+  const snapshotProducts = getSnapshotProducts();
+  if (snapshotProducts) {
+    return snapshotProducts
+      .filter((product) => product?.type !== 'service')
+      .map((product) => String(product.id));
+  }
+
+  const rows = withDb((db) => db.prepare("SELECT id FROM products WHERE type != 'service' ORDER BY id DESC").all());
+  return Array.isArray(rows) ? rows.map((product) => String(product.id)) : [];
 }
 
 export function getProductBySlug(slug) {
