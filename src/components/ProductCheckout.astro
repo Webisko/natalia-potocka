@@ -1,4 +1,5 @@
 ---
+import BlobArrowIcon from './icons/BlobArrowIcon.astro';
 import { formatPrice } from '../lib/products.js';
 import { getPagePathByKey } from '../lib/pageSettings.js';
 import OptimizedImage from './OptimizedImage.astro';
@@ -123,10 +124,10 @@ const productPayload = {
   </div>
 )}
 
-<div id={checkoutModalId} class="fixed inset-0 z-9999 hidden items-center justify-center px-4 py-8">
+<div id={checkoutModalId} class="fixed inset-0 z-10010 hidden items-start justify-center overflow-y-auto px-4 pb-6 pt-20 md:items-center md:py-8">
   <div class="absolute inset-0 bg-mauve/40 backdrop-blur-xs" data-close-modal></div>
-  <div class="relative z-10 max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-4xl bg-white/95 p-8 shadow-2xl md:p-10">
-    <button type="button" class="absolute right-5 top-5 text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
+  <div class="relative z-10 max-h-[calc(100vh-6rem)] w-full max-w-xl overflow-y-auto rounded-4xl bg-white/95 p-8 shadow-2xl md:max-h-[90vh] md:p-10">
+    <button type="button" class="absolute right-5 top-5 cursor-pointer text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
 
     <div class="relative z-10">
       <p class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Zakup</p>
@@ -136,8 +137,8 @@ const productPayload = {
       <p class="mt-4 rounded-2xl border border-rose/20 bg-rose/10 px-4 py-3 text-fs-ui text-terracotta" data-error hidden></p>
 
       <div class="mt-6 flex gap-2 rounded-2xl bg-nude/80 p-2" data-auth-switch>
-        <button type="button" class="flex-1 rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70" data-switch-mode="guest">Kupuję pierwszy raz</button>
-        <button type="button" class="flex-1 rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70" data-switch-mode="login">Mam już konto</button>
+        <button type="button" class="flex-1 cursor-pointer rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70 transition hover:text-mauve" data-switch-mode="guest">Kupuję pierwszy raz</button>
+        <button type="button" class="flex-1 cursor-pointer rounded-xl px-4 py-3 text-fs-ui font-semibold text-mauve/70 transition hover:text-mauve" data-switch-mode="login">Mam już konto</button>
       </div>
 
       <form class="mt-6 grid gap-4" data-guest-form>
@@ -184,7 +185,7 @@ const productPayload = {
         </div>
         <div class="grid gap-4" data-password-fields>
           <div class="flex justify-end">
-            <button type="button" class="inline-flex items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false">Pokaż hasło</button>
+            <button type="button" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false">Pokaż hasło</button>
           </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
@@ -208,7 +209,7 @@ const productPayload = {
         <div>
           <div class="mb-2 flex items-center justify-between gap-3">
             <label class="block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-            <button type="button" class="inline-flex items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="login" aria-pressed="false">Pokaż hasło</button>
+            <button type="button" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="login" aria-pressed="false">Pokaż hasło</button>
           </div>
           <input name="password" type="password" autocomplete="current-password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-login-password-input data-password-visibility-group="login" />
         </div>
@@ -223,14 +224,24 @@ const productPayload = {
           <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Sposób płatności</p>
           <div class="mt-4 grid gap-3">
             <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="stripe">
-              <input type="radio" name="paymentMethod" value="stripe" checked class="mt-1 h-4 w-4 accent-gold" data-payment-input="stripe" />
+              <span class="relative mt-0.5 shrink-0">
+                <input type="radio" name="paymentMethod" value="stripe" checked class="peer sr-only" data-payment-input="stripe" />
+                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
+                  <span class="h-2.5 w-2.5 rounded-full bg-white opacity-0 transition peer-checked:opacity-100"></span>
+                </span>
+              </span>
               <span>
                 <span class="block font-semibold text-mauve">Stripe: karta, BLIK, Przelewy24</span>
                 <span class="mt-1 block text-fs-ui text-mauve/60">Po wyborze przejdziesz do bezpiecznej płatności Stripe.</span>
               </span>
             </label>
             <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="bank_transfer">
-              <input type="radio" name="paymentMethod" value="bank_transfer" class="mt-1 h-4 w-4 accent-gold" data-payment-input="bank_transfer" />
+              <span class="relative mt-0.5 shrink-0">
+                <input type="radio" name="paymentMethod" value="bank_transfer" class="peer sr-only" data-payment-input="bank_transfer" />
+                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
+                  <span class="h-2.5 w-2.5 rounded-full bg-white opacity-0 transition peer-checked:opacity-100"></span>
+                </span>
+              </span>
               <span>
                 <span class="block font-semibold text-mauve">Przelew tradycyjny</span>
                 <span class="mt-1 block text-fs-ui text-mauve/60">Otrzymasz dane do przelewu i zamówienie zostanie zapisane jako oczekujące.</span>
@@ -246,12 +257,26 @@ const productPayload = {
           <p class="mt-3 text-fs-ui text-mauve/60" data-coupon-status>Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.</p>
         </div>
 
-        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
-          <input type="checkbox" name="termsAccepted" class="mt-1 h-4 w-4 accent-gold" />
+        <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
+          <span class="relative mt-0.5 shrink-0">
+            <input type="checkbox" name="termsAccepted" class="peer sr-only" />
+            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100">
+                <path d="M5 10.5L8.25 13.75L15 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+          </span>
           <span>Akceptuję <a href={termsPath} target="_blank" class="font-semibold text-gold">regulamin sklepu</a>.</span>
         </label>
-        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
-          <input type="checkbox" name="digitalContentAccepted" class="mt-1 h-4 w-4 accent-gold" />
+        <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
+          <span class="relative mt-0.5 shrink-0">
+            <input type="checkbox" name="digitalContentAccepted" class="peer sr-only" />
+            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100">
+                <path d="M5 10.5L8.25 13.75L15 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </span>
+          </span>
           <span>Wyrażam zgodę na dostarczenie treści cyfrowej przed upływem terminu odstąpienia od umowy i przyjmuję do wiadomości utratę tego prawa.</span>
         </label>
       </div>
@@ -285,10 +310,25 @@ const productPayload = {
       </div>
 
       <div class="mt-8 flex flex-wrap gap-3">
-        <button type="button" class="button-primary" data-submit-guest>Przejdź do płatności</button>
-        <button type="button" class="button-primary" data-submit-login hidden>Zaloguj się i kup</button>
-        <button type="button" class="button-primary" data-submit-confirm hidden>Przejdź do płatności</button>
-        <button type="button" class="button-secondary" data-close-bank hidden>Zamknij</button>
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-guest>
+          <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Przejdź do płatności</span>
+        </button>
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-login hidden>
+          <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zaloguj się i kup</span>
+        </button>
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-confirm hidden>
+          <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <BlobArrowIcon />
+          </span>
+          <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Przejdź do płatności</span>
+        </button>
+        <button type="button" class="button-secondary cursor-pointer" data-close-bank hidden>Zamknij</button>
       </div>
     </div>
   </div>
