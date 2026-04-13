@@ -230,6 +230,22 @@ function validateStrongPassword(string $password): ?string {
     return null;
 }
 
+function parseStoredDateTime(?string $value): ?DateTimeImmutable {
+    if (!$value) {
+        return null;
+    }
+
+    if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value)) {
+        $value = str_replace(' ', 'T', $value) . 'Z';
+    }
+
+    try {
+        return new DateTimeImmutable($value);
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 function resolveAuthenticatedCheckoutUser(array $authUser): array {
     global $db;
 
