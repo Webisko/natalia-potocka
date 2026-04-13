@@ -222,7 +222,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
       >
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-stretch">
           <div className="h-full">
-            <div className="relative min-h-[320px] overflow-hidden rounded-[28px] bg-nude/50 lg:h-full lg:min-h-0">
+            <div className="relative min-h-80 overflow-hidden rounded-[28px] bg-nude/50 lg:h-full lg:min-h-0">
               <div className="overflow-hidden lg:absolute lg:inset-0">
                 <MediaCardPreview asset={group.previewAsset} />
               </div>
@@ -230,7 +230,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-5">
+            <div className="rounded-3xl border border-mauve/10 bg-white/90 p-5">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Szczegóły SEO</p>
               <div className="mt-4 space-y-4">
                 <div>
@@ -252,7 +252,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-5">
+            <div className="rounded-3xl border border-mauve/10 bg-white/90 p-5">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Podstawowe dane</p>
               <div className="mt-4 space-y-4">
                 <div>
@@ -272,7 +272,7 @@ function MediaDetailsModal({ group, submitting, deletingGroup, onClose, onDelete
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-5">
+        <div className="rounded-3xl border border-mauve/10 bg-white/90 p-5">
           <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Wersje i rozmiary</p>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {group.assets.map((assetItem) => {
@@ -505,7 +505,7 @@ export default function AdminMediaLibraryTab() {
             key={kind}
             type="button"
             onClick={() => setActiveFilter((currentFilter) => (currentFilter === kind ? 'all' : kind))}
-            className={`rounded-[24px] border px-5 py-4 text-left transition ${isActive ? 'border-gold bg-gold/10 shadow-sm' : 'border-gold/10 bg-white hover:border-gold/30 hover:bg-gold/5'}`}
+            className={`rounded-3xl border px-5 py-4 text-left transition ${isActive ? 'border-gold bg-gold/10 shadow-sm' : 'border-gold/10 bg-white hover:border-gold/30 hover:bg-gold/5'}`}
           >
             <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">{getKindLabel(kind)}</p>
             <p className="mt-2 font-serif text-fs-title-sm text-mauve">{groupedCounts[kind] || 0}</p>
@@ -535,7 +535,7 @@ export default function AdminMediaLibraryTab() {
                 onClick={() => setOpenGroupId(group.id)}
                 className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/85 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-gold/25 hover:shadow-md"
               >
-                <div className="aspect-[16/10] overflow-hidden bg-nude/50">
+                <div className="aspect-16/10 overflow-hidden bg-nude/50">
                   <MediaCardPreview asset={asset} />
                 </div>
                 <div className="space-y-3 p-5">

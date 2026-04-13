@@ -340,21 +340,21 @@ export default function AdminCouponModal({ initialCoupon, products, onClose, onS
                 <button
                   type="button"
                   onClick={() => setFormData((previous) => ({ ...previous, product_scope_mode: 'include' }))}
-                  className={`inline-flex min-w-[8.5rem] items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'include' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
+                  className={`inline-flex min-w-34 items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'include' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
                 >
                   Dozwolone
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData((previous) => ({ ...previous, product_scope_mode: 'exclude' }))}
-                  className={`inline-flex min-w-[8.5rem] items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'exclude' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
+                  className={`inline-flex min-w-34 items-center justify-center rounded-xl px-4 py-2.5 text-fs-label font-bold uppercase tracking-[0.16em] transition ${formData.product_scope_mode === 'exclude' ? 'bg-gold text-white shadow-sm shadow-gold/20' : 'text-mauve/60 hover:text-mauve'}`}
                 >
                   Wykluczone
                 </button>
               </div>
             </div>
 
-            <div className="self-start rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-[16.5rem]">
+            <div className="self-start rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-ui text-mauve/70 lg:min-w-66">
               <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/45">Zaznaczone produkty</p>
               <p className="mt-2 font-medium text-mauve">{formData.scoped_product_ids.length}</p>
             </div>

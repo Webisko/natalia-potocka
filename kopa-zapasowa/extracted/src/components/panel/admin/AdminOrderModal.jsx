@@ -108,15 +108,15 @@ export default function AdminOrderModal({ initialOrder, products, onClose, onSav
             ) : null}
 
             <div className="mb-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Numer zamówienia</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{initialOrder.order_number || 'Brak numeru'}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Utworzono</p>
                 <p className="mt-2 text-fs-body text-mauve/75">{formatDateTime(initialOrder.created_at)}</p>
               </div>
-              <div className="rounded-[24px] border border-mauve/10 bg-white/90 p-4 md:col-span-2">
+              <div className="rounded-3xl border border-mauve/10 bg-white/90 p-4 md:col-span-2">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/55">Klientka</p>
                 <p className="mt-2 text-fs-body text-mauve">{getCustomerName(initialOrder)}</p>
                 <p className="mt-1 text-fs-ui text-mauve/55">{initialOrder.customer_email}</p>

@@ -423,7 +423,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                     helperText="Ten obrazek pojawia się po prawej stronie sekcji Szczegóły, w tym samym stylu organicznym co grafika hero."
                   />
 
-                  <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
+                  <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
                     W uproszczonym szablonie webinarów i medytacji nie pokazujemy już osobnego bloku „Opis produktu”, ale drugi obrazek nadal wyróżnia produkt w sekcji Szczegóły.
                   </div>
                 </div>
@@ -455,7 +455,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                 </div>
               </div>
             ) : (
-              <div className="rounded-[24px] border border-mauve/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/60">
+              <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/60">
                 Dla kursów możesz uzupełnić sekcję „Co zyskasz”. Pozostałe elementy treści kursu dopracujemy później.
               </div>
             )}
@@ -531,7 +531,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
 
               <div className="space-y-5">
                 {formData.faq_json.map((item, index) => (
-                  <div key={index} className="rounded-[24px] border border-gold/10 bg-white px-5 py-5 shadow-sm">
+                  <div key={index} className="rounded-3xl border border-gold/10 bg-white px-5 py-5 shadow-sm">
                     <div className="mb-4 flex items-center justify-between gap-4">
                       <p className="text-fs-label font-bold uppercase tracking-[0.16em] text-gold">Pytanie {index + 1}</p>
                       <button
@@ -602,7 +602,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-gold/10 bg-white px-5 py-4">
+              <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4">
                 <p className="text-fs-label font-bold uppercase tracking-[0.18em] text-gold/80">Omnibus</p>
                 <p className="mt-2 text-fs-body leading-7 text-mauve/70">Najniższa cena z ostatnich 30 dni jest liczona automatycznie na podstawie historii zmian ceny.</p>
                 <div className="mt-4">

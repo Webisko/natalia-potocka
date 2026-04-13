@@ -147,7 +147,7 @@ export default function AdminMediaPicker({
       <div className="overflow-hidden rounded-[28px] border border-mauve/10 bg-white/80">
         {value ? (
           <div className="p-4">
-            <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-nude/50">
+            <div className="aspect-16/10 overflow-hidden rounded-2xl bg-nude/50">
               <MediaPreview source={value} title={currentValueLabel} />
             </div>
             <div className="mt-4 space-y-3">
@@ -222,9 +222,9 @@ export default function AdminMediaPicker({
       </div>
 
       {isLibraryOpen ? (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-mauve/45 px-4 py-8 backdrop-blur-sm">
+        <div className="fixed inset-0 z-120 flex items-center justify-center bg-mauve/45 px-4 py-8 backdrop-blur-sm">
           <div className="absolute inset-0" onClick={() => setIsLibraryOpen(false)} />
-          <div className="relative z-10 max-h-[88vh] w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
+          <div className="relative z-10 max-h-[88vh] w-full max-w-5xl overflow-hidden rounded-4xl border border-white/70 bg-[#FCF9F7] shadow-2xl shadow-mauve/15">
             <div className="flex items-start justify-between border-b border-gold/10 px-6 py-5 md:px-8">
               <div>
                 <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">Biblioteka</p>
@@ -260,7 +260,7 @@ export default function AdminMediaPicker({
                         }}
                         className={`overflow-hidden rounded-2xl border text-left transition ${value === asset.public_url ? 'border-gold shadow-lg shadow-gold/10' : 'border-mauve/10 hover:border-gold/30'}`}
                       >
-                        <div className="aspect-[16/10] overflow-hidden bg-nude/50">
+                        <div className="aspect-16/10 overflow-hidden bg-nude/50">
                           <MediaPreview source={asset.public_url} title={asset.alt_text || asset.original_name} />
                         </div>
                         <div className="space-y-1 p-3">

@@ -40,7 +40,7 @@ function LazyPanelLoader() {
 
 function SettingsGroup({ eyebrow, title, description, children, className = '' }) {
   return (
-    <section className={`rounded-[32px] border border-white/80 bg-white/70 p-6 shadow-sm md:p-8 ${className}`.trim()}>
+    <section className={`rounded-4xl border border-white/80 bg-white/70 p-6 shadow-sm md:p-8 ${className}`.trim()}>
       <div className="border-b border-gold/10 pb-5">
         <p className="text-fs-label font-bold uppercase tracking-[0.24em] text-gold/80">{eyebrow}</p>
         <div className="mt-3 flex items-center gap-4">
@@ -412,7 +412,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
 
   return (
     <div className="bg-nude">
-      <div className="mx-auto max-w-[1200px] px-6 py-10">
+      <div className="mx-auto max-w-300 px-6 py-10">
         <div className="mb-10 flex flex-col gap-6 pb-4">
           <div>
             <h1 className="mb-2 font-serif text-fs-title-md text-mauve">
@@ -557,9 +557,9 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                       <tr className="border-b border-gold/5 bg-nude/30">
                         <th className="w-[36%] px-3 py-4 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:px-5 lg:px-6">Użytkownik</th>
                         <th className="w-[34%] px-3 py-4 text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:px-5 lg:px-6">E-mail</th>
-                        <th className="w-[74px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[98px] md:px-3">Zakupione produkty</th>
-                        <th className="w-[56px] px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[72px] md:px-4">Status</th>
-                        <th className="w-[82px] px-2 py-4 text-right text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-[96px] md:px-4 lg:px-5">Akcje</th>
+                        <th className="w-18.5 px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-24.5 md:px-3">Zakupione produkty</th>
+                        <th className="w-14 px-2 py-4 text-center text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-18 md:px-4">Status</th>
+                        <th className="w-20.5 px-2 py-4 text-right text-fs-label font-bold uppercase tracking-[0.16em] text-mauve/55 md:w-24 md:px-4 lg:px-5">Akcje</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gold/5">
@@ -590,7 +590,7 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                                 </div>
                               </button>
                             </td>
-                            <td className="px-3 py-5 md:px-5 lg:px-6"><div className="max-w-[108px] truncate text-[0.8rem] font-medium text-mauve sm:max-w-[140px] md:max-w-[210px]" title={account.email}>{account.email}</div></td>
+                            <td className="px-3 py-5 md:px-5 lg:px-6"><div className="max-w-27 truncate text-[0.8rem] font-medium text-mauve sm:max-w-35 md:max-w-52.5" title={account.email}>{account.email}</div></td>
                             <td className="px-2 py-5 text-center text-fs-ui font-semibold text-mauve/70 md:px-3">{purchasedProductsCount}</td>
                             <td className="px-2 py-5 text-center md:px-4">
                               <span title={account.email_confirmed ? 'Potwierdzony e-mail' : 'Niepotwierdzony e-mail'} className={`inline-flex h-7 w-7 items-center justify-center rounded-full border md:h-8 md:w-8 ${account.email_confirmed ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>
