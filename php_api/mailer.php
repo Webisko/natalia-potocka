@@ -423,23 +423,31 @@ function mailer_send_order_success_customer(array $order): bool {
     $heading = 'Płatność została przyjęta';
     $intro = 'Dziękuję. Twoje zamówienie zostało opłacone, a produkt został przypisany do Twojego konta.';
     $actions = [];
+    $hasResetUrl = !empty($order['resetUrl']);
+    $hasConfirmUrl = !empty($order['confirmUrl']);
 
     if (!empty($order['libraryUrl'])) {
         $actions[] = ['url' => (string) $order['libraryUrl'], 'label' => 'Przejdź do biblioteki'];
     }
-    if (!empty($order['confirmUrl'])) {
+    if ($hasConfirmUrl) {
         $actions[] = ['url' => (string) $order['confirmUrl'], 'label' => 'Potwierdź adres e-mail'];
     }
-    if (!empty($order['resetUrl'])) {
+    if ($hasResetUrl) {
         $actions[] = ['url' => (string) $order['resetUrl'], 'label' => 'Ustaw hasło'];
     }
 
     $notice = '';
-    if (!empty($order['confirmUrl'])) {
+    if ($hasConfirmUrl) {
         $notice = 'Aby wejść do materiałów, potwierdź adres e-mail. Po potwierdzeniu konto będzie w pełni aktywne.';
     }
 
-    $bodyHtml = '<p style="margin:0 0 16px;">W panelu klienta znajdziesz zakupione materiały oraz dalsze kroki. Jeśli kupowałaś po raz pierwszy i nie ustawiłaś jeszcze hasła, zrobisz to z poziomu przycisku poniżej.</p>';
+    if ($hasResetUrl) {
+        $bodyHtml = '<p style="margin:0 0 16px;">W panelu klienta znajdziesz zakupione materiały oraz dalsze kroki. Jeśli kupowałaś po raz pierwszy i nie ustawiłaś jeszcze hasła, zrobisz to z poziomu przycisku poniżej.</p>';
+    } elseif ($hasConfirmUrl) {
+        $bodyHtml = '<p style="margin:0 0 16px;">W panelu klienta znajdziesz zakupione materiały oraz dalsze kroki. Jeśli kupowałaś po raz pierwszy, potwierdź adres e-mail z tej wiadomości, a potem zaloguj się hasłem ustawionym podczas zakupu.</p>';
+    } else {
+        $bodyHtml = '<p style="margin:0 0 16px;">W panelu klienta znajdziesz zakupione materiały oraz dalsze kroki dostępu do swojego zamówienia.</p>';
+    }
 
     $details = mailer_render_kv_rows([
         'Produkt' => (string) ($order['productTitle'] ?? ''),

@@ -23,21 +23,21 @@ const storefrontProducts = getPublishedStorefrontProducts();
   <div class="absolute right-20 top-20 h-64 w-64 rounded-full bg-rose/20 blur-[80px] animate-float"></div>
   <div class="absolute bottom-20 left-20 h-80 w-80 rounded-full bg-goldLight/30 blur-[100px] animate-pulse-slow"></div>
 
-  <div class="relative z-10 mx-auto flex max-w-[1440px] flex-col-reverse items-center gap-12 px-8 pt-20 md:flex-row md:px-16">
+  <div class="relative z-10 mx-auto flex max-w-360 flex-col-reverse items-center gap-12 px-8 pt-20 md:flex-row md:px-16">
     <div class="flex-1 space-y-8 text-center md:text-left">
       <h1 class="font-serif text-fs-display leading-[1.08] text-mauve drop-shadow-xs">
         Wesprę Cię w drodze do <span class="bg-linear-to-r from-gold to-[#B88A44] bg-clip-text pr-2 italic text-transparent">świadomego porodu</span>
       </h1>
       <p class="max-w-xl text-fs-body-lg font-light leading-relaxed text-mauve/80">Mam na imię <strong>Natalia</strong>, jestem terapeutką traumy i wsparciem na Twojej drodze przez macierzyństwo.</p>
       <div class="flex flex-col gap-4 pt-6 md:flex-row md:justify-start">
-        <a href={offerSectionHref} class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
-          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+        <a href={offerSectionHref} class="group relative inline-flex h-12.5 min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
+          <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
           <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zobacz, jak mogę Ci pomóc</span>
         </a>
-        <a href={aboutPagePath} class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
-          <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+        <a href={aboutPagePath} class="group relative inline-flex h-12.5 min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
+          <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
           <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Poznaj mnie</span>
@@ -46,7 +46,7 @@ const storefrontProducts = getPublishedStorefrontProducts();
     </div>
 
     <div class="relative flex flex-1 justify-center">
-      <div class="relative h-[400px] w-[300px] md:h-[500px] md:w-[400px]">
+      <div class="relative h-100 w-75 md:h-125 md:w-100">
         <div class="absolute inset-0 scale-110 animate-morph bg-gold/10 mix-blend-multiply"></div>
         <OptimizedImage src={heroImageSrc} alt="Natalia Potocka - terapeutka" class="relative h-full w-full animate-float object-cover shadow-2xl" style="border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;" loading="eager" decoding="async" fetchpriority="high" sizes="(min-width: 768px) 400px, 300px" />
       </div>
@@ -54,7 +54,7 @@ const storefrontProducts = getPublishedStorefrontProducts();
   </div>
 </section>
 
-<section class="relative flex min-h-[500px] items-center justify-center py-32">
+<section class="relative flex min-h-125 items-center justify-center py-32">
   <div class="absolute inset-0 overflow-visible pointer-events-none">
     <svg class="absolute h-full w-full opacity-30" viewBox="0 0 1440 600" preserveAspectRatio="none">
       <path d="M-200,300 C200,100 600,500 1000,300 C1400,100 1800,400 2200,200" fill="none" stroke="#E6B8B8" stroke-width="2" class="animate-float"></path>
@@ -84,9 +84,9 @@ const storefrontProducts = getPublishedStorefrontProducts();
 
 <section class="relative py-24">
   <div class="absolute inset-0 overflow-visible pointer-events-none">
-    <div class="absolute left-[-5%] top-[10%] h-[400px] w-[400px] rounded-full bg-blush/40 blur-[90px] animate-breathe"></div>
-    <div class="absolute bottom-[10%] right-[-5%] h-[350px] w-[350px] rounded-full bg-gold/10 blur-[80px] animate-pulse-slow"></div>
-    <div class="absolute top-[50%] left-[50%] h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/10 blur-[100px] animate-float"></div>
+    <div class="absolute left-[-5%] top-[10%] h-100 w-100 rounded-full bg-blush/40 blur-[90px] animate-breathe"></div>
+    <div class="absolute bottom-[10%] right-[-5%] h-87.5 w-87.5 rounded-full bg-gold/10 blur-[80px] animate-pulse-slow"></div>
+    <div class="absolute top-[50%] left-[50%] h-75 w-75 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/10 blur-[100px] animate-float"></div>
   </div>
 
   <div class="container-shell relative z-10">
@@ -156,7 +156,7 @@ const storefrontProducts = getPublishedStorefrontProducts();
     </svg>
   </div>
 
-  <div class="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+  <div class="relative z-10 mx-auto max-w-360 px-8 md:px-16">
     <div class="mx-auto mb-16 max-w-3xl text-center">
       <h2 class="mb-6 font-serif text-fs-title-xl text-mauve">Wsparcie, które odpowiada <span class="bg-linear-to-r from-gold to-[#B88A44] bg-clip-text pr-2 italic text-transparent">Twoim potrzebom</span></h2>
       <p class="text-fs-body-lg font-light text-mauve/70">Niezależnie od tego, na jakim etapie jesteś – znajdziesz tu bezpieczną przystań.</p>
@@ -184,8 +184,8 @@ const storefrontProducts = getPublishedStorefrontProducts();
             </div>
           </div>
           <div class="mt-auto">
-            <a href="/uzdrowienie-traumy-porodowej" class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
-              <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <a href="/uzdrowienie-traumy-porodowej" class="group relative inline-flex h-12.5 min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
+              <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
                 <BlobArrowIcon />
               </span>
               <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Dowiedz się więcej</span>
@@ -215,8 +215,8 @@ const storefrontProducts = getPublishedStorefrontProducts();
             </div>
           </div>
           <div class="mt-auto">
-            <a href="/konsultacja-indywidualna" class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
-              <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+            <a href="/konsultacja-indywidualna" class="group relative inline-flex h-12.5 min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
+              <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[60%_40%_30%_70%/60%_30%_70%_40%] bg-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
                 <BlobArrowIcon />
               </span>
               <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Dowiedz się więcej</span>
@@ -243,10 +243,10 @@ const storefrontProducts = getPublishedStorefrontProducts();
   <svg class="absolute right-0 top-0 h-full opacity-30 pointer-events-none" viewBox="0 0 400 900">
     <path d="M400,0 C200,300 100,600 300,900" fill="none" stroke="#D4AF37" stroke-width="2" stroke-dasharray="5 10"></path>
   </svg>
-  <div class="absolute left-10 top-1/3 h-[500px] w-[500px] rounded-full bg-rose/10 blur-[120px] animate-breathe"></div>
-  <div class="absolute right-10 bottom-0 h-[400px] w-[400px] rounded-full bg-gold/10 blur-[130px] animate-pulse-slow"></div>
+  <div class="absolute left-10 top-1/3 h-125 w-125 rounded-full bg-rose/10 blur-[120px] animate-breathe"></div>
+  <div class="absolute right-10 bottom-0 h-100 w-100 rounded-full bg-gold/10 blur-[130px] animate-pulse-slow"></div>
 
-  <div class="relative z-10 mx-auto max-w-[1440px] px-8 md:px-16">
+  <div class="relative z-10 mx-auto max-w-360 px-8 md:px-16">
     <div class="flex flex-col items-center gap-16 md:flex-row">
       <div class="order-2 w-full md:order-1 md:w-1/2">
         <h2 class="font-serif text-fs-title-xl text-mauve">Matematyczka, <br />która zaufała <span class="bg-linear-to-r from-gold to-[#B88A44] bg-clip-text italic text-transparent">intuicji</span></h2>
@@ -256,8 +256,8 @@ const storefrontProducts = getPublishedStorefrontProducts();
           <p>Jako konsultantka i terapeutka traumy łączę te dwa światy. Daję Ci twarde dane, byś czuła się bezpiecznie, i miękką obecność, byś czuła się zaopiekowana.</p>
         </div>
         <div class="mt-10">
-          <a href={aboutPagePath} class="group relative inline-flex h-[50px] min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
-            <span class="circle absolute left-0 top-0 z-0 block h-[50px] w-[50px] rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
+          <a href={aboutPagePath} class="group relative inline-flex h-12.5 min-w-48 w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
+            <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
               <BlobArrowIcon />
             </span>
             <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Poznaj mnie lepiej</span>
@@ -266,7 +266,7 @@ const storefrontProducts = getPublishedStorefrontProducts();
       </div>
 
       <div class="order-1 flex w-full justify-center md:order-2 md:w-1/2">
-        <div class="relative h-[350px] w-[350px] md:h-[450px] md:w-[450px]">
+        <div class="relative h-87.5 w-87.5 md:h-112.5 md:w-112.5">
           <div class="absolute inset-0 animate-morph bg-rose/20 blur-md"></div>
           <div class="absolute inset-0 scale-105 rotate-12 animate-morph border border-gold/40"></div>
           <div class="relative h-full w-full overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.02]" style="border-radius: 56% 44% 30% 70% / 60% 30% 70% 40%;">

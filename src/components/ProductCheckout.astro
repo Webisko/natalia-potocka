@@ -153,27 +153,51 @@ const productPayload = {
         </div>
         <div>
           <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
-          <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <input name="email" type="email" autocomplete="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
-        <label class="flex items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
-          <input name="setPasswordNow" type="checkbox" class="mt-1 h-4 w-4 accent-gold" />
-          <span>
-            Chcę od razu ustawić hasło do konta.
-            <span class="mt-1 block text-mauve/55">Jeśli pominiesz ten krok, po zakupie wyślemy link, przez który dokończysz konfigurację konta.</span>
-          </span>
-        </label>
-        <div class="grid gap-4" data-password-fields hidden>
+        <div class="rounded-3xl border border-gold/15 bg-white/55 p-5 text-fs-ui text-mauve/72">
+          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Ustaw hasło do konta</p>
+          <p class="mt-3 leading-6">Hasło ustawiasz od razu podczas zakupu. Przygotuj minimum 12 znaków, w tym małą i wielką literę, cyfrę oraz znak specjalny.</p>
+          <div class="mt-4 grid gap-2 sm:grid-cols-2" data-password-rules>
+            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="length">
+              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
+              <span>Co najmniej 12 znaków</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="lowercase">
+              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
+              <span>Mała litera</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="uppercase">
+              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
+              <span>Wielka litera</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="digit">
+              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
+              <span>Cyfra</span>
+            </div>
+            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition sm:col-span-2" data-password-rule="special">
+              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
+              <span>Znak specjalny, np. ! @ # $ %</span>
+            </div>
+          </div>
+          <p class="mt-3 text-sm leading-6 text-mauve/55" data-password-hint>Hasło będzie gotowe, gdy wszystkie wymagania będą zaznaczone.</p>
+        </div>
+        <div class="grid gap-4" data-password-fields>
+          <div class="flex justify-end">
+            <button type="button" class="inline-flex items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false">Pokaż hasło</button>
+          </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-            <input name="password" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
-            <p class="mt-2 text-fs-ui text-mauve/55">Minimum 12 znaków, mała i wielka litera, cyfra oraz znak specjalny.</p>
+            <input name="password" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-input data-password-visibility-group="guest" />
+            <p class="mt-2 text-fs-ui text-mauve/55">Po spełnieniu wymagań pole podświetli się wyraźniej.</p>
           </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Powtórz hasło</label>
-            <input name="password_confirm" type="password" minlength="12" class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+            <input name="password_confirm" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-confirm-input data-password-visibility-group="guest" />
+            <p class="mt-2 text-fs-ui text-mauve/55 transition" data-password-match-note>Wpisz to samo hasło ponownie.</p>
           </div>
         </div>
-        <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Materiały będą dostępne po opłaceniu i potwierdzeniu adresu e-mail. Jeśli ustawisz hasło teraz, zalogujesz się zaraz po potwierdzeniu konta.</p>
+        <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Materiały będą dostępne po opłaceniu i potwierdzeniu adresu e-mail. Po aktywacji konta zalogujesz się hasłem ustawionym w tym formularzu.</p>
       </form>
 
       <form class="mt-6 space-y-4" data-login-form hidden>
@@ -182,8 +206,11 @@ const productPayload = {
           <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
         <div>
-          <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-          <input name="password" type="password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
+          <div class="mb-2 flex items-center justify-between gap-3">
+            <label class="block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
+            <button type="button" class="inline-flex items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="login" aria-pressed="false">Pokaż hasło</button>
+          </div>
+          <input name="password" type="password" autocomplete="current-password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-login-password-input data-password-visibility-group="login" />
         </div>
       </form>
 
@@ -314,10 +341,22 @@ const productPayload = {
     const bankTransferOption = sharedPanel.querySelector('[data-payment-option="bank_transfer"]');
     const stripePaymentInput = sharedPanel.querySelector('[data-payment-input="stripe"]');
     const bankTransferInput = sharedPanel.querySelector('[data-payment-input="bank_transfer"]');
-    const setPasswordNowInput = guestForm?.querySelector('input[name="setPasswordNow"]');
     const passwordFields = guestForm?.querySelector('[data-password-fields]');
-    const passwordInput = guestForm?.querySelector('input[name="password"]');
-    const passwordConfirmInput = guestForm?.querySelector('input[name="password_confirm"]');
+    const passwordInput = guestForm?.querySelector('[data-password-input]');
+    const passwordConfirmInput = guestForm?.querySelector('[data-password-confirm-input]');
+    const loginPasswordInput = loginForm?.querySelector('[data-login-password-input]');
+    const passwordHint = guestForm?.querySelector('[data-password-hint]');
+    const passwordMatchNote = guestForm?.querySelector('[data-password-match-note]');
+    const passwordRuleItems = Array.from(guestForm?.querySelectorAll('[data-password-rule]') || []);
+    const passwordVisibilityButtons = Array.from(modal.querySelectorAll('[data-password-visibility-toggle]'));
+
+    const passwordRequirements = {
+      length: (value) => value.length >= 12,
+      lowercase: (value) => /[a-z]/.test(value),
+      uppercase: (value) => /[A-Z]/.test(value),
+      digit: (value) => /\d/.test(value),
+      special: (value) => /[^A-Za-z\d]/.test(value),
+    };
 
     const formatPrice = (value) => new Intl.NumberFormat('pl-PL', {
       style: 'currency',
@@ -421,15 +460,120 @@ const productPayload = {
       return true;
     };
 
-    const togglePasswordFields = () => {
-      const isChecked = Boolean(setPasswordNowInput?.checked);
-      setHidden(passwordFields, !isChecked);
-      if (passwordInput) passwordInput.required = isChecked;
-      if (passwordConfirmInput) passwordConfirmInput.required = isChecked;
-      if (!isChecked) {
-        if (passwordInput) passwordInput.value = '';
-        if (passwordConfirmInput) passwordConfirmInput.value = '';
+    const setInputValidityState = (input, state) => {
+      if (!input) return;
+
+      input.classList.remove('border-emerald-400', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-200', 'border-rose/40', 'bg-rose-50/60', 'ring-rose-100');
+
+      if (state === 'valid') {
+        input.classList.add('border-emerald-400', 'bg-emerald-50/70', 'ring-2', 'ring-emerald-200');
+        input.setAttribute('aria-invalid', 'false');
+        return;
       }
+
+      if (state === 'invalid') {
+        input.classList.add('border-rose/40', 'bg-rose-50/60', 'ring-2', 'ring-rose-100');
+        input.setAttribute('aria-invalid', 'true');
+        return;
+      }
+
+      input.removeAttribute('aria-invalid');
+    };
+
+    const updatePasswordVisibilityButton = (button, visible) => {
+      if (!button) return;
+
+      button.textContent = visible ? 'Ukryj hasło' : 'Pokaż hasło';
+      button.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    };
+
+    const setPasswordVisibility = (group, visible) => {
+      const targets = Array.from(modal.querySelectorAll(`[data-password-visibility-group="${group}"]`));
+      targets.forEach((input) => {
+        input.type = visible ? 'text' : 'password';
+      });
+
+      passwordVisibilityButtons
+        .filter((button) => button.getAttribute('data-password-visibility-toggle') === group)
+        .forEach((button) => updatePasswordVisibilityButton(button, visible));
+    };
+
+    const getPasswordValidationState = (password, passwordConfirm) => {
+      const rules = Object.fromEntries(Object.entries(passwordRequirements).map(([key, test]) => [key, test(password)]));
+      const allRulesPassed = Object.values(rules).every(Boolean);
+      const confirmFilled = passwordConfirm.length > 0;
+      const passwordsMatch = password === passwordConfirm;
+
+      return {
+        rules,
+        allRulesPassed,
+        confirmFilled,
+        passwordsMatch,
+        confirmValid: confirmFilled && passwordsMatch,
+      };
+    };
+
+    const updatePasswordValidation = () => {
+      const password = String(passwordInput?.value || '');
+      const passwordConfirm = String(passwordConfirmInput?.value || '');
+      const validation = getPasswordValidationState(password, passwordConfirm);
+
+      passwordRuleItems.forEach((item) => {
+        const key = item.getAttribute('data-password-rule');
+        const passed = Boolean(key && validation.rules[key]);
+        const indicator = item.querySelector('[data-password-rule-indicator]');
+
+        item.classList.toggle('border-emerald-300', passed);
+        item.classList.toggle('bg-emerald-50/70', passed);
+        item.classList.toggle('text-emerald-900', passed);
+        item.classList.toggle('border-mauve/10', !passed);
+        item.classList.toggle('bg-white/70', !passed);
+        item.classList.toggle('text-mauve/70', !passed);
+
+        if (indicator) {
+          indicator.classList.toggle('bg-emerald-500', passed);
+          indicator.classList.toggle('bg-mauve/20', !passed);
+        }
+      });
+
+      if (passwordHint) {
+        if (validation.allRulesPassed) {
+          passwordHint.textContent = 'Hasło spełnia wszystkie wymagania.';
+          passwordHint.classList.add('text-emerald-800');
+          passwordHint.classList.remove('text-mauve/55');
+        } else {
+          passwordHint.textContent = 'Hasło będzie gotowe, gdy wszystkie wymagania będą zaznaczone.';
+          passwordHint.classList.add('text-mauve/55');
+          passwordHint.classList.remove('text-emerald-800');
+        }
+      }
+
+      if (password.length === 0) {
+        setInputValidityState(passwordInput, 'neutral');
+      } else {
+        setInputValidityState(passwordInput, validation.allRulesPassed ? 'valid' : 'invalid');
+      }
+
+      if (passwordMatchNote) {
+        if (!validation.confirmFilled) {
+          passwordMatchNote.textContent = 'Wpisz to samo hasło ponownie.';
+          passwordMatchNote.classList.add('text-mauve/55');
+          passwordMatchNote.classList.remove('text-emerald-800', 'text-rose-700');
+          setInputValidityState(passwordConfirmInput, 'neutral');
+        } else if (validation.passwordsMatch) {
+          passwordMatchNote.textContent = 'Hasła są identyczne.';
+          passwordMatchNote.classList.add('text-emerald-800');
+          passwordMatchNote.classList.remove('text-mauve/55', 'text-rose-700');
+          setInputValidityState(passwordConfirmInput, 'valid');
+        } else {
+          passwordMatchNote.textContent = 'Hasła muszą być identyczne.';
+          passwordMatchNote.classList.add('text-rose-700');
+          passwordMatchNote.classList.remove('text-mauve/55', 'text-emerald-800');
+          setInputValidityState(passwordConfirmInput, 'invalid');
+        }
+      }
+
+      return validation;
     };
 
     const validateGuestForm = () => {
@@ -437,7 +581,6 @@ const productPayload = {
       const firstName = String(formData.get('first_name') || '').trim();
       const lastName = String(formData.get('last_name') || '').trim();
       const email = String(formData.get('email') || '').trim().toLowerCase();
-      const setPasswordNow = Boolean(formData.get('setPasswordNow'));
       const password = String(formData.get('password') || '');
       const passwordConfirm = String(formData.get('password_confirm') || '');
 
@@ -445,7 +588,17 @@ const productPayload = {
         throw new Error('Uzupełnij imię, nazwisko i adres e-mail.');
       }
 
-      if (setPasswordNow && password !== passwordConfirm) {
+      if (!password || !passwordConfirm) {
+        throw new Error('Ustaw i potwierdź hasło do nowego konta.');
+      }
+
+      const validation = updatePasswordValidation();
+
+      if (!validation.allRulesPassed) {
+        throw new Error('Hasło musi mieć minimum 12 znaków oraz zawierać małą i wielką literę, cyfrę i znak specjalny.');
+      }
+
+      if (!validation.passwordsMatch) {
         throw new Error('Hasła muszą być identyczne.');
       }
 
@@ -453,8 +606,8 @@ const productPayload = {
         first_name: firstName,
         last_name: lastName,
         email,
-        setPasswordNow,
-        ...(setPasswordNow ? { password, password_confirm: passwordConfirm } : {}),
+        password,
+        password_confirm: passwordConfirm,
       };
     };
 
@@ -657,7 +810,8 @@ const productPayload = {
       if (guestForm) {
         guestForm.reset();
       }
-      togglePasswordFields();
+      setHidden(passwordFields, false);
+      updatePasswordValidation();
       setMode(state.user ? 'confirm' : 'guest');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -722,11 +876,22 @@ const productPayload = {
       await startCheckout();
     });
 
-    setPasswordNowInput?.addEventListener('change', togglePasswordFields);
+    passwordVisibilityButtons.forEach((button) => {
+      const group = button.getAttribute('data-password-visibility-toggle');
+      setPasswordVisibility(group, false);
+
+      button.addEventListener('click', () => {
+        const nextVisible = button.getAttribute('aria-pressed') !== 'true';
+        setPasswordVisibility(group, nextVisible);
+      });
+    });
+
+    passwordInput?.addEventListener('input', updatePasswordValidation);
+    passwordConfirmInput?.addEventListener('input', updatePasswordValidation);
 
     refreshUser();
     refreshPaymentConfig();
-    togglePasswordFields();
+    updatePasswordValidation();
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !modal.classList.contains('hidden')) {

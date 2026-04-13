@@ -310,7 +310,6 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
     $firstName = trim((string) ($customer['firstName'] ?? $customer['first_name'] ?? ''));
     $lastName = trim((string) ($customer['lastName'] ?? $customer['last_name'] ?? ''));
     $email = strtolower(trim((string) ($customer['email'] ?? '')));
-    $setPasswordNow = !empty($customer['setPasswordNow']);
     $password = (string) ($customer['password'] ?? '');
     $passwordConfirm = (string) ($customer['passwordConfirm'] ?? $customer['password_confirm'] ?? '');
 
@@ -318,30 +317,27 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
         throw new RuntimeException('Podaj imię, nazwisko i adres e-mail, aby przejść do płatności.');
     }
 
-    $passwordHash = null;
-    if ($setPasswordNow) {
-        if ($password !== $passwordConfirm) {
-            throw new RuntimeException('Hasła nie są identyczne.');
-        }
-
-        $passwordValidationError = validateStrongPassword($password);
-        if ($passwordValidationError !== null) {
-            throw new RuntimeException($passwordValidationError);
-        }
-
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    if ($password === '' || $passwordConfirm === '') {
+        throw new RuntimeException('Ustaw i potwierdź hasło do nowego konta, aby przejść do płatności.');
     }
+
+    if ($password !== $passwordConfirm) {
+        throw new RuntimeException('Hasła nie są identyczne.');
+    }
+
+    $passwordValidationError = validateStrongPassword($password);
+    if ($passwordValidationError !== null) {
+        throw new RuntimeException($passwordValidationError);
+    }
+
+    $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
     $stmtExisting = $db->prepare('SELECT id, email, password_hash, email_confirmed, confirm_token FROM users WHERE lower(email) = lower(?) LIMIT 1');
     $stmtExisting->execute([$email]);
     $existingUser = $stmtExisting->fetch() ?: null;
 
-    $confirmToken = $existingUser['confirm_token'] ?? bin2hex(random_bytes(32));
-    $shouldCreateResetLink = !$setPasswordNow && empty($existingUser['password_hash']);
-    $resetToken = $shouldCreateResetLink ? bin2hex(random_bytes(32)) : null;
-    $resetExpires = $shouldCreateResetLink ? gmdate('c', strtotime('+1 hour')) : null;
-    $confirmUrl = $baseUrl . '/api/auth/confirm/' . $confirmToken;
-    $resetUrl = $resetToken ? ($baseUrl . '/resetowanie-hasla?token=' . $resetToken) : null;
+    $existingConfirmToken = trim((string) ($existingUser['confirm_token'] ?? ''));
+    $confirmToken = $existingConfirmToken !== '' ? $existingConfirmToken : bin2hex(random_bytes(32));
 
     if ($existingUser) {
         if (!empty($existingUser['password_hash']) && !empty($existingUser['email_confirmed'])) {
@@ -349,30 +345,31 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
             throw $error;
         }
 
-        $stmtUpdate = $db->prepare('UPDATE users SET first_name = ?, last_name = ?, password_hash = COALESCE(?, password_hash), confirm_token = COALESCE(confirm_token, ?), reset_token = COALESCE(?, reset_token), reset_expires = COALESCE(?, reset_expires), updated_at = CURRENT_TIMESTAMP WHERE id = ?');
-        $stmtUpdate->execute([$firstName, $lastName, $passwordHash, $confirmToken, $resetToken, $resetExpires, $existingUser['id']]);
+        $requiresEmailConfirmation = empty($existingUser['email_confirmed']);
+        $stmtUpdate = $db->prepare('UPDATE users SET first_name = ?, last_name = ?, password_hash = ?, confirm_token = ?, reset_token = NULL, reset_expires = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmtUpdate->execute([$firstName, $lastName, $passwordHash, $confirmToken, $existingUser['id']]);
 
         return [
             'id' => $existingUser['id'],
             'email' => $email,
-            'requiresEmailConfirmation' => empty($existingUser['email_confirmed']),
-            'hasPassword' => !empty($passwordHash) || !empty($existingUser['password_hash']),
-            'confirmUrl' => $confirmUrl,
-            'resetUrl' => $resetUrl,
+            'requiresEmailConfirmation' => $requiresEmailConfirmation,
+            'hasPassword' => true,
+            'confirmUrl' => $requiresEmailConfirmation ? ($baseUrl . '/api/auth/confirm/' . $confirmToken) : null,
+            'resetUrl' => null,
         ];
     }
 
     $userId = bin2hex(random_bytes(16));
     $stmtInsert = $db->prepare('INSERT INTO users (id, first_name, last_name, email, password_hash, purchased_items, email_confirmed, confirm_token, reset_token, reset_expires, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
-    $stmtInsert->execute([$userId, $firstName, $lastName, $email, $passwordHash, '', $confirmToken, $resetToken, $resetExpires]);
+    $stmtInsert->execute([$userId, $firstName, $lastName, $email, $passwordHash, '', $confirmToken, null, null]);
 
     return [
         'id' => $userId,
         'email' => $email,
         'requiresEmailConfirmation' => true,
-        'hasPassword' => !empty($passwordHash),
-        'confirmUrl' => $confirmUrl,
-        'resetUrl' => $resetUrl,
+        'hasPassword' => true,
+        'confirmUrl' => $baseUrl . '/api/auth/confirm/' . $confirmToken,
+        'resetUrl' => null,
     ];
 }
 
