@@ -28,8 +28,6 @@ pnpm-debug.log*
 data/
 !data/
 data/*
-!data/mail-preview/
-!data/mail-preview/**
 !data/public-build-snapshot.json
 *.sqlite
 *.sqlite-wal
