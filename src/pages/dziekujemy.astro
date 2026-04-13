@@ -56,6 +56,18 @@ const panelPath = getPagePathByKey('panel') || '/panel';
         </ul>
       </div>
 
+      <div class="mt-6 hidden rounded-3xl border border-mauve/10 bg-white/70 px-6 py-5 text-left shadow-xs backdrop-blur-xs" data-session-status-panel>
+        <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Status zakupu</p>
+        <h2 class="mt-3 font-serif text-2xl text-mauve" data-session-status-title>Sprawdzam status płatności</h2>
+        <p class="mt-3 text-base leading-7 text-mauve/70" data-session-status-body></p>
+        <p class="mt-4 text-sm leading-6 text-mauve/55" data-session-status-meta></p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href="/zapomnialam-hasla" class="button-secondary hidden" data-forgot-password-link>Ustaw hasło</a>
+          <button type="button" class="button-secondary hidden" data-resend-activation>Wyślij ponownie e-mail z instrukcją</button>
+        </div>
+        <p class="mt-4 hidden text-sm leading-6 text-mauve/60" data-resend-feedback></p>
+      </div>
+
       <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
         <a href={panelPath} class="group relative inline-flex h-12.5 min-w-[16rem] w-auto cursor-pointer items-center justify-start border-0 outline-hidden">
           <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] bg-gold transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
@@ -76,4 +88,134 @@ const panelPath = getPagePathByKey('panel') || '/panel';
       </div>
     </div>
   </section>
+
+  <script is:inline>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      if (!sessionId) {
+        return;
+      }
+
+      const panel = document.querySelector('[data-session-status-panel]');
+      const title = document.querySelector('[data-session-status-title]');
+      const body = document.querySelector('[data-session-status-body]');
+      const meta = document.querySelector('[data-session-status-meta]');
+      const resendButton = document.querySelector('[data-resend-activation]');
+      const resendFeedback = document.querySelector('[data-resend-feedback]');
+      const forgotPasswordLink = document.querySelector('[data-forgot-password-link]');
+
+      if (!panel || !title || !body || !meta || !resendButton || !resendFeedback || !forgotPasswordLink) {
+        return;
+      }
+
+      const setHidden = (element, hidden) => {
+        if (!element) return;
+        element.hidden = hidden;
+      };
+
+      const setFeedback = (message = '') => {
+        resendFeedback.textContent = message;
+        setHidden(resendFeedback, !message);
+      };
+
+      const apiRequest = async (url, options = {}) => {
+        const response = await fetch(url, {
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {}),
+          },
+          ...options,
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || data.message || 'Wystąpił błąd.');
+        }
+
+        return data;
+      };
+
+      const renderStatus = (status) => {
+        panel.hidden = false;
+        forgotPasswordLink.href = status.forgotPasswordUrl || '/zapomnialam-hasla';
+
+        const metaParts = [];
+        if (status.productTitle) metaParts.push(`Produkt: ${status.productTitle}`);
+        if (status.orderNumber) metaParts.push(`Numer zamówienia: ${status.orderNumber}`);
+        if (status.customerEmail) metaParts.push(`E-mail: ${status.customerEmail}`);
+        meta.textContent = metaParts.join(' • ');
+
+        setHidden(forgotPasswordLink, true);
+        setHidden(resendButton, true);
+
+        if (!status.orderCompleted) {
+          title.textContent = 'Finalizuję płatność';
+          body.textContent = 'Płatność jest jeszcze przetwarzana. Odśwież tę stronę za chwilę albo sprawdź skrzynkę e-mail, jeśli dopiero wróciłaś ze Stripe.';
+          return;
+        }
+
+        switch (status.nextStep) {
+          case 'ready':
+            title.textContent = 'Dostęp jest już gotowy';
+            body.textContent = 'Zakup został przypisany do Twojego konta. Możesz od razu przejść do panelu klienta i otworzyć materiały.';
+            break;
+          case 'confirm_and_set_password':
+            title.textContent = 'Jeszcze jeden krok do materiałów';
+            body.textContent = 'Zakup jest już przypisany do Twojego konta. Sprawdź e-mail z instrukcją: najpierw potwierdź adres, a jeśli nie ustawiłaś hasła wcześniej, dokończ konfigurację konta z linku w wiadomości.';
+            setHidden(resendButton, false);
+            setHidden(forgotPasswordLink, false);
+            break;
+          case 'confirm_email':
+            title.textContent = 'Potwierdź adres e-mail';
+            body.textContent = 'Płatność została przyjęta, ale konto czeka jeszcze na potwierdzenie adresu e-mail. Otwórz wiadomość, którą właśnie wysłałam, aby aktywować dostęp.';
+            setHidden(resendButton, false);
+            break;
+          case 'set_password':
+            title.textContent = 'Ustaw hasło do konta';
+            body.textContent = 'Zakup został przypisany poprawnie, ale konto nie ma jeszcze ustawionego hasła. Możesz ustawić je z wiadomości e-mail albo użyć standardowego resetu hasła.';
+            setHidden(resendButton, false);
+            setHidden(forgotPasswordLink, false);
+            break;
+          default:
+            title.textContent = 'Sprawdzam dostęp';
+            body.textContent = 'Zakup jest widoczny w systemie, ale finalizacja dostępu może jeszcze chwilę potrwać. Jeśli nic się nie zmieni, wyślij ponownie wiadomość z instrukcją.';
+            setHidden(resendButton, false);
+            break;
+        }
+      };
+
+      const loadStatus = async () => {
+        try {
+          const status = await apiRequest(`/api/checkout/session-status?session_id=${encodeURIComponent(sessionId)}`, { headers: {} });
+          renderStatus(status);
+        } catch (error) {
+          panel.hidden = false;
+          title.textContent = 'Nie udało się pobrać statusu zakupu';
+          body.textContent = error.message;
+          meta.textContent = 'Jeśli płatność została pobrana, sprawdź skrzynkę e-mail lub skontaktuj się ze mną.';
+        }
+      };
+
+      resendButton.addEventListener('click', async () => {
+        resendButton.setAttribute('disabled', 'disabled');
+        setFeedback('Wysyłam ponownie wiadomość z dalszymi krokami...');
+
+        try {
+          const response = await apiRequest('/api/checkout/resend-activation-email', {
+            method: 'POST',
+            body: JSON.stringify({ sessionId }),
+          });
+          setFeedback(response.message || 'Wiadomość została wysłana ponownie.');
+        } catch (error) {
+          setFeedback(error.message || 'Nie udało się ponownie wysłać wiadomości.');
+        } finally {
+          resendButton.removeAttribute('disabled');
+        }
+      });
+
+      loadStatus();
+    })();
+  </script>
 </BaseLayout>

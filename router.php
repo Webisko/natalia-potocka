@@ -206,6 +206,16 @@ if (preg_match('#^/api/checkout/config$#', $path)) {
     require __DIR__ . '/php_api/checkout.php';
     exit;
 }
+if (preg_match('#^/api/checkout/session-status$#', $path)) {
+    $_GET['action'] = 'session-status';
+    require __DIR__ . '/php_api/checkout.php';
+    exit;
+}
+if (preg_match('#^/api/checkout/resend-activation-email$#', $path)) {
+    $_GET['action'] = 'resend-activation-email';
+    require __DIR__ . '/php_api/checkout.php';
+    exit;
+}
 if (preg_match('#^/api/checkout/create-session$#', $path)) {
     $_GET['action'] = 'create-session';
     require __DIR__ . '/php_api/checkout.php';
