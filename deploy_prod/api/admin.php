@@ -17,6 +17,7 @@ const PAGE_RESERVED_SLUGS = [
 ];
 
 const PUBLIC_CONTENT_SETTING_KEYS = [
+    'contact_address',
     'favicon_url',
     'seo_default_title',
     'seo_default_desc',
