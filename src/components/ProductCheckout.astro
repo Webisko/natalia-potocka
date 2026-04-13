@@ -124,12 +124,12 @@ const productPayload = {
   </div>
 )}
 
-<div id={checkoutModalId} class="fixed inset-0 z-10010 hidden items-start justify-center overflow-y-auto px-4 pb-6 pt-20 md:items-center md:py-8">
-  <div class="absolute inset-0 bg-mauve/40 backdrop-blur-xs" data-close-modal></div>
-  <div class="relative z-10 max-h-[calc(100vh-6rem)] w-full max-w-xl overflow-y-auto rounded-4xl bg-white/95 p-8 shadow-2xl md:max-h-[90vh] md:p-10">
-    <button type="button" class="absolute right-5 top-5 cursor-pointer text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
+<div id={checkoutModalId} class="fixed inset-0 z-10010 hidden items-start justify-center overflow-y-auto px-4 py-6 md:items-center md:py-10">
+  <div class="absolute inset-0 bg-mauve/50 backdrop-blur-sm" data-close-modal></div>
+  <div class="relative z-10 flex max-h-[calc(100vh-3rem)] w-full max-w-xl flex-col overflow-hidden rounded-4xl bg-white/95 shadow-2xl md:max-h-[90vh]">
+    <button type="button" class="absolute right-7 top-6 cursor-pointer text-2xl leading-none text-mauve/50 transition hover:text-mauve" data-close-modal>&times;</button>
 
-    <div class="relative z-10">
+    <div class="modal-scrollbar relative z-10 mr-2 mt-2 mb-2 overflow-y-auto px-8 py-8 pr-6 md:mr-3 md:mt-3 md:mb-3 md:px-10 md:py-10 md:pr-8">
       <p class="text-fs-label font-extrabold uppercase tracking-[0.24em] text-gold">Zakup</p>
       <h2 class="mt-4 font-serif text-fs-title-lg text-mauve" data-modal-title>Kupujesz po raz pierwszy</h2>
       <p class="mt-3 text-fs-ui text-mauve/60" data-modal-subtitle>Możesz od razu przejść do płatności. Konto przypiszemy do tego zakupu, a dostęp aktywujesz po potwierdzeniu adresu e-mail.</p>
@@ -156,47 +156,49 @@ const productPayload = {
           <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Adres e-mail</label>
           <input name="email" type="email" autocomplete="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
-        <div class="rounded-3xl border border-gold/15 bg-white/55 p-5 text-fs-ui text-mauve/72">
-          <p class="text-fs-label font-extrabold uppercase tracking-[0.22em] text-gold">Ustaw hasło do konta</p>
-          <p class="mt-3 leading-6">Hasło ustawiasz od razu podczas zakupu. Przygotuj minimum 12 znaków, w tym małą i wielką literę, cyfrę oraz znak specjalny.</p>
-          <div class="mt-4 grid gap-2 sm:grid-cols-2" data-password-rules>
-            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="length">
-              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
-              <span>Co najmniej 12 znaków</span>
-            </div>
-            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="lowercase">
-              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
-              <span>Mała litera</span>
-            </div>
-            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="uppercase">
-              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
-              <span>Wielka litera</span>
-            </div>
-            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition" data-password-rule="digit">
-              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
-              <span>Cyfra</span>
-            </div>
-            <div class="flex items-center gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 transition sm:col-span-2" data-password-rule="special">
-              <span class="h-2.5 w-2.5 rounded-full bg-mauve/20 transition" data-password-rule-indicator></span>
-              <span>Znak specjalny, np. ! @ # $ %</span>
-            </div>
-          </div>
-          <p class="mt-3 text-sm leading-6 text-mauve/55" data-password-hint>Hasło będzie gotowe, gdy wszystkie wymagania będą zaznaczone.</p>
-        </div>
-        <div class="grid gap-4" data-password-fields>
-          <div class="flex justify-end">
-            <button type="button" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false">Pokaż hasło</button>
-          </div>
+        <div class="grid gap-4 md:grid-cols-2" data-password-fields>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-            <input name="password" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-input data-password-visibility-group="guest" />
-            <p class="mt-2 text-fs-ui text-mauve/55">Po spełnieniu wymagań pole podświetli się wyraźniej.</p>
+            <div class="relative">
+              <input name="password" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 pr-14 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-input data-password-visibility-group="guest" />
+              <button type="button" class="absolute inset-y-0 right-4 inline-flex cursor-pointer items-center justify-center text-mauve/45 transition hover:text-mauve focus-visible:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false" aria-label="Pokaż hasło" title="Pokaż hasło">
+                <span class="sr-only" data-password-visibility-label>Pokaż hasło</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" data-password-icon-hidden aria-hidden="true">
+                  <path d="M2 12s3.636-7 10-7s10 7 10 7s-3.636 7-10 7s-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="hidden h-5 w-5" data-password-icon-visible aria-hidden="true">
+                  <path d="m3 3 18 18"></path>
+                  <path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path>
+                  <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.364 0 10 7 10 7a17.48 17.48 0 0 1-4.24 5.01"></path>
+                  <path d="M6.61 6.61C4.621 8.033 3.29 10.154 2 12c0 0 3.636 7 10 7a9.77 9.77 0 0 0 5.39-1.61"></path>
+                </svg>
+              </button>
+            </div>
           </div>
           <div>
             <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Powtórz hasło</label>
-            <input name="password_confirm" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-confirm-input data-password-visibility-group="guest" />
-            <p class="mt-2 text-fs-ui text-mauve/55 transition" data-password-match-note>Wpisz to samo hasło ponownie.</p>
+            <div class="relative">
+              <input name="password_confirm" type="password" autocomplete="new-password" minlength="12" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 pr-14 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-password-confirm-input data-password-visibility-group="guest" />
+              <button type="button" class="absolute inset-y-0 right-4 inline-flex cursor-pointer items-center justify-center text-mauve/45 transition hover:text-mauve focus-visible:text-mauve" data-password-visibility-toggle="guest" aria-pressed="false" aria-label="Pokaż hasło" title="Pokaż hasło">
+                <span class="sr-only" data-password-visibility-label>Pokaż hasło</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" data-password-icon-hidden aria-hidden="true">
+                  <path d="M2 12s3.636-7 10-7s10 7 10 7s-3.636 7-10 7s-10-7-10-7Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="hidden h-5 w-5" data-password-icon-visible aria-hidden="true">
+                  <path d="m3 3 18 18"></path>
+                  <path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path>
+                  <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.364 0 10 7 10 7a17.48 17.48 0 0 1-4.24 5.01"></path>
+                  <path d="M6.61 6.61C4.621 8.033 3.29 10.154 2 12c0 0 3.636 7 10 7a9.77 9.77 0 0 0 5.39-1.61"></path>
+                </svg>
+              </button>
+            </div>
           </div>
+        </div>
+        <div class="grid gap-2 text-fs-ui">
+          <p class="text-mauve/55 transition" data-password-hint data-default-text="Minimum 12 znaków, mała i wielka litera, cyfra i znak specjalny.">Minimum 12 znaków, mała i wielka litera, cyfra i znak specjalny.</p>
+          <p class="text-mauve/55 transition" data-password-match-note>Wpisz to samo hasło ponownie.</p>
         </div>
         <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Materiały będą dostępne po opłaceniu i potwierdzeniu adresu e-mail. Po aktywacji konta zalogujesz się hasłem ustawionym w tym formularzu.</p>
       </form>
@@ -207,11 +209,23 @@ const productPayload = {
           <input name="email" type="email" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" />
         </div>
         <div>
-          <div class="mb-2 flex items-center justify-between gap-3">
-            <label class="block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
-            <button type="button" class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-mauve/15 bg-white/80 px-4 py-2 text-fs-label font-semibold uppercase tracking-[0.18em] text-mauve/70 transition hover:border-gold/30 hover:text-mauve" data-password-visibility-toggle="login" aria-pressed="false">Pokaż hasło</button>
+          <label class="mb-2 block text-fs-label font-bold uppercase tracking-[0.2em] text-mauve/60">Hasło</label>
+          <div class="relative">
+            <input name="password" type="password" autocomplete="current-password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 pr-14 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-login-password-input data-password-visibility-group="login" />
+            <button type="button" class="absolute inset-y-0 right-4 inline-flex cursor-pointer items-center justify-center text-mauve/45 transition hover:text-mauve focus-visible:text-mauve" data-password-visibility-toggle="login" aria-pressed="false" aria-label="Pokaż hasło" title="Pokaż hasło">
+              <span class="sr-only" data-password-visibility-label>Pokaż hasło</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5" data-password-icon-hidden aria-hidden="true">
+                <path d="M2 12s3.636-7 10-7s10 7 10 7s-3.636 7-10 7s-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="hidden h-5 w-5" data-password-icon-visible aria-hidden="true">
+                <path d="m3 3 18 18"></path>
+                <path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"></path>
+                <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6.364 0 10 7 10 7a17.48 17.48 0 0 1-4.24 5.01"></path>
+                <path d="M6.61 6.61C4.621 8.033 3.29 10.154 2 12c0 0 3.636 7 10 7a9.77 9.77 0 0 0 5.39-1.61"></path>
+              </svg>
+            </button>
           </div>
-          <input name="password" type="password" autocomplete="current-password" required class="w-full rounded-2xl border border-mauve/10 bg-nude/70 px-5 py-3 text-mauve outline-hidden transition focus:border-gold/30 focus:ring-2 focus:ring-gold/20" data-login-password-input data-password-visibility-group="login" />
         </div>
       </form>
 
@@ -226,8 +240,8 @@ const productPayload = {
             <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="stripe">
               <span class="relative mt-0.5 shrink-0">
                 <input type="radio" name="paymentMethod" value="stripe" checked class="peer sr-only" data-payment-input="stripe" />
-                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
-                  <span class="h-2.5 w-2.5 rounded-full bg-white opacity-0 transition peer-checked:opacity-100"></span>
+                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25 [&>span]:opacity-0 peer-checked:[&>span]:opacity-100">
+                  <span class="h-2.5 w-2.5 rounded-full bg-white transition"></span>
                 </span>
               </span>
               <span>
@@ -238,8 +252,8 @@ const productPayload = {
             <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/80 bg-white/80 p-4" data-payment-option="bank_transfer">
               <span class="relative mt-0.5 shrink-0">
                 <input type="radio" name="paymentMethod" value="bank_transfer" class="peer sr-only" data-payment-input="bank_transfer" />
-                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
-                  <span class="h-2.5 w-2.5 rounded-full bg-white opacity-0 transition peer-checked:opacity-100"></span>
+                <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-full border border-mauve/20 bg-white transition peer-checked:border-white peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25 [&>span]:opacity-0 peer-checked:[&>span]:opacity-100">
+                  <span class="h-2.5 w-2.5 rounded-full bg-white transition"></span>
                 </span>
               </span>
               <span>
@@ -260,8 +274,8 @@ const productPayload = {
         <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
           <span class="relative mt-0.5 shrink-0">
             <input type="checkbox" name="termsAccepted" class="peer sr-only" />
-            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100">
+            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25 [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white transition">
                 <path d="M5 10.5L8.25 13.75L15 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
             </span>
@@ -271,8 +285,8 @@ const productPayload = {
         <label class="flex cursor-pointer items-start gap-3 rounded-2xl border border-mauve/10 bg-nude/60 p-4 text-fs-ui text-mauve/70">
           <span class="relative mt-0.5 shrink-0">
             <input type="checkbox" name="digitalContentAccepted" class="peer sr-only" />
-            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white opacity-0 transition peer-checked:opacity-100">
+            <span aria-hidden="true" class="flex h-5 w-5 items-center justify-center rounded-md border border-mauve/20 bg-white transition peer-checked:border-gold peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/25 [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 text-white transition">
                 <path d="M5 10.5L8.25 13.75L15 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
               </svg>
             </span>
@@ -309,20 +323,20 @@ const productPayload = {
         <p class="rounded-2xl border border-gold/20 bg-gold/10 px-4 py-3 text-fs-ui text-mauve/70">Instrukcje zostały także wysłane na podany adres e-mail. Dostęp zostanie nadany ręcznie po zaksięgowaniu wpłaty.</p>
       </div>
 
-      <div class="mt-8 flex flex-wrap gap-3">
-        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-guest>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start self-center border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-guest>
           <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
           <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Przejdź do płatności</span>
         </button>
-        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-login hidden>
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start self-center border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-login hidden>
           <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
           <span class="relative z-10 w-full whitespace-nowrap pl-14 pr-6 text-center text-fs-ui font-bold uppercase tracking-widest text-mauve transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:text-white">Zaloguj się i kup</span>
         </button>
-        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-confirm hidden>
+        <button type="button" class="group relative inline-flex h-12.5 min-w-56 w-auto cursor-pointer items-center justify-start self-center border-0 outline-hidden disabled:cursor-not-allowed disabled:opacity-60" data-submit-confirm hidden>
           <span class="circle absolute left-0 top-0 z-0 block h-12.5 w-12.5 rounded-[35%_65%_63%_37%/42%_43%_57%_58%] bg-terracotta transition-all duration-500 ease-[cubic-bezier(0.65,0,0.076,1)] group-hover:w-full group-hover:rounded-[1.7rem]" aria-hidden="true">
             <BlobArrowIcon />
           </span>
@@ -387,8 +401,8 @@ const productPayload = {
     const loginPasswordInput = loginForm?.querySelector('[data-login-password-input]');
     const passwordHint = guestForm?.querySelector('[data-password-hint]');
     const passwordMatchNote = guestForm?.querySelector('[data-password-match-note]');
-    const passwordRuleItems = Array.from(guestForm?.querySelectorAll('[data-password-rule]') || []);
     const passwordVisibilityButtons = Array.from(modal.querySelectorAll('[data-password-visibility-toggle]'));
+    const siteHeader = document.getElementById('main-header');
 
     const passwordRequirements = {
       length: (value) => value.length >= 12,
@@ -431,6 +445,19 @@ const productPayload = {
     const setCouponStatus = (message = '') => {
       if (!couponStatus) return;
       couponStatus.textContent = message || 'Jeśli kod jest aktywny, rabat zostanie naliczony w momencie przygotowania płatności lub przelewu.';
+    };
+
+    const setHeaderModalState = (active) => {
+      if (!siteHeader) return;
+
+      if (active) {
+        siteHeader.style.display = 'none';
+        siteHeader.setAttribute('aria-hidden', 'true');
+        return;
+      }
+
+      siteHeader.style.display = '';
+      siteHeader.removeAttribute('aria-hidden');
     };
 
     const applyPaymentConfig = (paymentMethods = {}) => {
@@ -523,8 +550,20 @@ const productPayload = {
     const updatePasswordVisibilityButton = (button, visible) => {
       if (!button) return;
 
-      button.textContent = visible ? 'Ukryj hasło' : 'Pokaż hasło';
+      const labelText = visible ? 'Ukryj hasło' : 'Pokaż hasło';
+      const srLabel = button.querySelector('[data-password-visibility-label]');
+      const hiddenIcon = button.querySelector('[data-password-icon-hidden]');
+      const visibleIcon = button.querySelector('[data-password-icon-visible]');
+
+      if (srLabel) {
+        srLabel.textContent = labelText;
+      }
+
+      hiddenIcon?.classList.toggle('hidden', visible);
+      visibleIcon?.classList.toggle('hidden', !visible);
       button.setAttribute('aria-pressed', visible ? 'true' : 'false');
+      button.setAttribute('aria-label', labelText);
+      button.setAttribute('title', labelText);
     };
 
     const setPasswordVisibility = (group, visible) => {
@@ -558,33 +597,20 @@ const productPayload = {
       const passwordConfirm = String(passwordConfirmInput?.value || '');
       const validation = getPasswordValidationState(password, passwordConfirm);
 
-      passwordRuleItems.forEach((item) => {
-        const key = item.getAttribute('data-password-rule');
-        const passed = Boolean(key && validation.rules[key]);
-        const indicator = item.querySelector('[data-password-rule-indicator]');
-
-        item.classList.toggle('border-emerald-300', passed);
-        item.classList.toggle('bg-emerald-50/70', passed);
-        item.classList.toggle('text-emerald-900', passed);
-        item.classList.toggle('border-mauve/10', !passed);
-        item.classList.toggle('bg-white/70', !passed);
-        item.classList.toggle('text-mauve/70', !passed);
-
-        if (indicator) {
-          indicator.classList.toggle('bg-emerald-500', passed);
-          indicator.classList.toggle('bg-mauve/20', !passed);
-        }
-      });
-
       if (passwordHint) {
+        const defaultText = passwordHint.getAttribute('data-default-text') || 'Minimum 12 znaków, mała i wielka litera, cyfra i znak specjalny.';
         if (validation.allRulesPassed) {
           passwordHint.textContent = 'Hasło spełnia wszystkie wymagania.';
           passwordHint.classList.add('text-emerald-800');
-          passwordHint.classList.remove('text-mauve/55');
+          passwordHint.classList.remove('text-mauve/55', 'text-rose-700');
+        } else if (password.length > 0) {
+          passwordHint.textContent = defaultText;
+          passwordHint.classList.add('text-rose-700');
+          passwordHint.classList.remove('text-mauve/55', 'text-emerald-800');
         } else {
-          passwordHint.textContent = 'Hasło będzie gotowe, gdy wszystkie wymagania będą zaznaczone.';
+          passwordHint.textContent = defaultText;
           passwordHint.classList.add('text-mauve/55');
-          passwordHint.classList.remove('text-emerald-800');
+          passwordHint.classList.remove('text-emerald-800', 'text-rose-700');
         }
       }
 
@@ -850,17 +876,24 @@ const productPayload = {
       if (guestForm) {
         guestForm.reset();
       }
+      if (loginForm) {
+        loginForm.reset();
+      }
+      setPasswordVisibility('guest', false);
+      setPasswordVisibility('login', false);
       setHidden(passwordFields, false);
       updatePasswordValidation();
       setMode(state.user ? 'confirm' : 'guest');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      setHeaderModalState(true);
       document.body.style.overflow = 'hidden';
     };
 
     const closeModal = () => {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
+      setHeaderModalState(false);
       document.body.style.overflow = '';
       showError('');
       setCouponStatus();

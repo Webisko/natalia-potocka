@@ -132,9 +132,9 @@ const isContact = currentPath === contactPath;
     </div>
   </div>
 
-  <div id="login-modal" class="fixed inset-0 z-9999 hidden items-center justify-center">
+  <div id="login-modal" class="fixed inset-0 z-9999 hidden items-center justify-center px-4 py-6 md:py-8">
     <div id="login-backdrop" class="absolute inset-0 bg-mauve/30 backdrop-blur-xs"></div>
-    <div class="relative z-10 mx-4 w-full max-w-md bg-white/95 p-10 shadow-2xl backdrop-blur-xl" style="border-radius: 30px 30px 30px 30px;">
+    <div class="relative z-10 flex max-h-[calc(100vh-3rem)] w-full max-w-md flex-col overflow-hidden bg-white/95 shadow-2xl backdrop-blur-xl" style="border-radius: 30px 30px 30px 30px;">
       <div class="pointer-events-none absolute right-0 top-0 h-40 w-40 translate-x-1/3 -translate-y-1/3 rounded-full bg-rose/10 blur-[50px]"></div>
       <div class="pointer-events-none absolute bottom-0 left-0 h-32 w-32 -translate-x-1/3 translate-y-1/3 rounded-full bg-gold/5 blur-2xl"></div>
 
@@ -144,7 +144,7 @@ const isContact = currentPath === contactPath;
         </svg>
       </button>
 
-      <div class="relative z-10">
+      <div class="modal-scrollbar relative z-10 mr-2 mt-2 mb-2 overflow-y-auto px-10 py-10 pr-8 md:mr-3 md:mt-3 md:mb-3">
         <h2 class="mb-2 font-serif text-fs-title-md text-mauve">Zaloguj się</h2>
         <p class="mb-8 text-fs-ui font-light text-mauve/50">Witaj ponownie. Wpisz dane swojego konta.</p>
 

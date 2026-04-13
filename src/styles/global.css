@@ -158,6 +158,49 @@
   scrollbar-width: none;
 }
 
+@utility modal-scrollbar {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.95) rgba(93, 64, 88, 0.08);
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    margin-block: 2.75rem 1.75rem;
+    border-radius: 999px;
+    background: rgba(93, 64, 88, 0.08);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid rgba(255, 255, 255, 0);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(244, 226, 161, 0.95) 0%, rgba(212, 175, 55, 0.95) 100%);
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(232, 141, 103, 0.95) 0%, rgba(212, 175, 55, 0.98) 100%);
+    background-clip: padding-box;
+  }
+}
+
+@utility custom-scrollbar {
+  @apply modal-scrollbar;
+}
+
+@utility admin-scrollbar {
+  @apply modal-scrollbar;
+}
+
+@utility admin-scrollbar-x {
+  &::-webkit-scrollbar {
+    height: 10px;
+  }
+}
+
 @utility section-eyebrow {
   @apply inline-flex items-center gap-2 rounded-full border border-gold/20 bg-white/70 px-4 py-2 font-extrabold uppercase tracking-[0.24em] text-gold;
   font-size: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem);
