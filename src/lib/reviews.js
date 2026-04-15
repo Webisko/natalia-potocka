@@ -42,11 +42,15 @@ function withDb(callback) {
 }
 
 export function getActiveReviews() {
+  const reviews = withDb((db) => db.prepare('SELECT * FROM reviews WHERE is_active = 1 ORDER BY order_index ASC').all());
+  if (Array.isArray(reviews) && reviews.length > 0) {
+    return reviews;
+  }
+
   const snapshot = getPublicBuildSnapshot();
   if (Array.isArray(snapshot?.reviews) && snapshot.reviews.length > 0) {
     return snapshot.reviews;
   }
 
-  const reviews = withDb((db) => db.prepare('SELECT * FROM reviews WHERE is_active = 1 ORDER BY order_index ASC').all());
-  return Array.isArray(reviews) && reviews.length > 0 ? reviews : FALLBACK_REVIEWS;
+  return FALLBACK_REVIEWS;
 }

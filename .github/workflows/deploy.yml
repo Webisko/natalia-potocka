@@ -82,12 +82,16 @@ jobs:
           REMOTE_SCRIPT="~/export-public-build-snapshot-${GITHUB_RUN_ID}.php"
 
           scp -i deployment_keys/id_rsa -P "$PROD_DEPLOY_SSH_PORT" scripts/export-public-build-snapshot.php "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST:$REMOTE_SCRIPT"
-          ssh -i deployment_keys/id_rsa -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST" "php $REMOTE_SCRIPT '$REMOTE_ROOT'; rm -f $REMOTE_SCRIPT" > data/public-build-snapshot.json
+          ssh -i deployment_keys/id_rsa -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST" "php $REMOTE_SCRIPT '$REMOTE_ROOT'" > data/public-build-snapshot.json
 
           if [ ! -s data/public-build-snapshot.json ]; then
             echo "Failed to fetch public build snapshot." >&2
             exit 1
           fi
+
+          perl -0pi -e 's/^Snapshot written to .*\R//' data/public-build-snapshot.json
+
+          ssh -i deployment_keys/id_rsa -p "$PROD_DEPLOY_SSH_PORT" "$PROD_DEPLOY_SSH_USER@$PROD_DEPLOY_SSH_HOST" "rm -f $REMOTE_SCRIPT"
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps

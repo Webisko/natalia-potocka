@@ -7,6 +7,7 @@ if (PHP_SAPI !== 'cli') {
 
 $projectRoot = $argv[1] ?? dirname(__DIR__);
 $projectRoot = rtrim((string) $projectRoot, DIRECTORY_SEPARATOR);
+$outputPath = $argv[2] ?? null;
 $dbPath = $projectRoot . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'database.sqlite';
 
 if (!is_file($dbPath)) {
@@ -128,4 +129,30 @@ $snapshot = [
         : [],
 ];
 
-fwrite(STDOUT, json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL);
+$payload = json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL;
+
+if (!is_string($payload)) {
+    fwrite(STDERR, "Failed to encode snapshot payload.\n");
+    exit(1);
+}
+
+if (is_string($outputPath) && trim($outputPath) !== '') {
+    $targetPath = trim($outputPath);
+    $targetDirectory = dirname($targetPath);
+    if ($targetDirectory !== '' && $targetDirectory !== '.' && !is_dir($targetDirectory)) {
+        if (!mkdir($targetDirectory, 0777, true) && !is_dir($targetDirectory)) {
+            fwrite(STDERR, "Unable to create output directory: {$targetDirectory}\n");
+            exit(1);
+        }
+    }
+
+    if (file_put_contents($targetPath, $payload) === false) {
+        fwrite(STDERR, "Failed to write snapshot file: {$targetPath}\n");
+        exit(1);
+    }
+
+    fwrite(STDOUT, "Snapshot written to {$targetPath}\n");
+    exit(0);
+}
+
+fwrite(STDOUT, $payload);

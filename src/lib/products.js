@@ -182,12 +182,6 @@ function normalizeProduct(product, globalSettings = {}) {
 }
 
 function getAllProducts() {
-  const snapshotProducts = getSnapshotProducts();
-  if (snapshotProducts) {
-    const snapshotSettings = getSnapshotSettings();
-    return snapshotProducts.map((product) => normalizeProduct(product, snapshotSettings));
-  }
-
   const rows = withDb((db) => {
     const columns = getColumns(db);
     const products = db.prepare(buildQuery(columns)).all();
@@ -201,7 +195,15 @@ function getAllProducts() {
 
   return Array.isArray(rows?.products)
     ? rows.products.map((product) => normalizeProduct(product, rows.settings || {}))
-    : [];
+    : (() => {
+      const snapshotProducts = getSnapshotProducts();
+      if (!snapshotProducts) {
+        return [];
+      }
+
+      const snapshotSettings = getSnapshotSettings();
+      return snapshotProducts.map((product) => normalizeProduct(product, snapshotSettings));
+    })();
 }
 
 function getAllPublishedProducts() {
@@ -225,15 +227,17 @@ export function getPublishedServiceProducts() {
 }
 
 export function getAdminProductIds() {
-  const snapshotProducts = getSnapshotProducts();
-  if (snapshotProducts) {
-    return snapshotProducts
-      .filter((product) => product?.type !== 'service')
-      .map((product) => String(product.id));
+  const rows = withDb((db) => db.prepare("SELECT id FROM products WHERE type != 'service' ORDER BY id DESC").all());
+  if (Array.isArray(rows)) {
+    return rows.map((product) => String(product.id));
   }
 
-  const rows = withDb((db) => db.prepare("SELECT id FROM products WHERE type != 'service' ORDER BY id DESC").all());
-  return Array.isArray(rows) ? rows.map((product) => String(product.id)) : [];
+  const snapshotProducts = getSnapshotProducts();
+  return Array.isArray(snapshotProducts)
+    ? snapshotProducts
+      .filter((product) => product?.type !== 'service')
+      .map((product) => String(product.id))
+    : [];
 }
 
 export function getProductById(id) {
