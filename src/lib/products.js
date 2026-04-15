@@ -1,6 +1,7 @@
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { stripRichText } from '../../shared/richText.js';
+import { normalizeProductTemplateContent } from '../../shared/productTemplateContent.js';
 import { getPublicBuildSnapshot } from './publicBuildSnapshot.js';
 
 const dbPath = path.resolve(process.cwd(), 'data/database.sqlite');
@@ -25,6 +26,11 @@ function isPublished(product) {
 function getSnapshotProducts() {
   const snapshot = getPublicBuildSnapshot();
   return Array.isArray(snapshot?.products) ? snapshot.products : null;
+}
+
+function getSnapshotSettings() {
+  const snapshot = getPublicBuildSnapshot();
+  return snapshot?.settings && typeof snapshot.settings === 'object' ? snapshot.settings : {};
 }
 
 function getColumns(db) {
@@ -97,6 +103,7 @@ function buildQuery(columns, { publishedOnly = false } = {}) {
     'short_description',
     'thumbnail_url',
     'secondary_image_url',
+    'template_content_json',
     'promotional_price',
     'promotional_price_until',
     'lowest_price_30_days',
@@ -134,7 +141,15 @@ function deriveExcerpt(product) {
   }
 
   if (!product.description) {
-    return '';
+    if (!product.long_description) {
+      return '';
+    }
+
+    return stripRichText(product.long_description)
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .find((line) => !line.startsWith('- ')) || '';
   }
 
   return stripRichText(product.description)
@@ -144,7 +159,7 @@ function deriveExcerpt(product) {
     .find((line) => !line.startsWith('- ')) || '';
 }
 
-function normalizeProduct(product) {
+function normalizeProduct(product, globalSettings = {}) {
   const now = Date.now();
   const promoActive =
     product.promotional_price != null &&
@@ -158,6 +173,7 @@ function normalizeProduct(product) {
     lowest_price_30_days: product.lowest_price_30_days == null ? null : Number(product.lowest_price_30_days),
     benefits_json: normalizeBenefitCards(product.benefits_json),
     faq_json: normalizeFaqItems(product.faq_json),
+    template_content_json: normalizeProductTemplateContent(product.template_content_json, product.type, globalSettings),
     noindex: product.noindex === 1 || product.noindex === true,
     excerpt: deriveExcerpt(product),
     promoActive,
@@ -168,15 +184,24 @@ function normalizeProduct(product) {
 function getAllProducts() {
   const snapshotProducts = getSnapshotProducts();
   if (snapshotProducts) {
-    return snapshotProducts.map((product) => normalizeProduct(product));
+    const snapshotSettings = getSnapshotSettings();
+    return snapshotProducts.map((product) => normalizeProduct(product, snapshotSettings));
   }
 
   const rows = withDb((db) => {
     const columns = getColumns(db);
-    return db.prepare(buildQuery(columns)).all();
+    const products = db.prepare(buildQuery(columns)).all();
+    const settingsRows = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'product_template_%'").all();
+
+    return {
+      products,
+      settings: Object.fromEntries(settingsRows.map((row) => [row.key, row.value ?? ''])),
+    };
   });
 
-  return Array.isArray(rows) ? rows.map((product) => normalizeProduct(product)) : [];
+  return Array.isArray(rows?.products)
+    ? rows.products.map((product) => normalizeProduct(product, rows.settings || {}))
+    : [];
 }
 
 function getAllPublishedProducts() {
@@ -209,6 +234,10 @@ export function getAdminProductIds() {
 
   const rows = withDb((db) => db.prepare("SELECT id FROM products WHERE type != 'service' ORDER BY id DESC").all());
   return Array.isArray(rows) ? rows.map((product) => String(product.id)) : [];
+}
+
+export function getProductById(id) {
+  return getAllProducts().find((product) => `${product?.id ?? ''}` === `${id}`) || null;
 }
 
 export function getProductBySlug(slug) {

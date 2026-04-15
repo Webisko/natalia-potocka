@@ -38,22 +38,33 @@
     
     RewriteRule ^api/courses/([^/]+)/modules$ /php_api/courses.php?action=module-create&courseId=$1 [L,QSA]
     
-    RewriteCond %{REQUEST_METHOD} PUT [OR]
-    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteCond %{REQUEST_METHOD} PUT
     RewriteRule ^api/courses/modules/([^/]+)$ /php_api/courses.php?action=module-update&moduleId=$1 [L,QSA]
-    
-    RewriteCond %{REQUEST_METHOD} PUT [OR]
+
     RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/modules/([^/]+)$ /php_api/courses.php?action=module-delete&moduleId=$1 [L,QSA]
+    
+    RewriteCond %{REQUEST_METHOD} PUT
     RewriteRule ^api/courses/lessons/([^/]+)$ /php_api/courses.php?action=lesson-update&lessonId=$1 [L,QSA]
+
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/lessons/([^/]+)$ /php_api/courses.php?action=lesson-delete&lessonId=$1 [L,QSA]
     
     RewriteCond %{REQUEST_METHOD} DELETE
     RewriteRule ^api/courses/attachments/([^/]+)$ /php_api/courses.php?action=attachment-delete&attachmentId=$1 [L,QSA]
 
-    RewriteCond %{REQUEST_METHOD} GET [OR]
-    RewriteCond %{REQUEST_METHOD} PUT [OR]
-    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteCond %{REQUEST_METHOD} GET
     RewriteRule ^api/courses/([^/]+)$ /php_api/courses.php?action=get&courseId=$1 [L,QSA]
+
+    RewriteCond %{REQUEST_METHOD} PUT
+    RewriteRule ^api/courses/([^/]+)$ /php_api/courses.php?action=update&courseId=$1 [L,QSA]
+
+    RewriteCond %{REQUEST_METHOD} DELETE
+    RewriteRule ^api/courses/([^/]+)$ /php_api/courses.php?action=delete&courseId=$1 [L,QSA]
     
+    RewriteCond %{REQUEST_METHOD} POST
+    RewriteRule ^api/courses/?$ /php_api/courses.php?action=create [L,QSA]
+
     RewriteRule ^api/courses/?$ /php_api/courses.php?action=list [L,QSA]
     
     # /api/client

@@ -33,6 +33,12 @@ import AdminPageSettingsModal from '../admin/AdminPageSettingsModal';
 import { SITE_NAME } from '../../../../shared/siteConfig';
 import AdminStatusBadge from '../admin/AdminStatusBadge';
 import AdminStatusIcon from '../admin/AdminStatusIcon';
+import {
+  COMMON_PRODUCT_TEMPLATE_CONTENT_DEFAULTS,
+  COURSE_PRODUCT_TEMPLATE_CONTENT_DEFAULTS,
+  PRODUCT_TEMPLATE_CONTENT_FIELDS,
+  getTemplateContentSettingKey,
+} from '../../../../shared/productTemplateContent.js';
 
 const AdminReviews = lazy(() => import('./AdminReviews'));
 const CourseEditorModal = lazy(() => import('../admin/CourseEditorModal'));
@@ -233,6 +239,9 @@ function renderCouponRestrictions(coupon) {
 
 function getProductPreviewPath(product) {
   const slug = `${product?.slug || ''}`.trim();
+  if (product?.type === 'course' && !product?.is_published && product?.id) {
+    return `/administrator/podglad-produktu/${product.id}`;
+  }
   return slug ? `/${slug}` : '/';
 }
 
@@ -284,6 +293,25 @@ function normalizeAdminSettingsResponse(payload) {
     },
   };
 }
+
+const TEMPLATE_SETTINGS_GROUPS = [
+  {
+    id: 'common',
+    eyebrow: 'Produkty cyfrowe',
+    title: 'Wspólne teksty szablonu',
+    description: 'Te pola działają jako globalne domyślne teksty dla webinarów, medytacji i kursów, jeśli konkretny produkt nie ma własnego override.',
+    fields: PRODUCT_TEMPLATE_CONTENT_FIELDS.common,
+    defaults: COMMON_PRODUCT_TEMPLATE_CONTENT_DEFAULTS,
+  },
+  {
+    id: 'course',
+    eyebrow: 'Kursy online',
+    title: 'Domyślne teksty programu kursu',
+    description: 'Te pola zasilają kursowy hero i sekcję programu kursu, jeśli dany kurs nie ma własnych tekstów zapisanych przy produkcie.',
+    fields: PRODUCT_TEMPLATE_CONTENT_FIELDS.course,
+    defaults: COURSE_PRODUCT_TEMPLATE_CONTENT_DEFAULTS,
+  },
+];
 
 export default function AdminDashboard({ initialTab = 'pages' }) {
   const { user } = useAuth();
@@ -1119,6 +1147,59 @@ export default function AdminDashboard({ initialTab = 'pages' }) {
                         previewAspectClassName="aspect-16/9"
                       />
                     </div>
+                  </div>
+                </SettingsGroup>
+
+                <SettingsGroup eyebrow="Szablony produktów" title="Globalne domyślne teksty" description="Ustaw tu domyślne copy dla sekcji szablonów produktów. Zmiany zadziałają wszędzie tam, gdzie konkretny produkt nie ma własnego tekstu ustawionego w edycji produktu.">
+                  <div className="space-y-6">
+                    {TEMPLATE_SETTINGS_GROUPS.map((group) => (
+                      <div key={group.id} className="rounded-3xl border border-gold/10 bg-white px-5 py-5 shadow-xs">
+                        <div className="border-b border-gold/10 pb-4">
+                          <p className="text-fs-label font-bold uppercase tracking-[0.2em] text-gold/75">{group.eyebrow}</p>
+                          <h4 className="mt-2 font-serif text-fs-title-sm text-mauve">{group.title}</h4>
+                          <p className="mt-2 max-w-3xl text-fs-body leading-7 text-mauve/60">{group.description}</p>
+                        </div>
+
+                        <div className="mt-5 space-y-5">
+                          {group.fields.map((fieldGroup) => (
+                            <div key={fieldGroup.id} className="rounded-3xl border border-mauve/10 bg-nude/35 px-4 py-4 md:px-5">
+                              <h5 className="font-serif text-xl text-mauve">{fieldGroup.title}</h5>
+                              <div className="mt-4 grid gap-5 lg:grid-cols-2">
+                                {fieldGroup.fields.map((field) => {
+                                  const settingKey = getTemplateContentSettingKey(group.id, field.key);
+                                  const defaultValue = group.defaults[field.key] || '';
+                                  const fieldValue = settings[settingKey] || '';
+                                  const isTextarea = field.kind === 'textarea';
+
+                                  return (
+                                    <div key={settingKey} className={isTextarea && (field.rows || 0) >= 3 ? 'lg:col-span-2' : ''}>
+                                      <label className="mb-2 block text-fs-ui text-mauve/55">{field.label}</label>
+                                      {isTextarea ? (
+                                        <textarea
+                                          value={fieldValue}
+                                          onChange={(event) => setSettings({ ...settings, [settingKey]: event.target.value })}
+                                          rows={field.rows || 3}
+                                          className="min-h-24 w-full rounded-2xl border border-gold/10 bg-white px-6 py-4 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20 resize-y"
+                                          placeholder={defaultValue}
+                                        />
+                                      ) : (
+                                        <input
+                                          value={fieldValue}
+                                          onChange={(event) => setSettings({ ...settings, [settingKey]: event.target.value })}
+                                          className="h-14 w-full rounded-2xl border border-gold/10 bg-white px-6 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
+                                          placeholder={defaultValue}
+                                        />
+                                      )}
+                                      <p className="mt-2 text-fs-ui leading-6 text-mauve/45">{field.help || `Puste pole użyje wartości systemowej: ${defaultValue}`}</p>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </SettingsGroup>
 

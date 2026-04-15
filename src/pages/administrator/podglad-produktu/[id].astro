@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CourseProductTemplate from '../../../components/product/CourseProductTemplate.astro';
+import DigitalProductTemplate from '../../../components/product/DigitalProductTemplate.astro';
+import { getAdminProductIds, getProductById } from '../../../lib/products.js';
+import { buildFaqSchema, buildProductSchema } from '../../../lib/structuredData.js';
+
+export function getStaticPaths() {
+  return getAdminProductIds().map((id: string) => ({
+    params: { id },
+  }));
+}
+
+const routeParams = Astro.params as Record<string, string | undefined>;
+const productId = routeParams.id || '';
+const product = getProductById(productId);
+
+if (!product) {
+  return Astro.redirect('/administrator');
+}
+
+const productPath = product.slug ? `/${product.slug}` : `/administrator/podglad-produktu/${product.id}`;
+const productFaq = Array.isArray(product.faq_json)
+  ? product.faq_json.filter((item: { q?: string; a?: string } | null | undefined) => item?.q && item?.a)
+  : [];
+const productStructuredData = (() => {
+  const productSchema = buildProductSchema({
+    product,
+    path: productPath,
+    description: product.meta_desc || product.excerpt || product.description || product.title,
+    image: product.meta_image_url || product.thumbnail_url || null,
+  });
+  const faqSchema = buildFaqSchema(productFaq);
+  return faqSchema ? [productSchema, faqSchema] : [productSchema];
+})();
+---
+
+<BaseLayout
+  title={`${product.title} | Podgląd administratora | Natalia Potocka`}
+  description={product.meta_desc || product.excerpt || product.title}
+  socialImage={product.meta_image_url || product.thumbnail_url || null}
+  canonicalUrl={null}
+  noindex={true}
+  ogType="product"
+  showBreadcrumbs={false}
+  structuredData={productStructuredData}
+>
+  <div class="sticky top-18 z-40 border-y border-gold/15 bg-white/92 backdrop-blur-xs">
+    <div class="mx-auto flex w-full max-w-360 items-center justify-between gap-4 px-6 py-3 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/65 md:px-16">
+      <span>Podgląd administratora produktu</span>
+      <a href="/administrator" class="transition-colors hover:text-gold">Wróć do panelu</a>
+    </div>
+  </div>
+
+  {product.type === 'course' ? <CourseProductTemplate product={product} /> : <DigitalProductTemplate product={product} />}
+</BaseLayout>

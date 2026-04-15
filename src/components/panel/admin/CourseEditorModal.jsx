@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import { BookOpen, Check, Edit, FileText, GripVertical, Plus, Save, Star, Trash2, Video, Volume2 } from 'lucide-react';
+import { BookOpen, Check, Edit, FileText, GripVertical, Plus, Save, Star, Trash2, Video, Volume2, X } from 'lucide-react';
 import AdminModalShell from './AdminModalShell';
 import AdminMediaPicker from './AdminMediaPicker';
+
+function createEmptyAttachmentForm() {
+  return {
+    name: '',
+    url: '',
+  };
+}
 
 function LessonForm({ moduleId, lesson, onSave, onCancel }) {
   const [form, setForm] = useState({
@@ -15,6 +22,23 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
     order_index: lesson?.order_index || 0,
   });
   const [saving, setSaving] = useState(false);
+  const [attachments, setAttachments] = useState(Array.isArray(lesson?.attachments) ? lesson.attachments : []);
+  const [attachmentForm, setAttachmentForm] = useState(createEmptyAttachmentForm());
+  const [attachmentSaving, setAttachmentSaving] = useState(false);
+
+  useEffect(() => {
+    setForm({
+      title: lesson?.title || '',
+      description: lesson?.description || '',
+      lesson_type: lesson?.lesson_type || 'video',
+      content_url: lesson?.content_url || '',
+      content_text: lesson?.content_text || '',
+      duration_minutes: lesson?.duration_minutes || '',
+      order_index: lesson?.order_index || 0,
+    });
+    setAttachments(Array.isArray(lesson?.attachments) ? lesson.attachments : []);
+    setAttachmentForm(createEmptyAttachmentForm());
+  }, [lesson]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -30,6 +54,45 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
       alert('Błąd: ' + (error.response?.data?.error || error.message));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const addAttachment = async (event) => {
+    event.preventDefault();
+    if (!lesson?.id) {
+      return;
+    }
+
+    const name = attachmentForm.name.trim();
+    const url = attachmentForm.url.trim();
+
+    if (!name || !url) {
+      alert('Uzupełnij nazwę i adres materiału.');
+      return;
+    }
+
+    setAttachmentSaving(true);
+    try {
+      const response = await axios.post(`/api/courses/lessons/${lesson.id}/attachments`, { name, url });
+      setAttachments((currentAttachments) => [...currentAttachments, { id: response.data?.id || `${Date.now()}`, name, url }]);
+      setAttachmentForm(createEmptyAttachmentForm());
+    } catch (error) {
+      alert('Błąd: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setAttachmentSaving(false);
+    }
+  };
+
+  const removeAttachment = async (attachmentId) => {
+    if (!attachmentId || !window.confirm('Usunąć ten materiał dodatkowy?')) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/courses/attachments/${attachmentId}`);
+      setAttachments((currentAttachments) => currentAttachments.filter((attachment) => attachment.id !== attachmentId));
+    } catch (error) {
+      alert('Błąd: ' + (error.response?.data?.error || error.message));
     }
   };
 
@@ -95,6 +158,68 @@ function LessonForm({ moduleId, lesson, onSave, onCancel }) {
           <input type="number" value={form.order_index} onChange={(event) => setForm({ ...form, order_index: Number.parseInt(event.target.value || '0', 10) })} className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30" />
         </div>
       </div>
+      {lesson?.id ? (
+        <div className="mb-5 border-t border-mauve/10 pt-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h4 className="font-serif text-mauve">Materiały dodatkowe</h4>
+              <p className="mt-1 text-fs-ui leading-6 text-mauve/55">Dodaj pliki z biblioteki mediów albo zewnętrzne linki do YouTube, Vimeo, BunnyCDN lub dokumentów do pobrania.</p>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1 text-fs-label font-bold uppercase tracking-[0.18em] text-mauve/40">
+              {attachments.length} materiałów
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {attachments.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-mauve/10 bg-white/55 px-4 py-3 text-fs-ui text-mauve/45">Ta lekcja nie ma jeszcze materiałów dodatkowych.</p>
+            ) : (
+              attachments.map((attachment) => (
+                <div key={attachment.id} className="flex flex-col gap-3 rounded-2xl border border-mauve/10 bg-white/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="text-fs-ui font-medium text-mauve">{attachment.name}</div>
+                    <div className="truncate text-fs-label text-mauve/45">{attachment.url}</div>
+                  </div>
+                  <button type="button" onClick={() => removeAttachment(attachment.id)} className="inline-flex items-center gap-2 self-start rounded-xl bg-red-50 px-3 py-2 text-fs-label font-bold uppercase tracking-wider text-red-500 transition-colors hover:bg-red-100 sm:self-auto">
+                    <Trash2 size={13} /> Usuń
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-mauve/10 bg-white/60 p-4">
+            <div className="mb-4">
+              <label className="mb-1 block text-fs-label font-bold uppercase tracking-wider text-mauve/50">Nazwa materiału *</label>
+              <input
+                value={attachmentForm.name}
+                onChange={(event) => setAttachmentForm((currentForm) => ({ ...currentForm, name: event.target.value }))}
+                className="w-full rounded-xl border border-mauve/15 bg-white px-4 py-2.5 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/30"
+                placeholder="Np. Workbook PDF, karta pracy, link do nagrania"
+              />
+            </div>
+            <AdminMediaPicker
+              label="Plik lub link do materiału"
+              value={attachmentForm.url}
+              onChange={(nextValue) => setAttachmentForm((currentForm) => ({ ...currentForm, url: nextValue }))}
+              helperText="Możesz wskazać dokument z biblioteki, plik audio/wideo albo zewnętrzny link."
+              emptyStateText="Brak wybranego materiału dodatkowego."
+              currentValueLabel="Aktualnie wybrany materiał"
+              removeLabel="Usuń materiał"
+              libraryDescription="Wybierz materiał z biblioteki mediów albo dodaj nowy plik."
+              uploadButtonLabel="Wgraj materiał"
+              allowManualUrl={true}
+              manualUrlLabel="Adres pliku lub link zewnętrzny"
+              manualUrlPlaceholder="https://..."
+            />
+            <div className="mt-4 flex justify-end">
+              <button type="button" onClick={addAttachment} disabled={attachmentSaving} className="inline-flex items-center gap-2 rounded-xl bg-mauve px-4 py-2 text-fs-label font-bold uppercase tracking-wider text-white transition-colors hover:bg-mauve/90 disabled:opacity-50">
+                <Plus size={14} /> {attachmentSaving ? 'Dodawanie...' : 'Dodaj materiał'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="flex justify-end gap-3">
         <button type="button" onClick={onCancel} className="flex items-center gap-2 rounded-xl bg-mauve/5 px-4 py-2 text-fs-ui font-medium text-mauve/50 transition-colors hover:bg-mauve/10">
           <X size={14} /> Anuluj

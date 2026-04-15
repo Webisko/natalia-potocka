@@ -30,7 +30,13 @@ export function getCourseByProductId(productId) {
       .map((module) => {
         const lessons = db
           .prepare('SELECT * FROM lessons WHERE module_id = ? ORDER BY order_index ASC, created_at ASC')
-          .all(module.id);
+          .all(module.id)
+          .map((lesson) => ({
+            ...lesson,
+            attachments: db
+              .prepare('SELECT * FROM lesson_attachments WHERE lesson_id = ? ORDER BY created_at ASC, id ASC')
+              .all(lesson.id),
+          }));
 
         return {
           ...module,
@@ -52,6 +58,11 @@ export function getCourseByProductId(productId) {
   const courses = Array.isArray(snapshot?.courses) ? snapshot.courses : [];
   const modules = Array.isArray(snapshot?.modules) ? snapshot.modules : [];
   const lessons = Array.isArray(snapshot?.lessons) ? snapshot.lessons : [];
+  const lessonAttachments = Array.isArray(snapshot?.lesson_attachments)
+    ? snapshot.lesson_attachments
+    : Array.isArray(snapshot?.attachments)
+      ? snapshot.attachments
+      : [];
   const course = courses.find((item) => `${item?.product_id ?? ''}` === `${productId}`);
 
   if (!course) {
@@ -79,7 +90,11 @@ export function getCourseByProductId(productId) {
             }
 
             return `${left?.created_at ?? ''}`.localeCompare(`${right?.created_at ?? ''}`);
-          }),
+          })
+          .map((lesson) => ({
+            ...lesson,
+            attachments: lessonAttachments.filter((attachment) => `${attachment?.lesson_id ?? ''}` === `${lesson.id}`),
+          })),
       })),
   };
 }

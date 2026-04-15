@@ -9,6 +9,7 @@ import AdminModalShell from '../admin/AdminModalShell';
 import AdminDateTimeField from '../admin/AdminDateTimeField';
 import RichTextEditor from '../admin/RichTextEditor';
 import { BENEFIT_ICON_OPTIONS, renderBenefitIcon } from '../utils/benefitIcons';
+import { getProductTemplateFieldGroups, normalizeProductTemplateContent } from '../../../../shared/productTemplateContent.js';
 
 function createEmptyBenefitCards() {
   return Array.from({ length: 3 }, () => ({ title: '', description: '', icon: 'check' }));
@@ -140,6 +141,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
   const isNew = id === 'new';
   const [sections, setSections] = useState({ content: false, seo: false });
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(!isNew);
+  const [templateSettings, setTemplateSettings] = useState({});
 
   const [formData, setFormData] = useState({
     title: '',
@@ -157,6 +159,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
     secondary_image_url: '',
     duration_label: '',
     long_description: '',
+    template_content_json: normalizeProductTemplateContent({}, 'video'),
     benefits_json: createEmptyBenefitCards(),
     faq_json: createEmptyFaqItems(),
     meta_title: '',
@@ -182,10 +185,16 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
   }
 
   useEffect(() => {
-    if (!isNew) {
-      axios.get('/api/admin/products')
-        .then(res => {
-          const prod = res.data.find((item) => String(item.id) === String(id));
+    const loadInitialData = async () => {
+      try {
+        const settingsResponse = await axios.get('/api/admin/settings');
+        const nextTemplateSettings = settingsResponse.data && typeof settingsResponse.data === 'object' ? settingsResponse.data : {};
+        setTemplateSettings(nextTemplateSettings);
+
+        if (!isNew) {
+          const productsResponse = await axios.get('/api/admin/products');
+          const prod = (productsResponse.data || []).find((item) => String(item.id) === String(id));
+
           if (prod) {
             const normalizedFaq = normalizeFaqItems(prod.faq_json);
             setFormData({
@@ -198,6 +207,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               duration_label: prod.duration_label || '',
               secondary_image_url: prod.secondary_image_url || '',
               long_description: prod.long_description || '',
+              template_content_json: normalizeProductTemplateContent(prod.template_content_json, prod.type, nextTemplateSettings),
               benefits_json: normalizeBenefitCards(prod.benefits_json),
               faq_json: normalizedFaq.length > 0 ? normalizedFaq : createEmptyFaqItems(),
               meta_image_url: prod.meta_image_url || '',
@@ -207,12 +217,20 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               use_featured_meta_image: !prod.meta_image_url || prod.meta_image_url === prod.thumbnail_url,
             });
           }
-          setLoading(false);
-        }).catch(err => {
-          console.error(err);
-          setLoading(false);
-        });
-    }
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            template_content_json: normalizeProductTemplateContent(prev.template_content_json, prev.type, nextTemplateSettings),
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
   }, [id, isNew]);
 
   const handleChange = (e) => {
@@ -225,6 +243,10 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
     setFormData((prev) => {
       const nextValue = type === 'checkbox' ? checked : value;
       const nextState = { ...prev, [name]: nextValue };
+
+      if (name === 'type') {
+        nextState.template_content_json = normalizeProductTemplateContent(prev.template_content_json, value, templateSettings);
+      }
 
       if (name === 'title' && isNew && !isSlugManuallyEdited) {
         nextState.slug = slugifyProductTitle(value);
@@ -309,6 +331,7 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
   const hasPromo = Number(formData.promotional_price) > 0;
   const productPathPreview = buildProductPath(slugifyProductTitle(formData.slug));
   const productUrlPreview = typeof window === 'undefined' ? productPathPreview : `${window.location.origin}${productPathPreview}`;
+  const templateFieldGroups = getProductTemplateFieldGroups(formData.type);
 
   const content = (
     <form id="admin-product-edit-form" onSubmit={handleSubmit} className={embedded ? 'flex min-h-0 flex-1 flex-col' : 'space-y-8'}>
@@ -441,45 +464,27 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Jeśli zostawisz to pole puste, system użyje początku długiego opisu.</p>
             </div>
 
-            {isDigitalProduct ? (
-              <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <RichTextEditor
-                  label="Szczegóły produktu"
-                  value={formData.long_description || ''}
-                  onChange={(nextValue) => setFormData((prev) => ({ ...prev, long_description: nextValue }))}
-                  placeholder="Dodaj główną treść sekcji Szczegóły. Możesz użyć akapitów, list, nagłówków i pogrubień."
-                />
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
+              <RichTextEditor
+                label="Szczegóły produktu"
+                value={formData.long_description || ''}
+                onChange={(nextValue) => setFormData((prev) => ({ ...prev, long_description: nextValue }))}
+                placeholder="Dodaj główną treść sekcji Szczegóły. Możesz użyć akapitów, list, nagłówków i pogrubień."
+              />
 
-                <div className="space-y-5">
-                  <AdminImagePicker
-                    label="Drugi obrazek produktu"
-                    value={formData.secondary_image_url || ''}
-                    onChange={(nextValue) => setFormData((prev) => ({ ...prev, secondary_image_url: nextValue }))}
-                    helperText="Ten obrazek pojawia się po prawej stronie sekcji Szczegóły, w tym samym stylu organicznym co grafika hero."
-                  />
-
-                  <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
-                    W uproszczonym szablonie webinarów i medytacji nie pokazujemy już osobnego bloku „Opis produktu”, ale drugi obrazek nadal wyróżnia produkt w sekcji Szczegóły.
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <RichTextEditor
-                  label="Długi opis"
-                  value={formData.description || ''}
-                  onChange={(nextValue) => setFormData((prev) => ({ ...prev, description: nextValue }))}
-                  placeholder="Dodaj główną treść produktu. Możesz użyć akapitów, list, nagłówków i pogrubień."
-                />
-
+              <div className="space-y-5">
                 <AdminImagePicker
                   label="Drugi obrazek produktu"
                   value={formData.secondary_image_url || ''}
                   onChange={(nextValue) => setFormData((prev) => ({ ...prev, secondary_image_url: nextValue }))}
-                  helperText="Opcjonalny dodatkowy obrazek, który pojawi się niżej na stronie produktu."
+                  helperText="Ten obrazek pojawia się po prawej stronie sekcji Szczegóły, w tym samym stylu organicznym co grafika hero."
                 />
+
+                <div className="rounded-3xl border border-gold/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/65">
+                  Ta treść zasila sekcję „Szczegóły” na stronie produktu niezależnie od typu: webinaru, medytacji i kursu online.
+                </div>
               </div>
-            )}
+            </div>
 
             {isDigitalProduct ? (
               <div className="space-y-5">
@@ -491,9 +496,66 @@ export default function AdminProductEdit({ productId = 'new', embedded = false, 
               </div>
             ) : (
               <div className="rounded-3xl border border-mauve/10 bg-white px-5 py-4 text-fs-body leading-7 text-mauve/60">
-                Dla kursów możesz uzupełnić sekcję „Co zyskasz”. Pozostałe elementy treści kursu dopracujemy później.
+                Dla kursów czas trwania jest liczony automatycznie z lekcji, ale możesz nadal zarządzać treścią hero, sekcji i programu niżej w ustawieniach szablonu produktu.
               </div>
             )}
+
+            <div>
+              <div className="mb-4">
+                <h4 className="font-serif text-fs-title-sm text-mauve">Treść szablonu produktu</h4>
+                <p className="mt-2 text-fs-ui leading-6 text-mauve/55">Tutaj ustawiasz copy widoczne bezpośrednio w sekcjach szablonu produktu. Pola poniżej działają dla tego konkretnego produktu i nadpisują domyślne etykiety.</p>
+              </div>
+
+              <div className="space-y-6">
+                {templateFieldGroups.map((group) => (
+                  <div key={group.id} className="rounded-3xl border border-gold/10 bg-white px-5 py-5 shadow-xs">
+                    <div className="mb-4">
+                      <h5 className="font-serif text-xl text-mauve">{group.title}</h5>
+                    </div>
+
+                    <div className="grid gap-5 lg:grid-cols-2">
+                      {group.fields.map((field) => {
+                        const fieldValue = formData.template_content_json?.[field.key] || '';
+                        const isTextarea = field.kind === 'textarea';
+
+                        return (
+                          <div key={field.key} className={isTextarea && group.fields.length % 2 === 1 ? 'lg:col-span-2' : ''}>
+                            <label className="mb-2 block text-fs-ui text-mauve/55">{field.label}</label>
+                            {isTextarea ? (
+                              <textarea
+                                value={fieldValue}
+                                onChange={(event) => setFormData((prev) => ({
+                                  ...prev,
+                                  template_content_json: {
+                                    ...prev.template_content_json,
+                                    [field.key]: event.target.value,
+                                  },
+                                }))}
+                                rows={field.rows || 3}
+                                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
+                              />
+                            ) : (
+                              <input
+                                value={fieldValue}
+                                onChange={(event) => setFormData((prev) => ({
+                                  ...prev,
+                                  template_content_json: {
+                                    ...prev.template_content_json,
+                                    [field.key]: event.target.value,
+                                  },
+                                }))}
+                                className="w-full rounded-2xl border border-mauve/15 bg-white px-4 py-3 text-fs-body text-mauve focus:outline-hidden focus:ring-2 focus:ring-gold/20"
+                              />
+                            )}
+                            {field.help ? <p className="mt-2 text-fs-ui leading-6 text-mauve/50">{field.help}</p> : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div>
               <div className="mb-4">

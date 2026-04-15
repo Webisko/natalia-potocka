@@ -120,6 +120,12 @@ $snapshot = [
             ['column' => 'id', 'expression' => 'id ASC'],
         ]))
         : [],
+    'lesson_attachments' => tableExists($pdo, 'lesson_attachments')
+        ? fetchAllRows($pdo, buildOrderedSelect('lesson_attachments', getTableColumns($pdo, 'lesson_attachments'), [
+            ['column' => 'created_at', 'expression' => 'created_at ASC'],
+            ['column' => 'id', 'expression' => 'id ASC'],
+        ]))
+        : [],
 ];
 
 fwrite(STDOUT, json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . PHP_EOL);
