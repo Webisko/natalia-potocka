@@ -230,6 +230,22 @@ function validateStrongPassword(string $password): ?string {
     return null;
 }
 
+function parseStoredDateTime(?string $value): ?DateTimeImmutable {
+    if (!$value) {
+        return null;
+    }
+
+    if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value)) {
+        $value = str_replace(' ', 'T', $value) . 'Z';
+    }
+
+    try {
+        return new DateTimeImmutable($value);
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 function resolveAuthenticatedCheckoutUser(array $authUser): array {
     global $db;
 
@@ -294,7 +310,6 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
     $firstName = trim((string) ($customer['firstName'] ?? $customer['first_name'] ?? ''));
     $lastName = trim((string) ($customer['lastName'] ?? $customer['last_name'] ?? ''));
     $email = strtolower(trim((string) ($customer['email'] ?? '')));
-    $setPasswordNow = !empty($customer['setPasswordNow']);
     $password = (string) ($customer['password'] ?? '');
     $passwordConfirm = (string) ($customer['passwordConfirm'] ?? $customer['password_confirm'] ?? '');
 
@@ -302,30 +317,27 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
         throw new RuntimeException('Podaj imię, nazwisko i adres e-mail, aby przejść do płatności.');
     }
 
-    $passwordHash = null;
-    if ($setPasswordNow) {
-        if ($password !== $passwordConfirm) {
-            throw new RuntimeException('Hasła nie są identyczne.');
-        }
-
-        $passwordValidationError = validateStrongPassword($password);
-        if ($passwordValidationError !== null) {
-            throw new RuntimeException($passwordValidationError);
-        }
-
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    if ($password === '' || $passwordConfirm === '') {
+        throw new RuntimeException('Ustaw i potwierdź hasło do nowego konta, aby przejść do płatności.');
     }
+
+    if ($password !== $passwordConfirm) {
+        throw new RuntimeException('Hasła nie są identyczne.');
+    }
+
+    $passwordValidationError = validateStrongPassword($password);
+    if ($passwordValidationError !== null) {
+        throw new RuntimeException($passwordValidationError);
+    }
+
+    $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
 
     $stmtExisting = $db->prepare('SELECT id, email, password_hash, email_confirmed, confirm_token FROM users WHERE lower(email) = lower(?) LIMIT 1');
     $stmtExisting->execute([$email]);
     $existingUser = $stmtExisting->fetch() ?: null;
 
-    $confirmToken = $existingUser['confirm_token'] ?? bin2hex(random_bytes(32));
-    $shouldCreateResetLink = !$setPasswordNow && empty($existingUser['password_hash']);
-    $resetToken = $shouldCreateResetLink ? bin2hex(random_bytes(32)) : null;
-    $resetExpires = $shouldCreateResetLink ? gmdate('c', strtotime('+1 hour')) : null;
-    $confirmUrl = $baseUrl . '/api/auth/confirm/' . $confirmToken;
-    $resetUrl = $resetToken ? ($baseUrl . '/resetowanie-hasla?token=' . $resetToken) : null;
+    $existingConfirmToken = trim((string) ($existingUser['confirm_token'] ?? ''));
+    $confirmToken = $existingConfirmToken !== '' ? $existingConfirmToken : bin2hex(random_bytes(32));
 
     if ($existingUser) {
         if (!empty($existingUser['password_hash']) && !empty($existingUser['email_confirmed'])) {
@@ -333,30 +345,31 @@ function prepareGuestCheckoutUser(array $customer, string $baseUrl): array {
             throw $error;
         }
 
-        $stmtUpdate = $db->prepare('UPDATE users SET first_name = ?, last_name = ?, password_hash = COALESCE(?, password_hash), confirm_token = COALESCE(confirm_token, ?), reset_token = COALESCE(?, reset_token), reset_expires = COALESCE(?, reset_expires), updated_at = CURRENT_TIMESTAMP WHERE id = ?');
-        $stmtUpdate->execute([$firstName, $lastName, $passwordHash, $confirmToken, $resetToken, $resetExpires, $existingUser['id']]);
+        $requiresEmailConfirmation = empty($existingUser['email_confirmed']);
+        $stmtUpdate = $db->prepare('UPDATE users SET first_name = ?, last_name = ?, password_hash = ?, confirm_token = ?, reset_token = NULL, reset_expires = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmtUpdate->execute([$firstName, $lastName, $passwordHash, $confirmToken, $existingUser['id']]);
 
         return [
             'id' => $existingUser['id'],
             'email' => $email,
-            'requiresEmailConfirmation' => empty($existingUser['email_confirmed']),
-            'hasPassword' => !empty($passwordHash) || !empty($existingUser['password_hash']),
-            'confirmUrl' => $confirmUrl,
-            'resetUrl' => $resetUrl,
+            'requiresEmailConfirmation' => $requiresEmailConfirmation,
+            'hasPassword' => true,
+            'confirmUrl' => $requiresEmailConfirmation ? ($baseUrl . '/api/auth/confirm/' . $confirmToken) : null,
+            'resetUrl' => null,
         ];
     }
 
     $userId = bin2hex(random_bytes(16));
     $stmtInsert = $db->prepare('INSERT INTO users (id, first_name, last_name, email, password_hash, purchased_items, email_confirmed, confirm_token, reset_token, reset_expires, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
-    $stmtInsert->execute([$userId, $firstName, $lastName, $email, $passwordHash, '', $confirmToken, $resetToken, $resetExpires]);
+    $stmtInsert->execute([$userId, $firstName, $lastName, $email, $passwordHash, '', $confirmToken, null, null]);
 
     return [
         'id' => $userId,
         'email' => $email,
         'requiresEmailConfirmation' => true,
-        'hasPassword' => !empty($passwordHash),
-        'confirmUrl' => $confirmUrl,
-        'resetUrl' => $resetUrl,
+        'hasPassword' => true,
+        'confirmUrl' => $baseUrl . '/api/auth/confirm/' . $confirmToken,
+        'resetUrl' => null,
     ];
 }
 
@@ -399,8 +412,229 @@ function resolveCheckoutCustomerSnapshot(array $customer, array $checkoutIdentit
     ];
 }
 
+function normalizePurchasedItemsValue(?string $value): array {
+    if (!is_string($value) || trim($value) === '') {
+        return [];
+    }
+
+    return array_values(array_filter(array_map('trim', explode(',', $value))));
+}
+
+function buildStripeOrderIdFromSessionId(string $sessionId): string {
+    return 'stripe_' . preg_replace('/[^a-zA-Z0-9_]/', '_', $sessionId);
+}
+
+function fetchCheckoutUserByIdOrEmail(?string $userId, string $email): ?array {
+    global $db;
+
+    if ($userId) {
+        $stmt = $db->prepare('SELECT id, first_name, last_name, email, password_hash, email_confirmed, confirm_token, reset_token, reset_expires, purchased_items FROM users WHERE id = ? LIMIT 1');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch() ?: null;
+        if ($user) {
+            return $user;
+        }
+    }
+
+    $stmt = $db->prepare('SELECT id, first_name, last_name, email, password_hash, email_confirmed, confirm_token, reset_token, reset_expires, purchased_items FROM users WHERE lower(email) = lower(?) LIMIT 1');
+    $stmt->execute([$email]);
+    return $stmt->fetch() ?: null;
+}
+
+function ensureCheckoutActivationArtifacts(?array $user): array {
+    global $db;
+
+    if (!$user) {
+        return ['user' => null, 'confirmUrl' => null, 'resetUrl' => null];
+    }
+
+    $confirmToken = trim((string) ($user['confirm_token'] ?? ''));
+    $resetToken = trim((string) ($user['reset_token'] ?? ''));
+    $resetExpires = trim((string) ($user['reset_expires'] ?? ''));
+    $needsConfirm = empty($user['email_confirmed']);
+    $needsPassword = empty($user['password_hash']);
+    $updates = [];
+
+    if ($needsConfirm && $confirmToken === '') {
+        $confirmToken = bin2hex(random_bytes(32));
+        $updates['confirm_token'] = $confirmToken;
+    }
+
+    $resetExpired = false;
+    if ($resetExpires !== '') {
+        $expiresAt = parseStoredDateTime($resetExpires);
+        $resetExpired = !$expiresAt || $expiresAt->getTimestamp() < time();
+    }
+
+    if ($needsPassword && ($resetToken === '' || $resetExpired || $resetExpires === '')) {
+        $resetToken = bin2hex(random_bytes(32));
+        $resetExpires = gmdate('c', strtotime('+1 hour'));
+        $updates['reset_token'] = $resetToken;
+        $updates['reset_expires'] = $resetExpires;
+    }
+
+    if ($updates) {
+        $setParts = [];
+        $params = [];
+        foreach ($updates as $column => $value) {
+            $setParts[] = "$column = ?";
+            $params[] = $value;
+            $user[$column] = $value;
+        }
+        $params[] = $user['id'];
+
+        $stmt = $db->prepare('UPDATE users SET ' . implode(', ', $setParts) . ', updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute($params);
+    }
+
+    $baseUrl = detectBaseUrl();
+    return [
+        'user' => $user,
+        'confirmUrl' => $needsConfirm && $confirmToken !== '' ? $baseUrl . '/api/auth/confirm/' . $confirmToken : null,
+        'resetUrl' => $needsPassword && $resetToken !== '' ? $baseUrl . '/resetowanie-hasla?token=' . $resetToken : null,
+    ];
+}
+
+function getCheckoutSessionStatusPayload(string $sessionId): array {
+    global $db;
+
+    $sessionId = trim($sessionId);
+    if ($sessionId === '') {
+        throw new RuntimeException('Brak identyfikatora sesji płatności.');
+    }
+
+    $stmtConsent = $db->prepare('SELECT user_id, email, product_id, created_at FROM purchase_consents WHERE stripe_session_id = ? LIMIT 1');
+    $stmtConsent->execute([$sessionId]);
+    $consent = $stmtConsent->fetch();
+    if (!$consent) {
+        throw new RuntimeException('Nie znaleziono informacji o tej sesji płatności.');
+    }
+
+    $stmtProduct = $db->prepare('SELECT title, slug FROM products WHERE id = ? LIMIT 1');
+    $stmtProduct->execute([$consent['product_id']]);
+    $product = $stmtProduct->fetch() ?: ['title' => 'produkt', 'slug' => null];
+
+    $orderId = buildStripeOrderIdFromSessionId($sessionId);
+    $stmtOrder = $db->prepare('SELECT id, order_number, amount_total, status, updated_at FROM orders WHERE id = ? LIMIT 1');
+    $stmtOrder->execute([$orderId]);
+    $order = $stmtOrder->fetch() ?: null;
+
+    $user = fetchCheckoutUserByIdOrEmail($consent['user_id'] ?? null, (string) $consent['email']);
+    $purchasedItems = normalizePurchasedItemsValue($user['purchased_items'] ?? null);
+    $containsProduct = in_array((string) $consent['product_id'], $purchasedItems, true);
+    $hasPassword = !empty($user['password_hash']);
+    $emailConfirmed = !empty($user['email_confirmed']);
+
+    $nextStep = 'processing';
+    if ($order && ($order['status'] ?? '') === 'completed') {
+        if ($emailConfirmed && $hasPassword) {
+            $nextStep = 'ready';
+        } elseif (!$emailConfirmed && !$hasPassword) {
+            $nextStep = 'confirm_and_set_password';
+        } elseif (!$emailConfirmed) {
+            $nextStep = 'confirm_email';
+        } else {
+            $nextStep = 'set_password';
+        }
+    }
+
+    return [
+        'sessionId' => $sessionId,
+        'productTitle' => (string) ($product['title'] ?? 'produkt'),
+        'productSlug' => $product['slug'] ?? null,
+        'customerEmail' => (string) ($consent['email'] ?? ''),
+        'orderCompleted' => (bool) ($order && ($order['status'] ?? '') === 'completed'),
+        'orderStatus' => $order['status'] ?? 'processing',
+        'orderNumber' => $order['order_number'] ?? null,
+        'amountTotal' => isset($order['amount_total']) ? (float) $order['amount_total'] : null,
+        'nextStep' => $nextStep,
+        'containsProduct' => $containsProduct,
+        'hasPassword' => $hasPassword,
+        'emailConfirmed' => $emailConfirmed,
+        'libraryUrl' => detectBaseUrl() . '/panel',
+        'loginUrl' => detectBaseUrl() . '/logowanie',
+        'forgotPasswordUrl' => detectBaseUrl() . '/zapomnialam-hasla',
+    ];
+}
+
+function resendCheckoutActivationEmail(string $sessionId): array {
+    global $db;
+
+    $status = getCheckoutSessionStatusPayload($sessionId);
+    if (!$status['orderCompleted']) {
+        throw new RuntimeException('Płatność nie została jeszcze zaksięgowana. Spróbuj ponownie za chwilę.');
+    }
+
+    $stmtConsent = $db->prepare('SELECT user_id, email, product_id FROM purchase_consents WHERE stripe_session_id = ? LIMIT 1');
+    $stmtConsent->execute([$sessionId]);
+    $consent = $stmtConsent->fetch();
+    if (!$consent) {
+        throw new RuntimeException('Nie znaleziono danych do ponownego wysłania wiadomości.');
+    }
+
+    $user = fetchCheckoutUserByIdOrEmail($consent['user_id'] ?? null, (string) $consent['email']);
+    $activation = ensureCheckoutActivationArtifacts($user);
+
+    $stmtOrder = $db->prepare('SELECT id, order_number, customer_email, product_title, amount_total, applied_coupon_code FROM orders WHERE id = ? LIMIT 1');
+    $stmtOrder->execute([buildStripeOrderIdFromSessionId($sessionId)]);
+    $order = $stmtOrder->fetch();
+    if (!$order) {
+        throw new RuntimeException('Nie znaleziono opłaconego zamówienia dla tej sesji.');
+    }
+
+    $mailPayload = [
+        'orderId' => (string) $order['id'],
+        'orderNumber' => (string) ($order['order_number'] ?? ''),
+        'productTitle' => (string) ($order['product_title'] ?? $status['productTitle']),
+        'amountTotal' => (float) ($order['amount_total'] ?? 0),
+        'customerEmail' => (string) ($order['customer_email'] ?? $status['customerEmail']),
+        'couponCode' => (string) ($order['applied_coupon_code'] ?? ''),
+        'libraryUrl' => detectBaseUrl() . '/panel',
+        'confirmUrl' => $activation['confirmUrl'],
+        'resetUrl' => $activation['resetUrl'],
+        'adminUrl' => detectBaseUrl() . '/administrator/',
+    ];
+
+    $sent = mailer_send_order_success_customer($mailPayload);
+    if (!$sent) {
+        throw new RuntimeException('Nie udało się ponownie wysłać wiadomości z dostępem.');
+    }
+
+    logEvent('checkout_activation_email_resent', 'Ponowiono wiadomość aktywacyjną po zakupie.', [
+        'user_id' => $activation['user']['id'] ?? null,
+        'customer_email' => $mailPayload['customerEmail'],
+        'order_id' => $mailPayload['orderId'],
+        'stripe_session_id' => $sessionId,
+    ]);
+
+    return [
+        'message' => 'Wysłałam ponownie wiadomość z dalszymi krokami dostępu.',
+    ];
+}
+
 if ($method === 'GET' && $action === 'config') {
     sendJson(getCheckoutPaymentConfig());
+}
+
+if ($method === 'GET' && $action === 'session-status') {
+    try {
+        sendJson(getCheckoutSessionStatusPayload((string) ($_GET['session_id'] ?? '')));
+    } catch (RuntimeException $e) {
+        sendJson(['error' => $e->getMessage()], 404);
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
+}
+
+if ($method === 'POST' && $action === 'resend-activation-email') {
+    try {
+        $data = json_decode(file_get_contents('php://input'), true) ?: [];
+        sendJson(resendCheckoutActivationEmail((string) ($data['sessionId'] ?? '')));
+    } catch (RuntimeException $e) {
+        sendJson(['error' => $e->getMessage()], 400);
+    } catch (Exception $e) {
+        sendJson(['error' => $e->getMessage()], 500);
+    }
 }
 
 if ($method === 'POST' && $action === 'create-session') {

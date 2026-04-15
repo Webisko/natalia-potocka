@@ -101,6 +101,7 @@ try {
         content_url TEXT,
         thumbnail_url TEXT,
         secondary_image_url TEXT,
+        template_content_json TEXT,
         duration_label TEXT,
         long_description TEXT,
         benefits_json TEXT,
@@ -321,6 +322,7 @@ try {
     $ensureColumn('products', 'benefits_json', 'TEXT');
     $ensureColumn('products', 'faq_json', 'TEXT');
     $ensureColumn('products', 'secondary_image_url', 'TEXT');
+    $ensureColumn('products', 'template_content_json', 'TEXT');
     $ensureColumn('products', 'meta_title', 'TEXT');
     $ensureColumn('products', 'meta_desc', 'TEXT');
     $ensureColumn('products', 'meta_image_url', 'TEXT');

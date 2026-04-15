@@ -1,1 +1,0 @@
-import{j as t}from"./BlobArrowIcon.CnxqTVfw.js";import i from"./AdminProductEdit.BZjVCl6B.js";import{A as n}from"./AdminPanelFrame.TbnSsEMX.js";function d({productId:r="new"}){return t.jsx(n,{title:"Panel administratora",children:t.jsx(i,{productId:r})})}export{d as default};

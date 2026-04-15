@@ -26,6 +26,30 @@ const PUBLIC_CONTENT_SETTING_KEYS = [
     'marketing_body_scripts',
     'legal_privacy_content',
     'legal_terms_content',
+    'product_template_common_heroAvailabilityLabel',
+    'product_template_common_investmentLabel',
+    'product_template_common_checkoutButtonLabel',
+    'product_template_common_purchasedButtonLabel',
+    'product_template_common_checkoutNoteText',
+    'product_template_common_benefitsTitle',
+    'product_template_common_benefitsIntro',
+    'product_template_common_detailsEyebrow',
+    'product_template_common_faqEyebrow',
+    'product_template_common_faqTitle',
+    'product_template_common_relatedEyebrow',
+    'product_template_common_relatedTitle',
+    'product_template_common_relatedIntro',
+    'product_template_course_heroFeaturesTitle',
+    'product_template_course_bonusMaterialsFallback',
+    'product_template_course_lifetimeAccessFallback',
+    'product_template_course_courseProgramEyebrow',
+    'product_template_course_courseProgramTitle',
+    'product_template_course_courseProgramIntro',
+    'product_template_course_courseProgramEmptyState',
+    'product_template_course_moduleLabel',
+    'product_template_course_lessonLabel',
+    'product_template_course_materialsWord',
+    'product_template_course_additionalMaterialsWord',
 ];
 
 const MASKED_ADMIN_SETTING_KEYS = [
@@ -529,8 +553,9 @@ function normalizeBenefitCards($value): array
     foreach ($value as $card) {
         $title = trim((string) ($card['title'] ?? ''));
         $description = trim((string) ($card['description'] ?? ''));
+        $icon = trim((string) ($card['icon'] ?? 'check'));
         if ($title !== '' || $description !== '') {
-            $cards[] = ['title' => $title, 'description' => $description];
+            $cards[] = ['title' => $title, 'description' => $description, 'icon' => $icon !== '' ? $icon : 'check'];
         }
     }
 
@@ -577,6 +602,76 @@ function serializeFaqItems($value): ?string
 {
     $items = normalizeFaqItems($value);
     return $items ? json_encode($items, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
+}
+
+function getProductTemplateContentDefaults(string $type): array
+{
+    $common = [
+        'heroAvailabilityLabel' => 'Dostęp natychmiastowy',
+        'investmentLabel' => 'Inwestycja',
+        'checkoutButtonLabel' => 'Kup Dostęp Teraz',
+        'purchasedButtonLabel' => 'Przejdź do biblioteki',
+        'checkoutNoteText' => 'Natychmiastowy dostęp po opłaceniu · Bezpieczne płatności: Stripe',
+        'benefitsTitle' => 'Co zyskasz?',
+        'benefitsIntro' => 'Trzy najważniejsze jakości, z którymi wyjdziesz po przerobieniu tego materiału.',
+        'detailsEyebrow' => 'Szczegóły',
+        'faqEyebrow' => 'FAQ',
+        'faqTitle' => 'Najczęstsze pytania',
+        'relatedEyebrow' => 'Pozostałe produkty',
+        'relatedTitle' => 'Zobacz także',
+        'relatedIntro' => 'Jeśli ten temat jest Ci bliski, poniżej znajdziesz kolejne materiały, które dobrze uzupełniają tę ścieżkę przygotowania i wsparcia.',
+    ];
+
+    if ($type !== 'course') {
+        return $common;
+    }
+
+    return array_merge($common, [
+        'heroFeaturesTitle' => 'W środku znajdziesz',
+        'bonusMaterialsFallback' => 'Materiały dodatkowe i bonusy do pracy własnej',
+        'lifetimeAccessFallback' => 'Dostęp dożywotni z poziomu panelu klientki',
+        'courseProgramEyebrow' => 'Program kursu',
+        'courseProgramTitle' => 'Zawartość kursu',
+        'courseProgramIntro' => 'Tutaj znajdziesz dokładną rozpiskę modułów, lekcji, nagrań i materiałów dodatkowych.',
+        'courseProgramEmptyState' => 'Program kursu jest właśnie uzupełniany.',
+        'moduleLabel' => 'Moduł',
+        'lessonLabel' => 'Lekcja',
+        'materialsWord' => 'materiałów',
+        'additionalMaterialsWord' => 'materiałów dodatkowych',
+    ]);
+}
+
+function normalizeTemplateContent($value, string $type): array
+{
+    if (is_string($value)) {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            $value = [];
+        } else {
+            $decoded = json_decode($trimmed, true);
+            $value = is_array($decoded) ? $decoded : [];
+        }
+    }
+
+    if (!is_array($value)) {
+        $value = [];
+    }
+
+    $defaults = getProductTemplateContentDefaults($type);
+    $normalized = [];
+
+    foreach ($defaults as $key => $defaultValue) {
+        $candidate = trim((string) ($value[$key] ?? ''));
+        $normalized[$key] = $candidate !== '' ? $candidate : $defaultValue;
+    }
+
+    return $normalized;
+}
+
+function serializeTemplateContent($value, string $type): ?string
+{
+    $normalized = normalizeTemplateContent($value, $type);
+    return $normalized ? json_encode($normalized, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
 }
 
 function normalizePurchasedItems($value): array
@@ -702,6 +797,7 @@ function mapProduct(array $product): array
 {
     $product['benefits_json'] = normalizeBenefitCards($product['benefits_json'] ?? null);
     $product['faq_json'] = normalizeFaqItems($product['faq_json'] ?? null);
+    $product['template_content_json'] = normalizeTemplateContent($product['template_content_json'] ?? null, (string) ($product['type'] ?? 'video'));
     $product['noindex'] = !empty($product['noindex']);
     $product['is_published'] = !empty($product['is_published']);
     $product['course_count'] = (int) ($product['course_count'] ?? 0);
@@ -1154,8 +1250,8 @@ if ($method === 'POST' && $action === 'products') {
     $data = json_decode(file_get_contents('php://input'), true) ?: [];
     try {
         $id = bin2hex(random_bytes(16));
-        $stmt = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->execute([$id, $data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true)]);
+        $stmt = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, template_content_json, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmt->execute([$id, $data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), serializeTemplateContent($data['template_content_json'] ?? null, (string) ($data['type'] ?? 'video')), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true)]);
         if (shouldMarkPublicContentDirtyForProductChange(null, $data)) {
             markPublicContentDirty('products', (string) ($currentUser['email'] ?? ''));
         }
@@ -1181,7 +1277,7 @@ if ($method === 'POST' && $action === 'duplicate-product') {
         $duplicateTitle = buildDuplicateProductTitle((string) ($product['title'] ?? ''));
         $duplicateSlug = buildUniqueProductSlug(((string) ($product['slug'] ?? '')) . '-kopia');
 
-        $stmtInsert = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $stmtInsert = $db->prepare('INSERT INTO products (id, title, slug, description, short_description, price, promotional_price, promotional_price_until, lowest_price_30_days, stripe_price_id, type, content_url, thumbnail_url, secondary_image_url, template_content_json, duration_label, long_description, benefits_json, faq_json, meta_title, meta_desc, meta_image_url, canonical_url, noindex, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $stmtInsert->execute([
             $duplicateId,
             $duplicateTitle,
@@ -1197,6 +1293,7 @@ if ($method === 'POST' && $action === 'duplicate-product') {
             $product['content_url'] ?? null,
             $product['thumbnail_url'] ?? null,
             $product['secondary_image_url'] ?? null,
+            $product['template_content_json'] ?? null,
             $product['duration_label'] ?? null,
             $product['long_description'] ?? null,
             $product['benefits_json'] ?? null,
@@ -1233,8 +1330,8 @@ if ($method === 'PUT' && $action === 'products') {
         $stmtCurrentProduct->execute([$id]);
         $currentProduct = $stmtCurrentProduct->fetch();
 
-        $stmt = $db->prepare('UPDATE products SET title = ?, slug = ?, description = ?, short_description = ?, price = ?, promotional_price = ?, promotional_price_until = ?, lowest_price_30_days = ?, stripe_price_id = ?, type = ?, content_url = ?, thumbnail_url = ?, secondary_image_url = ?, duration_label = ?, long_description = ?, benefits_json = ?, faq_json = ?, meta_title = ?, meta_desc = ?, meta_image_url = ?, canonical_url = ?, noindex = ?, is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
-        $stmt->execute([$data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true), $id]);
+        $stmt = $db->prepare('UPDATE products SET title = ?, slug = ?, description = ?, short_description = ?, price = ?, promotional_price = ?, promotional_price_until = ?, lowest_price_30_days = ?, stripe_price_id = ?, type = ?, content_url = ?, thumbnail_url = ?, secondary_image_url = ?, template_content_json = ?, duration_label = ?, long_description = ?, benefits_json = ?, faq_json = ?, meta_title = ?, meta_desc = ?, meta_image_url = ?, canonical_url = ?, noindex = ?, is_published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute([$data['title'] ?? '', $data['slug'] ?? '', emptyToNull($data['description'] ?? null), emptyToNull($data['short_description'] ?? null), $data['price'] ?? 0, emptyToNull($data['promotional_price'] ?? null), emptyToNull($data['promotional_price_until'] ?? null), emptyToNull($data['lowest_price_30_days'] ?? null), emptyToNull($data['stripe_price_id'] ?? null), $data['type'] ?? '', emptyToNull($data['content_url'] ?? null), emptyToNull($data['thumbnail_url'] ?? null), emptyToNull($data['secondary_image_url'] ?? null), serializeTemplateContent($data['template_content_json'] ?? null, (string) ($data['type'] ?? 'video')), emptyToNull($data['duration_label'] ?? null), emptyToNull($data['long_description'] ?? null), serializeBenefitCards($data['benefits_json'] ?? null), serializeFaqItems($data['faq_json'] ?? null), emptyToNull($data['meta_title'] ?? null), emptyToNull($data['meta_desc'] ?? null), emptyToNull($data['meta_image_url'] ?? null), emptyToNull($data['canonical_url'] ?? null), parseBooleanFlag($data['noindex'] ?? false), parseBooleanFlag($data['is_published'] ?? true), $id]);
 
         if (shouldMarkPublicContentDirtyForProductChange(is_array($currentProduct) ? $currentProduct : null, $data)) {
             markPublicContentDirty('products', (string) ($currentUser['email'] ?? ''));

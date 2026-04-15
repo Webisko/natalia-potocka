@@ -47,6 +47,52 @@ function webhook_urls_from_user(?array $user): array {
     ];
 }
 
+function ensure_webhook_user_activation(PDO $db, ?array $user): ?array {
+    if (!$user) {
+        return null;
+    }
+
+    $confirmToken = trim((string) ($user['confirm_token'] ?? ''));
+    $resetToken = trim((string) ($user['reset_token'] ?? ''));
+    $resetExpires = trim((string) ($user['reset_expires'] ?? ''));
+    $needsConfirm = empty($user['email_confirmed']);
+    $needsPassword = empty($user['password_hash']);
+    $updates = [];
+
+    if ($needsConfirm && $confirmToken === '') {
+        $confirmToken = bin2hex(random_bytes(32));
+        $updates['confirm_token'] = $confirmToken;
+    }
+
+    $resetExpired = false;
+    if ($resetExpires !== '') {
+        $expiresAt = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $resetExpires);
+        $resetExpired = !$expiresAt || $expiresAt->getTimestamp() < time();
+    }
+
+    if ($needsPassword && ($resetToken === '' || $resetExpires === '' || $resetExpired)) {
+        $resetToken = bin2hex(random_bytes(32));
+        $resetExpires = gmdate('c', strtotime('+1 hour'));
+        $updates['reset_token'] = $resetToken;
+        $updates['reset_expires'] = $resetExpires;
+    }
+
+    if ($updates) {
+        $setParts = [];
+        $params = [];
+        foreach ($updates as $column => $value) {
+            $setParts[] = "$column = ?";
+            $params[] = $value;
+            $user[$column] = $value;
+        }
+        $params[] = $user['id'];
+        $stmt = $db->prepare('UPDATE users SET ' . implode(', ', $setParts) . ', updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt->execute($params);
+    }
+
+    return $user;
+}
+
 function fulfillCheckoutSession(PDO $db, array $session, string $eventType): void {
     logWebhook("Received $eventType for session: " . ($session['id'] ?? 'unknown'));
 
@@ -128,6 +174,7 @@ function fulfillCheckoutSession(PDO $db, array $session, string $eventType): voi
     $product = $stmtProductInfo->fetch() ?: ['title' => $productId, 'slug' => null];
     $stmtOrder->execute([$orderId, $orderNumber, $customerEmail, $user['first_name'] ?? null, $user['last_name'] ?? null, $productId, $product['title'] ?? $productId, $product['slug'] ?? null, $amountTotal, $couponCode !== '' ? $couponCode : null, 'stripe', 'completed']);
 
+    $user = ensure_webhook_user_activation($db, $user ?: null);
     $urls = webhook_urls_from_user($user ?: null);
     $mailPayload = [
         'orderId' => $orderId,
